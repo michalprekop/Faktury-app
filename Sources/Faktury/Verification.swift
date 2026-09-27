@@ -13,7 +13,7 @@ enum Verification {
             var counts: [String: Int] = [:]
             var qrRecords: [[String: String]] = []
             for invoice in db.invoices.sorted(by: { $0.number < $1.number }) {
-                let data = InvoicePDF.render(invoice, accentColor: db.settings.invoiceAccent)
+                let data = InvoicePDF.render(invoice, accentColor: db.settings.invoiceAccent, defaultTemplate: db.settings.defaultInvoiceTemplate)
                 guard let document = PDFDocument(data: data) else { fatalError("Invalid PDF: \(invoice.number)") }
                 counts[invoice.number] = document.pageCount
                 let content = document.string ?? ""
@@ -118,6 +118,18 @@ enum Verification {
             precondition((longDoc.string ?? "").contains("Položka 65"))
             precondition((longDoc.string ?? "").contains("Suma na úhradu"))
             try longData.write(to: destination.appendingPathComponent("Test-viac-stran.pdf"))
+            for (name, sample) in [("jedna-polozka", invoice), ("tri-polozky-QR", threeItems), ("viac-stran", long)] {
+                var mono = sample
+                mono.templateOverride = .mono01
+                if name == "jedna-polozka" { mono.paid = 0 }
+                let data = InvoicePDF.render(mono)
+                let document = PDFDocument(data: data)!
+                precondition((document.string ?? "").contains("Suma na úhradu"))
+                let expected = try PaymentQR.make(for: mono)
+                let scanned = try scanQR(document)
+                precondition(scanned == expected.map { [$0.payload] } ?? [])
+                try data.write(to: destination.appendingPathComponent("Mono-01-\(name).pdf"))
+            }
             let databaseURL = destination.appendingPathComponent("test-database.json")
             try DatabaseFile.save(db, to: databaseURL)
             let read = try DatabaseFile.decode(Data(contentsOf: databaseURL))

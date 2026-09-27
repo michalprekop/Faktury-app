@@ -260,7 +260,7 @@ final class Store: ObservableObject {
         panel.nameFieldStringValue = "Faktura-\(String(safe)).pdf"
         panel.allowedContentTypes = [.pdf]
         guard panel.runModal() == .OK, let target = panel.url else { return }
-        do { try InvoicePDF.render(invoice, accentColor: database.settings.invoiceAccent).write(to: target, options: .atomic); notice = "PDF je uložené." }
+        do { try InvoicePDF.render(invoice, accentColor: database.settings.invoiceAccent, defaultTemplate: database.settings.defaultInvoiceTemplate).write(to: target, options: .atomic); notice = "PDF je uložené." }
         catch { self.error = error.localizedDescription }
     }
 

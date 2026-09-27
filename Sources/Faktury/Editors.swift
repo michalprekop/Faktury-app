@@ -89,6 +89,15 @@ struct InvoiceEditor: View {
                     .foregroundStyle(draft.saveState == .failed ? .red : .secondary)
                     .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
                 Spacer(minLength: 8)
+                Menu {
+                    Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
+                        Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
+                        ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+                    }
+                } label: { Image(systemName: "doc.richtext") }
+                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                    .help("Šablóna faktúry: " + invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title)
+                    .accessibilityLabel("Šablóna faktúry")
                 IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
                 IconButton("Vymazať", "trash", action: onDelete)
                 IconButton("Náhľad PDF", "doc.viewfinder") { if draft.flush() { expanded = draft.invoice } }.disabled(!draft.canExport)
@@ -116,6 +125,11 @@ struct InvoiceEditor: View {
 
     private var invoiceOptions: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
+                Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
+                ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+            }
+            Divider()
             if invoice.remaining > 0 {
                 Button {
                     draft.invoice.paid = invoice.total

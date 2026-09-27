@@ -1,0 +1,169 @@
+import XCTest
+import AppKit
+import PDFKit
+import InvoiceCore
+@testable import Faktury
+
+final class InvoiceTemplateTests: XCTestCase {
+    @MainActor func testLegacyDatabaseAndBackupKeepOriginalTemplate() async throws {
+        let original = Store.seed()
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: DatabaseFile.encode(original)) as? [String: Any])
+        var settings = try XCTUnwrap(json["settings"] as? [String: Any])
+        settings.removeValue(forKey: "invoiceTemplate"); json["settings"] = settings
+        var invoices = try XCTUnwrap(json["invoices"] as? [[String: Any]])
+        for index in invoices.indices { invoices[index].removeValue(forKey: "templateOverride") }
+        json["invoices"] = invoices
+        let decoded = try DatabaseFile.decode(JSONSerialization.data(withJSONObject: json))
+        XCTAssertEqual(decoded, original)
+        XCTAssertEqual(decoded.settings.defaultInvoiceTemplate, .boringDefault01)
+        XCTAssertEqual(decoded.invoices[0].resolvedTemplate(default: decoded.settings.defaultInvoiceTemplate), .boringDefault01)
+    }
+
+    @MainActor func testGlobalSelectionAndInvoiceOverrideAutosaveIndependently() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = Store(dataDirectory: directory)
+        let original = store.database.invoices
+        var settings = store.database.settings
+        settings.invoiceTemplate = .mono01
+        store.queueSettingsSave(settings)
+        XCTAssertTrue(store.flushSettings())
+        XCTAssertEqual(store.database.invoices, original)
+        XCTAssertEqual(store.newInvoice().resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate), .mono01)
+        let draft = InvoiceDraft(original[0], store: store)
+        draft.invoice.templateOverride = .boringDefault01
+        XCTAssertTrue(draft.flush())
+        let restored = Store(dataDirectory: directory)
+        let saved = restored.database.invoices[0]
+        XCTAssertEqual(restored.database.settings.defaultInvoiceTemplate, .mono01)
+        XCTAssertEqual(saved.resolvedTemplate(default: .mono01), .boringDefault01)
+        XCTAssertEqual(store.duplicate(saved).templateOverride, .boringDefault01)
+        var expected = original[0]
+        expected.templateOverride = .boringDefault01; expected.updatedAt = saved.updatedAt
+        XCTAssertEqual(saved, expected)
+        XCTAssertEqual(try DatabaseFile.decode(DatabaseFile.encode(restored.database)), restored.database)
+        draft.invoice.templateOverride = nil
+        XCTAssertTrue(draft.flush())
+        XCTAssertEqual(Store(dataDirectory: directory).database.invoices[0].resolvedTemplate(default: .mono01), .mono01)
+    }
+
+    @MainActor func testIncompleteDraftRetainsTemplateAfterRestart() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = Store(dataDirectory: directory)
+        let draft = InvoiceDraft(store.database.invoices[0], store: store)
+        draft.invoice.templateOverride = .mono01
+        draft.invoice.customer.name = ""
+        XCTAssertTrue(draft.flush())
+        let restored = Store(dataDirectory: directory)
+        XCTAssertEqual(restored.invoiceRecovery.first?.invoice.templateOverride, .mono01)
+        XCTAssertEqual(restored.invoiceRecovery.first?.invoice.customer.name, "")
+        XCTAssertNil(restored.database.invoices[0].templateOverride)
+    }
+
+    @MainActor func testMonoPreservesTextPaymentDetailsAndBothReadableQRFormats() async throws {
+        var invoice = Store.seed().invoices[0]
+        invoice.templateOverride = .mono01
+        invoice.paid = 50
+        invoice.deliveryDate = invoice.issueDate
+        invoice.orderNumber = "ORDER-2026-42"
+        invoice.constantSymbol = "0308"
+        invoice.specificSymbol = "99887766"
+        invoice.items[0].detail = "Podrobný popis so slovenskou diakritikou ľščťžýáíéôäň."
+        invoice.items[0].discount = 10
+        for format in [PaymentQRFormat.payBySquare, .qrPlatba] {
+            invoice.paymentQRFormat = format
+            let document = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice)))
+            let content = normalized(document.string ?? "")
+            for value in [invoice.number, invoice.supplier.name, invoice.customer.name, invoice.supplier.registration,
+                          invoice.supplier.companyID, invoice.customer.vatID, invoice.supplier.address,
+                          invoice.account!.swift, Format.iban(invoice.account!.iban), invoice.variableSymbol,
+                          invoice.constantSymbol, invoice.specificSymbol, invoice.orderNumber,
+                          invoice.items[0].name, invoice.items[0].detail, "Zľava 10 %", invoice.note,
+                          "Dátum dodania", "Celková suma", "Uhradené", "Suma na úhradu", "Podpis a pečiatka",
+                          invoice.issuedBy, invoice.supplier.email, invoice.supplier.website,
+                          Format.money(invoice.remaining)] {
+                XCTAssertTrue(content.contains(normalized(value)), "Missing: \(value)")
+            }
+            XCTAssertEqual(try Verification.scanQR(document), [try XCTUnwrap(PaymentQR.make(for: invoice)).payload])
+            try assertOnlyMonoFonts(document)
+        }
+    }
+
+    @MainActor func testShortInvoiceFitsOnePageAndOverrideWinsOverGlobalSetting() async throws {
+        var invoice = Store.seed().invoices[0]
+        invoice.paid = 0
+        let inherited = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice, defaultTemplate: .mono01)))
+        XCTAssertEqual(inherited.pageCount, 1)
+        try assertOnlyMonoFonts(inherited)
+        invoice.templateOverride = .boringDefault01
+        let original = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice, defaultTemplate: .mono01)))
+        XCTAssertEqual(original.pageCount, 1)
+        XCTAssertTrue(original.string?.contains("Na úhradu") == true)
+        XCTAssertEqual(try Verification.scanQR(original), [try XCTUnwrap(PaymentQR.make(for: invoice)).payload])
+    }
+
+    @MainActor func testMonoPaginatesItemsNotesVATAndOverpaymentWithoutDroppingText() async throws {
+        var invoice = Store.seed().invoices[0]
+        invoice.templateOverride = .mono01
+        invoice.supplier.vatPayer = true
+        invoice.items = (1...40).map { index in
+            var item = InvoiceItem()
+            item.name = "Položka \(index)"
+            item.detail = String(repeating: "Podrobný text s diakritikou. ", count: index == 20 ? 100 : 2) + "KONIEC-\(index)"
+            item.unitPrice = 100; item.vatRate = index % 2 == 0 ? 23 : 5
+            return item
+        }
+        invoice.paid = invoice.total + 12
+        invoice.note = String(repeating: "Poznámka ku faktúre a dodaniu. ", count: 200) + "KONIEC-POZNÁMKY"
+        let document = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice)))
+        XCTAssertGreaterThan(document.pageCount, 3)
+        let content = normalized(document.string ?? "")
+        for index in 1...40 { XCTAssertTrue(content.contains("KONIEC-\(index)")) }
+        for value in ["DPH 23 %", "DPH 5 %", "Preplatok", "12,00", "KONIEC-POZNÁMKY", "Podpis a pečiatka"] {
+            XCTAssertTrue(content.contains(value), value)
+        }
+        XCTAssertEqual(try Verification.scanQR(document), [])
+        for index in 0..<document.pageCount {
+            let page = try XCTUnwrap(document.page(at: index))
+            XCTAssertTrue(page.string?.contains("\(index + 1)/\(document.pageCount)") == true)
+            XCTAssertLessThanOrEqual(page.selection(for: page.bounds(for: .mediaBox))!.bounds(for: page).maxY, 842)
+        }
+        try assertOnlyMonoFonts(document)
+    }
+
+    @MainActor func testQRAndSignatureNeverBecomeAnOrphanPageAfterShortNote() async throws {
+        var invoice = Store.seed().invoices[0]
+        invoice.templateOverride = .mono01
+        invoice.paid = 0
+        invoice.items = (1...8).map { index in
+            var item = InvoiceItem(); item.name = "Položka \(index): Grafické práce a návrh propagačných materiálov"
+            item.unitPrice = 20; return item
+        }
+        let document = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice)))
+        let lastPage = try XCTUnwrap(document.page(at: document.pageCount - 1)?.string)
+        XCTAssertTrue(lastPage.contains("Suma na úhradu"))
+        XCTAssertTrue(lastPage.contains("Podpis a pečiatka"))
+        XCTAssertEqual(try Verification.scanQR(document), [try XCTUnwrap(PaymentQR.make(for: invoice)).payload])
+    }
+
+    private func normalized(_ value: String) -> String { value.split(whereSeparator: \.isWhitespace).joined(separator: " ") }
+
+    private func assertOnlyMonoFonts(_ document: PDFDocument, file: StaticString = #filePath, line: UInt = #line) throws {
+        for index in 0..<document.pageCount {
+            let page = try XCTUnwrap(document.page(at: index)?.pageRef, file: file, line: line)
+            var resources: CGPDFDictionaryRef?, fonts: CGPDFDictionaryRef?
+            XCTAssertTrue(CGPDFDictionaryGetDictionary(try XCTUnwrap(page.dictionary), "Resources", &resources), file: file, line: line)
+            XCTAssertTrue(CGPDFDictionaryGetDictionary(try XCTUnwrap(resources), "Font", &fonts), file: file, line: line)
+            let names = NSMutableArray()
+            CGPDFDictionaryApplyFunction(try XCTUnwrap(fonts), { _, object, context in
+                var dictionary: CGPDFDictionaryRef?, name: UnsafePointer<CChar>?
+                guard let context, CGPDFObjectGetValue(object, .dictionary, &dictionary), let dictionary,
+                      CGPDFDictionaryGetName(dictionary, "BaseFont", &name), let name else { return }
+                Unmanaged<NSMutableArray>.fromOpaque(context).takeUnretainedValue().add(String(cString: name))
+            }, Unmanaged.passUnretained(names).toOpaque())
+            XCTAssertGreaterThan(names.count, 0, file: file, line: line)
+            XCTAssertTrue(names.allSatisfy { ($0 as? String)?.contains("Mono") == true }, "Non-mono font: \(names)", file: file, line: line)
+        }
+    }
+}

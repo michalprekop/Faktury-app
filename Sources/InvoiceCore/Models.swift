@@ -133,6 +133,7 @@ public struct Invoice: Codable, Identifiable, Equatable {
     public var currency = "EUR"
     public var paymentMethod = "Bankový prevod"
     public var paymentQRFormat: PaymentQRFormat? = nil
+    public var templateOverride: InvoiceTemplate? = nil
     public var note = ""
     public var issuedBy = ""
     public var paid: Decimal = 0
@@ -186,10 +187,12 @@ public struct Settings: Codable, Equatable {
     public var issuedBy = ""
     public var defaultVAT: Decimal = 0
     public var invoiceAccentHex: String? = nil
+    public var invoiceTemplate: InvoiceTemplate? = nil
     public var logo: Data? = nil
     public var signature: Data? = nil
     public init() {}
     public var invoiceAccent: InvoiceAccent { invoiceAccentHex.flatMap(InvoiceAccent.init(hex:)) ?? .standard }
+    public var defaultInvoiceTemplate: InvoiceTemplate { invoiceTemplate ?? .boringDefault01 }
     public var validationMessage: String? {
         if supplier.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "Doplňte názov svojej firmy." }
         if defaultVAT < 0 || defaultVAT > 100 { return "Skontrolujte sadzbu DPH (0 až 100 %)." }

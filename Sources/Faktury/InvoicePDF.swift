@@ -9,7 +9,11 @@ enum InvoicePDF {
     private static let paperWidth: CGFloat = 595.28
     private static let paperHeight: CGFloat = 841.89
 
-    static func render(_ invoice: Invoice, accentColor: InvoiceAccent = .standard, pageCount: Int? = nil) -> Data {
+    static func render(_ invoice: Invoice, accentColor: InvoiceAccent = .standard,
+                       defaultTemplate: InvoiceTemplate = .boringDefault01, pageCount: Int? = nil) -> Data {
+        if invoice.resolvedTemplate(default: defaultTemplate) == .mono01 {
+            return MonoInvoicePDF.render(invoice)
+        }
         let accent = accentColor.textOnWhite.nsColor
         let bandText: NSColor = accentColor.usesDarkBandText ? .black : .white
         let output = NSMutableData()
@@ -368,9 +372,11 @@ struct LivePreview: View {
     let invoice: Invoice
     var showsZoomControls = false
     var accentOverride: InvoiceAccent? = nil
+    var templateOverride: InvoiceTemplate? = nil
     @State private var data = Data()
     @StateObject private var zoom = PDFZoomControls()
     private var accent: InvoiceAccent { accentOverride ?? store.database.settings.invoiceAccent }
+    private var template: InvoiceTemplate { templateOverride ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate) }
     var body: some View {
         VStack(spacing: 0) {
             PDFPreview(data: data, zoomControls: showsZoomControls ? zoom : nil)
@@ -393,10 +399,12 @@ struct LivePreview: View {
                 }.padding(.horizontal, 16).padding(.vertical, 10)
             }
         }
-            .task(id: String(describing: invoice) + accent.hex) {
+            .task(id: String(describing: invoice) + accent.hex + template.rawValue) {
                 do { try await Task.sleep(for: .milliseconds(180)) } catch { return }
                 guard !Task.isCancelled else { return }
-                data = InvoicePDF.render(invoice, accentColor: accent)
+                var previewInvoice = invoice
+                previewInvoice.templateOverride = template
+                data = InvoicePDF.render(previewInvoice, accentColor: accent)
             }
     }
 }
