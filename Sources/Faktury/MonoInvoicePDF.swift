@@ -44,8 +44,19 @@ enum MonoInvoicePDF {
             return h
         }
         func rule(_ top: CGFloat, heavy: Bool = false) {
-            (heavy ? ink : NSColor(calibratedWhite: 0.72, alpha: 1)).setFill()
-            NSRect(x: left, y: top, width: width, height: heavy ? 8 : 0.5).fill()
+            if heavy {
+                ink.setFill()
+                NSRect(x: left, y: top, width: width, height: 8).fill()
+            } else {
+                context.saveGState()
+                context.setStrokeColor(NSColor.black.cgColor)
+                context.setLineWidth(0.5)
+                context.setLineDash(phase: 0, lengths: [3, 2])
+                context.move(to: CGPoint(x: left, y: top + 0.25))
+                context.addLine(to: CGPoint(x: left + width, y: top + 0.25))
+                context.strokePath()
+                context.restoreGState()
+            }
         }
         func picture(_ data: Data?, _ rect: NSRect) {
             guard let data, let image = NSImage(data: data), image.size.width > 0, image.size.height > 0 else { return }

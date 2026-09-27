@@ -72,7 +72,18 @@ struct InvoicePaper: View {
         }
     }
 
-    private var rule: some View { Rectangle().fill(.gray.opacity(0.25)).frame(height: 1) }
+    @ViewBuilder private var rule: some View {
+        if mono {
+            GeometryReader { proxy in
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0.5))
+                    path.addLine(to: CGPoint(x: proxy.size.width, y: 0.5))
+                }.stroke(.black, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            }.frame(height: 1)
+        } else {
+            Rectangle().fill(.gray.opacity(0.25)).frame(height: 1)
+        }
+    }
 
     private var footer: some View {
         let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
