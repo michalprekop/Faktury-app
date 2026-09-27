@@ -173,13 +173,30 @@ enum MonoInvoicePDF {
         for item in invoice.items {
             let description = [item.name, item.detail, item.discount > 0 ? "Zľava \(Format.number(item.discount)) %" : "",
                                invoice.supplier.vatPayer ? "DPH \(Format.number(item.vatRate)) %" : ""].filter { !$0.isEmpty }.joined(separator: "\n")
+            let source = description as NSString
+            let detailRange = NSRange(location: item.name.isEmpty ? 0 : (item.name as NSString).length + 1,
+                                      length: (item.detail as NSString).length)
+            var sourceOffset = 0
             let values = ["\(Format.number(item.quantity)) \(item.unit)", Format.money(item.unitPrice, currency: invoice.currency),
                           Format.money(item.total(vatEnabled: invoice.supplier.vatPayer), currency: invoice.currency)]
             for (index, chunk) in chunks(description, w: 246, maxHeight: 270).enumerated() {
                 let valueHeight = index == 0 ? zip(values, [CGFloat(62), 92, 101]).map { height($0.0, $0.1) }.max() ?? 0 : 0
                 let rowHeight = max(32, max(height(chunk, 246), valueHeight) + 18)
                 if y + rowHeight > bottom { continued(); tableHeader() }
-                text(chunk, left, y + 9, 246)
+                // Locate each page fragment in order so only the item's detail stays muted,
+                // including continuations and descriptions repeating the item's name.
+                let fragmentRange = source.range(of: chunk, range: NSRange(location: sourceOffset, length: source.length - sourceOffset))
+                let styled = NSMutableAttributedString(attributedString: attributed(chunk, size: 8.5))
+                if fragmentRange.location != NSNotFound {
+                    let detail = NSIntersectionRange(fragmentRange, detailRange)
+                    if detail.length > 0 {
+                        styled.addAttribute(.foregroundColor, value: muted,
+                                            range: NSRange(location: detail.location - fragmentRange.location, length: detail.length))
+                    }
+                    sourceOffset = NSMaxRange(fragmentRange)
+                }
+                styled.draw(with: NSRect(x: left, y: y + 9, width: 246, height: height(chunk, 246) + 2),
+                            options: [.usesLineFragmentOrigin, .usesFontLeading])
                 if index == 0 {
                     text(values[0], 290, y + 9, 62, alignment: .right)
                     text(values[1], 361, y + 9, 92, alignment: .right)
