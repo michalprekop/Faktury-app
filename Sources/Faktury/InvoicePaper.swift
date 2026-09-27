@@ -89,13 +89,14 @@ struct InvoicePaper: View {
 
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("FAKTÚRA").font(.system(size: 14, weight: .semibold)).foregroundStyle(accent)
-                PaperField("Číslo faktúry", text: $draft.invoice.number, size: 40, weight: .semibold, numeric: true)
-            }
-            Spacer(minLength: 28)
             if let data = invoice.logo, let logo = NSImage(data: data) {
                 Image(nsImage: logo).resizable().scaledToFit().frame(width: 94, height: 94)
+            }
+            Spacer(minLength: 28)
+            VStack(alignment: .trailing, spacing: 8) {
+                Text("FAKTÚRA").font(.system(size: 14, weight: .semibold)).foregroundStyle(accent)
+                PaperField("Číslo faktúry", text: $draft.invoice.number, size: 40, weight: .semibold,
+                           numeric: true, alignment: .trailing)
             }
         }
     }

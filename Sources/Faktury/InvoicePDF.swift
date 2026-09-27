@@ -106,9 +106,10 @@ enum InvoicePDF {
         }
 
         beginPage()
-        _ = text("FAKTÚRA", left, 34, 370, size: 10, weight: .semibold, color: accent)
-        let numberHeight = text(invoice.number, left, 52, 400, size: 29, weight: .semibold, monospaced: true)
-        picture(invoice.logo, rect: NSRect(x: paperWidth - 105, y: 27, width: 67, height: 67))
+        picture(invoice.logo, rect: NSRect(x: left, y: 27, width: 67, height: 67))
+        let numberLeft = left + width - 400
+        _ = text("FAKTÚRA", numberLeft, 34, 400, size: 10, weight: .semibold, color: accent, alignment: .right)
+        let numberHeight = text(invoice.number, numberLeft, 52, 400, size: 29, weight: .semibold, alignment: .right, monospaced: true)
         y = max(112, 62 + numberHeight)
         line(y - 16)
         let supplierBottom = company("DODÁVATEĽ", invoice.supplier, x: left, top: y, w: 237)
