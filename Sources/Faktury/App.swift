@@ -284,7 +284,8 @@ struct InvoicesView: View {
             Divider()
             List(selection: listSelection) {
                 ForEach(filtered) { invoice in
-                    InvoiceRow(invoice: invoice, recovering: store.invoiceRecovery.contains { $0.id == invoice.id })
+                    InvoiceRow(invoice: invoice, recovering: store.invoiceRecovery.contains { $0.id == invoice.id },
+                               isSelected: listSelection.wrappedValue == invoice.id)
                         .tag(invoice.id)
                         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
                         .contextMenu {
@@ -331,7 +332,9 @@ struct InvoicesView: View {
                         Text.numeric(invoice.items.first?.name ?? "", size: 11).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }.width(min: 160, ideal: 290)
-                TableColumn("Stav") { invoice in StatusBadge(invoice: invoice) }.width(min: 100, ideal: 130)
+                TableColumn("Stav") { invoice in
+                    StatusBadge(invoice: invoice, isSelected: listSelection.wrappedValue == invoice.id)
+                }.width(min: 100, ideal: 130)
                 TableColumn("Suma") { invoice in
                     Text.numeric(Format.money(invoice.total, currency: invoice.currency), weight: .medium, monospaced: true)
                         .lineLimit(1).minimumScaleFactor(0.75).frame(maxWidth: .infinity, alignment: .trailing)
@@ -411,11 +414,12 @@ struct InvoiceRow: View {
     static let height: CGFloat = 64
     let invoice: Invoice
     var recovering = false
+    var isSelected = false
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Text.numeric(invoice.number, weight: .semibold, monospaced: true).lineLimit(1).minimumScaleFactor(0.75)
-                StatusBadge(invoice: invoice).fixedSize()
+                StatusBadge(invoice: invoice, isSelected: isSelected).fixedSize()
                 Spacer(minLength: 0)
                 Text.numeric(Format.date(invoice.issueDate), size: 11, monospaced: true)
                     .foregroundStyle(.secondary).fixedSize().help("Dátum vystavenia")
@@ -435,11 +439,20 @@ struct InvoiceRow: View {
 
 struct StatusBadge: View {
     let invoice: Invoice
+    var isSelected = false
     var color: Color {
         if invoice.remaining == 0 { return .accent }
         return invoice.status == "Po splatnosti" ? .red : Color(red: 0.6, green: 0.38, blue: 0.05)
     }
-    var body: some View { HStack(spacing: 4) { Circle().fill(color).frame(width: 5, height: 5); Text(invoice.status).font(.system(size: 10, weight: .medium)) }.foregroundStyle(color).padding(.vertical, 4).padding(.horizontal, 6).background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: 4)) }
+    var body: some View {
+        HStack(spacing: 4) {
+            Circle().fill(color).frame(width: 5, height: 5)
+            Text(invoice.status).font(.system(size: 10, weight: .medium))
+        }
+        .foregroundStyle(color)
+        .padding(.vertical, 4).padding(.horizontal, 6)
+        .background(isSelected ? Color.white : color.opacity(0.09), in: RoundedRectangle(cornerRadius: 4))
+    }
 }
 
 struct Metric: View {
