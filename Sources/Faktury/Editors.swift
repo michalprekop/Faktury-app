@@ -121,6 +121,7 @@ struct InvoiceEditor: View {
             }
         }
         .sheet(item: $expanded) { ExpandedInvoicePreview(invoice: $0) }
+        .dismissPopupOnBackgroundClick(isPresented: expanded != nil) { expanded = nil }
     }
 
     private var invoiceOptions: some View {

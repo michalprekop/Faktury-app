@@ -16,6 +16,7 @@ Pri prvom spustení obsahuje dodávateľa, oba bankové účty v nastaveniach, o
 - Položky, množstvo, jednotka, cena, zľava, voliteľná DPH, poznámka a dátumy.
 - Výber jedného účtu, evidencia uhradenej sumy, zostávajúca úhrada a preplatok.
 - Správa odberateľov, dodávateľa, loga, podpisu a bankových účtov vrátane predvoleného účtu.
+- Kliknutie na pozadie aplikácie zatvorí otvorený PDF náhľad faktúry rovnako ako X.
 - A4 PDF s viacstranovými položkami, diakritikou, logom a podpisom.
 - Šablóny faktúr: pôvodný vzhľad **Boring default 01** a čiernobiela **Mono 01** s vektorovým logom Uncut Corners cez celú šírku gridu, malým nápisom FAKTÚRA vpravo pri čísle, hrubými plnými a tenkými čiernymi prerušovanými čiarami a písmom SF Mono vo všetkých textoch. Obe zachovávajú fakturačné údaje, podpis a platobný QR kód. Mono 01 používa v hlavičke dodané logo zo zdrojov aplikácie; uložené logá faktúr sa nemenia a Boring default 01 ich naďalej zobrazuje.
 - Globálny výber je v **Nastavenia → Vzhľad → Šablóna faktúry**. Platí pre nové aj existujúce faktúry s voľbou **Podľa globálnych nastavení**. Ikona šablóny v hornej lište faktúry alebo **Možnosti faktúry → Šablóna faktúry** umožňuje pevne zvoliť vzhľad iba pre danú faktúru. Zmena sa ukladá automaticky; duplikovanie zachová individuálnu voľbu. Staršie dáta a zálohy používajú pôvodný vzhľad, kým šablónu nezmeníte. Farba zvýraznení sa používa v Boring default 01.
