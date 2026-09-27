@@ -1,0 +1,203 @@
+import SwiftUI
+import AppKit
+import InvoiceCore
+
+struct Field: View {
+    let title: String
+    @Binding var text: String
+    var numeric = false
+    init(_ title: String, text: Binding<String>, numeric: Bool = false) { self.title = title; self._text = text; self.numeric = numeric }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.system(size: 11)).foregroundStyle(.secondary)
+            TextField(title, text: $text).labelsHidden().textFieldStyle(.roundedBorder)
+                .font(.system(size: 13, design: numeric ? .monospaced : .default))
+        }
+    }
+}
+
+struct NumberInput: View {
+    let title: String
+    @Binding var value: Decimal
+    let key: String
+    @Binding var invalid: Set<String>
+    @State private var input = ""
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title).font(.system(size: 11)).foregroundStyle(.secondary)
+            TextField(title, text: $input).textFieldStyle(.roundedBorder)
+                .font(.system(size: 13, design: .monospaced))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(invalid.contains(key) ? Color.red : .clear))
+                .onAppear { input = Format.number(value) }
+                .onChange(of: input) { _, new in
+                    if let parsed = Format.decimal(new) { value = parsed; invalid.remove(key) }
+                    else { invalid.insert(key) }
+                }
+                .onChange(of: value) { _, new in if Format.decimal(input) != new { input = Format.number(new) } }
+                .onDisappear { invalid.remove(key) }
+        }
+    }
+}
+
+struct FormSection<Content: View>: View {
+    let title: String
+    @ViewBuilder var content: Content
+    var body: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            Text(title).font(.system(size: 15, weight: .semibold))
+            content
+        }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct CompanyFields: View {
+    @Binding var company: Company
+    var supplier = false
+    var body: some View {
+        VStack(spacing: 13) {
+            Field("Názov / meno", text: $company.name)
+            Field("Ulica a číslo", text: $company.street)
+            HStack { Field("PSČ", text: $company.postalCode, numeric: true).frame(width: 90); Field("Mesto", text: $company.city) }
+            Field("Krajina", text: $company.country)
+            HStack { Field("IČO", text: $company.companyID, numeric: true); Field("DIČ", text: $company.taxID, numeric: true) }
+            Field("IČ DPH", text: $company.vatID, numeric: true)
+            HStack { Field("E-mail", text: $company.email); Field("Telefón", text: $company.phone, numeric: true) }
+            if supplier {
+                Field("Web", text: $company.website)
+                Field("Zápis v registri", text: $company.registration)
+                Toggle("Platiteľ DPH", isOn: $company.vatPayer)
+            }
+        }
+    }
+}
+
+struct InvoiceEditor: View {
+    @EnvironmentObject private var store: Store
+    @ObservedObject var draft: InvoiceDraft
+    let onDuplicate: () -> Void
+    let onDelete: () -> Void
+    @State private var options = false
+    @State private var expanded: Invoice?
+    private var invoice: Invoice { draft.invoice }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Text.numeric(invoice.number, size: 16, weight: .semibold, monospaced: true)
+                StatusBadge(invoice: invoice)
+                Text(draft.saveLabel).font(.system(size: 10))
+                    .foregroundStyle(draft.saveState == .failed ? .red : .secondary)
+                    .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
+                Spacer(minLength: 8)
+                IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
+                IconButton("Vymazať", "trash", action: onDelete)
+                IconButton("Náhľad PDF", "doc.viewfinder") { if draft.flush() { expanded = draft.invoice } }.disabled(!draft.canExport)
+                IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
+                    .popover(isPresented: $options) { invoiceOptions }
+                Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
+                    .buttonStyle(.borderedProminent).disabled(!draft.canExport)
+            }.padding(.horizontal, 16).padding(.vertical, 13)
+            Divider()
+            InvoicePaperCanvas(draft: draft)
+            if let message = draft.message {
+                Divider()
+                HStack {
+                    Label(message, systemImage: "exclamationmark.circle.fill")
+                        .font(.system(size: 12)).foregroundStyle(draft.saveState == .failed ? .red : .secondary)
+                    Spacer()
+                    if draft.saveState == .failed {
+                        IconButton("Skúsiť uložiť znova", "arrow.clockwise") { _ = draft.flush() }
+                    }
+                }.padding(12)
+            }
+        }
+        .sheet(item: $expanded) { ExpandedInvoicePreview(invoice: $0) }
+    }
+
+    private var invoiceOptions: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if invoice.remaining > 0 {
+                Button {
+                    draft.invoice.paid = invoice.total
+                    options = false
+                } label: { Label("Označiť ako uhradenú", systemImage: "checkmark") }
+            }
+            Toggle("Uviesť dátum dodania", isOn: Binding(get: { invoice.deliveryDate != nil }, set: { draft.invoice.deliveryDate = $0 ? invoice.issueDate : nil }))
+            Field("Objednávka", text: $draft.invoice.orderNumber, numeric: true)
+            HStack {
+                Field("Konštantný symbol", text: $draft.invoice.constantSymbol, numeric: true)
+                Field("Špecifický symbol", text: $draft.invoice.specificSymbol, numeric: true)
+            }
+            Divider()
+            if invoice.account != nil {
+                Field("Majiteľ účtu", text: Binding(get: { invoice.account?.holderName ?? invoice.supplier.name }, set: { draft.invoice.account?.holderName = $0 }))
+            }
+            Picker("Platobný QR kód", selection: Binding(get: { invoice.paymentQRFormat ?? .automatic }, set: { draft.invoice.paymentQRFormat = $0 })) {
+                ForEach(PaymentQRFormat.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+        }.padding(20).frame(width: 360)
+    }
+}
+
+struct CustomerEditor: View {
+    @Environment(\.dismiss) private var dismiss
+    @State var company: Company
+    let onSave: (Company) -> Void
+    @State private var message: String?
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack { Text("Odberateľ").font(.system(size: 20, weight: .semibold)); Spacer() }.padding(22)
+            Divider()
+            ScrollView { CompanyFields(company: $company).padding(22) }
+            if let message { Text(message).foregroundStyle(.red).padding(.horizontal, 22) }
+            Divider()
+            HStack { Spacer(); Button("Zrušiť") { dismiss() }.keyboardShortcut(.cancelAction); Button("Uložiť odberateľa") {
+                company.name = company.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                if company.name.isEmpty { message = "Doplňte názov odberateľa." } else { onSave(company) }
+            }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction) }.padding(18)
+        }.frame(width: 500, height: 640)
+    }
+}
+
+struct CustomersView: View {
+    @EnvironmentObject private var store: Store
+    @State private var search = ""
+    @State private var editing: Company?
+    @State private var deleting: Company?
+    private var customers: [Company] { store.database.customers.filter { search.isEmpty || "\($0.name) \($0.companyID) \($0.city)".localizedStandardContains(search) }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending } }
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) { Text("Odberatelia").font(.system(size: 26, weight: .semibold)); Text.numeric("\(store.database.customers.count) kontaktov", size: 12).foregroundStyle(.secondary) }
+                Spacer()
+                TextField("Hľadať firmu, IČO, mesto", text: $search).textFieldStyle(.roundedBorder).frame(width: 230)
+                Button { editing = Company() } label: { Label("Nový odberateľ", systemImage: "plus") }.buttonStyle(.borderedProminent).controlSize(.large)
+            }.padding(25)
+            Divider()
+            if customers.isEmpty { ContentUnavailableView("Žiadni odberatelia", systemImage: "building.2").frame(maxHeight: .infinity) }
+            else {
+                Table(customers) {
+                    TableColumn("Odberateľ") { company in
+                        VStack(alignment: .leading, spacing: 4) { Text.numeric(company.name, weight: .medium); Text.numeric(company.email, size: 11).foregroundStyle(.secondary) }.padding(.vertical, 9)
+                    }.width(min: 200, ideal: 290)
+                    TableColumn("IČO") { company in Text.numeric(company.companyID, monospaced: true) }.width(min: 85, ideal: 110)
+                    TableColumn("Mesto") { company in Text.numeric(company.city) }
+                    TableColumn("Faktúry") { company in Text.numeric("\(store.database.invoices.filter { $0.customer.id == company.id }.count)", monospaced: true) }.width(65)
+                    TableColumn("") { company in HStack { IconButton("Upraviť odberateľa", "pencil") { editing = company }; IconButton("Vymazať odberateľa", "trash") { deleting = company } } }.width(83)
+                }
+            }
+        }
+        .sheet(item: $editing) { company in
+            CustomerEditor(company: company) { updated in
+                if store.update({ db in
+                    if let index = db.customers.firstIndex(where: { $0.id == updated.id }) { db.customers[index] = updated }
+                    else { db.customers.append(updated) }
+                }) { editing = nil }
+            }
+        }
+        .alert("Vymazať odberateľa?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+            Button("Zrušiť", role: .cancel) { deleting = nil }
+            Button("Vymazať", role: .destructive) { if let id = deleting?.id { _ = store.update { $0.customers.removeAll { $0.id == id } } }; deleting = nil }
+        } message: { Text("\(deleting?.name ?? "") bude odstránený z kontaktov. Údaje na existujúcich faktúrach zostanú zachované.") }
+    }
+}

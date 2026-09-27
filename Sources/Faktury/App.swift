@@ -1,0 +1,457 @@
+import SwiftUI
+import AppKit
+import InvoiceCore
+
+@main
+struct FakturyApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    @StateObject private var store = Store()
+
+    init() {
+        if let index = CommandLine.arguments.firstIndex(of: "--render-database"), CommandLine.arguments.count > index + 2 {
+            Verification.renderDatabase(path: CommandLine.arguments[index + 1], directory: CommandLine.arguments[index + 2], expectSinglePage: CommandLine.arguments.contains("--expect-single-page"))
+            exit(0)
+        }
+        if let index = CommandLine.arguments.firstIndex(of: "--verify"), CommandLine.arguments.count > index + 1 {
+            Verification.run(directory: CommandLine.arguments[index + 1])
+            exit(0)
+        }
+    }
+
+    var body: some Scene {
+        Window("Faktúry", id: "main") {
+            RootView().environmentObject(store)
+                .tint(Color.accent)
+                .preferredColorScheme(.light)
+                .environment(\.locale, Locale(identifier: "sk_SK"))
+                .frame(minWidth: 1060, minHeight: 700)
+                .alert("Nepodarilo sa uložiť", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) {
+                    Button("OK") { store.error = nil }
+                } message: { Text(store.error ?? "") }
+        }
+        .defaultSize(width: AppDelegate.launchWidth, height: 930)
+        .commands {
+            CommandGroup(replacing: .newItem) {
+                Button("Nová faktúra") { NotificationCenter.default.post(name: .newInvoice, object: nil) }.keyboardShortcut("n")
+            }
+            CommandGroup(replacing: .appSettings) {
+                Button("Nastavenia…") { NotificationCenter.default.post(name: .showSettings, object: nil) }.keyboardShortcut(",")
+            }
+        }
+    }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    static weak var shared: AppDelegate?
+    var flushInvoiceChanges: (() -> Bool)?
+    static let launchWidth: CGFloat = 1185
+    private var didApplyLaunchWidth = false
+    override init() { super.init(); Self.shared = self }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard flushInvoiceChanges?() != false else {
+            let alert = NSAlert()
+            alert.messageText = "Zmeny faktúr sa nepodarilo uložiť"
+            alert.informativeText = "Aplikácia zostane otvorená. Skontrolujte dostupnosť disku a skúste uloženie znova."
+            alert.addButton(withTitle: "Späť do aplikácie")
+            alert.runModal()
+            return .terminateCancel
+        }
+        return .terminateNow
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NotificationCenter.default.addObserver(self, selector: #selector(mainWindowBecameKey), name: NSWindow.didBecomeKeyNotification, object: nil)
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async { self.applyLaunchWidth() }
+    }
+    @objc private func mainWindowBecameKey(_ notification: Notification) {
+        DispatchQueue.main.async { self.applyLaunchWidth() }
+    }
+    private func applyLaunchWidth() {
+        guard !didApplyLaunchWidth, let window = NSApp.windows.first(where: { $0.identifier?.rawValue == "main" }) else { return }
+        didApplyLaunchWidth = true
+        NotificationCenter.default.removeObserver(self, name: NSWindow.didBecomeKeyNotification, object: nil)
+        // Apply after restoration so a previously saved width does not override the launch size.
+        var frame = window.frame
+        frame.size.width = Self.launchWidth
+        if let visible = window.screen?.visibleFrame {
+            frame.origin.x = max(visible.minX, min(frame.origin.x, visible.maxX - frame.width))
+        }
+        window.setFrame(frame, display: true)
+    }
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+}
+
+extension Notification.Name {
+    static let newInvoice = Notification.Name("Faktury.newInvoice")
+    static let showSettings = Notification.Name("Faktury.showSettings")
+}
+
+extension Color {
+    static let accent = Color(red: 0.08, green: 0.42, blue: 0.35)
+    static let canvas = Color(nsColor: .windowBackgroundColor)
+}
+
+enum SectionID: String, CaseIterable, Identifiable {
+    case invoices = "Faktúry", customers = "Odberatelia", settings = "Nastavenia"
+    var id: String { rawValue }
+    var symbol: String {
+        switch self { case .invoices: return "doc.text"; case .customers: return "building.2"; case .settings: return "gearshape" }
+    }
+}
+
+struct RootView: View {
+    @EnvironmentObject private var store: Store
+    @State private var selection: SectionID = .invoices
+    @State private var selectedInvoice: UUID?
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
+                    .resizable().interpolation(.high).frame(width: 38, height: 38).accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Faktúry").font(.system(size: 22, weight: .semibold))
+                    Text.numeric(store.database.settings.supplier.name.isEmpty ? "Moja firma" : store.database.settings.supplier.name, size: 11)
+                        .foregroundStyle(.secondary).lineLimit(1)
+                }
+                Spacer(minLength: 24)
+                Picker("Navigácia", selection: $selection) {
+                    ForEach(SectionID.allCases) { section in
+                        Label(section.rawValue, systemImage: section.symbol)
+                            .labelStyle(.titleAndIcon).tag(section)
+                    }
+                }.pickerStyle(.segmented).labelsHidden().controlSize(.large)
+                    .frame(width: 420).accessibilityIdentifier("main-navigation")
+            }.padding(.horizontal, 24).padding(.vertical, 14)
+            Divider()
+            ZStack {
+                // Keep the invoice workspace mounted so navigation preserves drafts and list filters.
+                InvoicesView(selectedID: $selectedInvoice)
+                    .opacity(selection == .invoices ? 1 : 0)
+                    .allowsHitTesting(selection == .invoices)
+                    .disabled(selection != .invoices)
+                    .accessibilityHidden(selection != .invoices)
+                if selection == .customers { CustomersView() }
+                if selection == .settings { SettingsView() }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(alignment: .bottom) {
+                if let notice = store.notice {
+                    Label(notice, systemImage: "checkmark.circle.fill")
+                        .padding(.horizontal, 18).padding(.vertical, 12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                        .padding(20)
+                        .task(id: notice) {
+                            try? await Task.sleep(for: .seconds(3))
+                            if store.notice == notice { store.notice = nil }
+                        }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .newInvoice)) { _ in
+            selection = .invoices
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showSettings)) { _ in selection = .settings }
+        .onAppear { AppDelegate.shared?.flushInvoiceChanges = { store.flushInvoices() } }
+        .onChange(of: selection) { old, _ in
+            if !store.flushInvoices() { selection = old }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+            store.flushInvoices()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            store.flushSettings(); store.flushInvoices()
+        }
+    }
+}
+
+struct InvoicesView: View {
+    @EnvironmentObject private var store: Store
+    @Binding var selectedID: UUID?
+    @State private var draft: InvoiceDraft?
+    @State private var search = ""
+    @State private var filter = "Všetky"
+    @State private var year = 0
+    @State private var sortOrder = "Najnovšie"
+    @AppStorage("invoiceTableMode") private var tableMode = false
+    @State private var deleting: Invoice?
+
+    private var filtered: [Invoice] {
+        store.invoices.filter {
+            $0.matchesSearch(search) &&
+            (year == 0 || Calendar.current.component(.year, from: $0.issueDate) == year) &&
+            (filter == "Všetky" || (filter == "Uhradené" && $0.remaining == 0) || (filter == "Neuhradené" && $0.remaining > 0) || (filter == "Po splatnosti" && $0.status == "Po splatnosti"))
+        }.sorted {
+            if sortOrder == "Splatnosť", $0.dueDate != $1.dueDate { return $0.dueDate < $1.dueDate }
+            if sortOrder == "Odberateľ", $0.customer.name != $1.customer.name { return $0.customer.name < $1.customer.name }
+            return $0.issueDate == $1.issueDate ? $0.number > $1.number : $0.issueDate > $1.issueDate
+        }
+    }
+    private var selected: Invoice? { store.invoices.first { $0.id == selectedID } }
+    private var listSelection: Binding<UUID?> {
+        Binding(get: { draft?.invoice.id ?? selectedID }, set: { id in
+            guard let id, id != draft?.invoice.id,
+                  let invoice = store.invoices.first(where: { $0.id == id }) else { return }
+            request { open(invoice) }
+        })
+    }
+    private var mode: Binding<Bool> {
+        Binding(get: { tableMode }, set: { value in request { tableMode = value } })
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text.numeric(Format.invoiceCount(store.invoices.count), size: 17, weight: .semibold)
+                    Text.numeric("\(store.invoices.filter { $0.status == "Po splatnosti" }.count) po splatnosti", size: 12).foregroundStyle(.secondary)
+                }
+                Spacer()
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField("Hľadať vo faktúrach", text: $search).textFieldStyle(.plain)
+                }.padding(8).frame(width: 205).background(Color.white, in: RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(.gray.opacity(0.2)))
+                Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
+                    .buttonStyle(.borderedProminent).controlSize(.large)
+            }.padding(.horizontal, 25).padding(.vertical, 14)
+            Divider()
+            HStack(spacing: 14) {
+                Picker("Stav", selection: $filter) {
+                    ForEach(["Všetky", "Uhradené", "Neuhradené", "Po splatnosti"], id: \.self) { Text($0) }
+                }.pickerStyle(.segmented).labelsHidden().frame(maxWidth: 475)
+                Picker("Rok", selection: $year) {
+                    Text("Všetky roky").tag(0)
+                    ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
+                }.labelsHidden().frame(width: 120)
+                Spacer(minLength: 0)
+                Picker("Zobrazenie", selection: mode) {
+                    Image(systemName: "rectangle.split.2x1").tag(false).help("Zoznam s náhľadom").accessibilityLabel("Zoznam s náhľadom")
+                    Image(systemName: "tablecells").tag(true).help("Tabuľkový zoznam").accessibilityLabel("Tabuľkový zoznam")
+                }.pickerStyle(.segmented).labelsHidden().frame(width: 80)
+            }.padding(.horizontal, 20).padding(.vertical, 13)
+            Divider()
+            if tableMode {
+                invoiceTable
+            } else {
+                HSplitView {
+                    invoiceList.frame(minWidth: 245, idealWidth: 280, maxWidth: 325)
+                    if let draft {
+                        InvoiceEditor(draft: draft, onDuplicate: { duplicateInvoice(draft.invoice) },
+                                      onDelete: { request { deleting = draft.invoice } })
+                            .id(draft.invoice.id).frame(minWidth: 640, maxWidth: .infinity)
+                    } else {
+                        ContentUnavailableView("Vyberte faktúru", systemImage: "doc.richtext").frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+            }
+        }
+        .onAppear {
+            if !store.invoiceRecovery.isEmpty { tableMode = false }
+            if draft == nil, let invoice = store.invoiceRecovery.max(by: { $0.modifiedAt < $1.modifiedAt })?.invoice ?? selected ?? filtered.first {
+                open(invoice)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .newInvoice)) { _ in createInvoice() }
+        .onChange(of: search) { _, _ in selectFilteredInvoice() }
+        .onChange(of: filter) { _, _ in selectFilteredInvoice() }
+        .onChange(of: year) { _, _ in selectFilteredInvoice() }
+        .onChange(of: store.workspaceRevision) { _, _ in
+            draft = nil
+            if let invoice = store.invoiceRecovery.max(by: { $0.modifiedAt < $1.modifiedAt })?.invoice ?? filtered.first { open(invoice) }
+            else { selectedID = nil }
+        }
+        .alert("Vymazať faktúru \(deleting?.number ?? "")?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+            Button("Zrušiť", role: .cancel) { deleting = nil }
+            Button("Vymazať", role: .destructive) {
+                if let id = deleting?.id, store.deleteInvoice(id), draft?.invoice.id == id {
+                    draft = nil; selectedID = nil
+                    if let first = filtered.first { open(first) }
+                }
+                deleting = nil
+            }
+        } message: { Text("Faktúra bude odstránená zo zoznamu aj z lokálnych dát.") }
+    }
+
+    private var invoiceList: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text.numeric(Format.invoiceCount(filtered.count), size: 11).foregroundStyle(.secondary)
+                Spacer(); sortPicker
+            }.padding(12)
+            Divider()
+            List(selection: listSelection) {
+                ForEach(filtered) { invoice in
+                    InvoiceRow(invoice: invoice, recovering: store.invoiceRecovery.contains { $0.id == invoice.id })
+                        .tag(invoice.id)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                        .contextMenu {
+                            Button("Upraviť") { begin(invoice) }
+                            Button("Duplikovať") { duplicateInvoice(invoice) }
+                            Button("Exportovať PDF") { store.exportPDF(invoice) }
+                            Divider()
+                            Button("Vymazať", role: .destructive) { request { deleting = invoice } }
+                        }
+                }
+            }.listStyle(.inset).scrollContentBackground(.hidden)
+                .environment(\.defaultMinListRowHeight, InvoiceRow.height)
+                .overlay { if filtered.isEmpty { ContentUnavailableView("Bez výsledkov", systemImage: "doc.text.magnifyingglass") } }
+        }
+    }
+
+    private var sortPicker: some View {
+        Picker("Zoradenie", selection: $sortOrder) {
+            ForEach(["Najnovšie", "Splatnosť", "Odberateľ"], id: \.self) { Text($0) }
+        }.labelsHidden().frame(width: 112)
+    }
+
+    private var invoiceTable: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text.numeric(Format.invoiceCount(filtered.count), size: 12).foregroundStyle(.secondary)
+                Spacer(); sortPicker
+                if let invoice = selected {
+                    IconButton("Duplikovať", "doc.on.doc") { duplicateInvoice(invoice) }
+                    IconButton("Vymazať", "trash") { request { deleting = invoice } }
+                    Button { begin(invoice) } label: { Label("Upraviť", systemImage: "pencil") }
+                    Button { store.exportPDF(invoice) } label: { Label("PDF", systemImage: "square.and.arrow.down") }
+                }
+            }.padding(14)
+            Table(filtered, selection: listSelection) {
+                TableColumn("Číslo") { invoice in
+                    Button { begin(invoice) } label: {
+                        Text.numeric(invoice.number, weight: .semibold, monospaced: true)
+                    }.buttonStyle(.plain).foregroundStyle(Color.accent).padding(.vertical, 14)
+                }.width(min: 80, ideal: 105)
+                TableColumn("Odberateľ") { invoice in
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text.numeric(invoice.customer.name, weight: .medium)
+                        Text.numeric(invoice.items.first?.name ?? "", size: 11).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                }.width(min: 160, ideal: 290)
+                TableColumn("Stav") { invoice in StatusBadge(invoice: invoice) }.width(min: 100, ideal: 130)
+                TableColumn("Suma") { invoice in
+                    Text.numeric(Format.money(invoice.total, currency: invoice.currency), weight: .medium, monospaced: true)
+                        .lineLimit(1).minimumScaleFactor(0.75).frame(maxWidth: .infinity, alignment: .trailing)
+                }.width(min: 105, ideal: 130)
+                TableColumn("Vystavenie / splatnosť") { invoice in
+                    VStack(alignment: .trailing, spacing: 5) {
+                        Text.numeric(Format.date(invoice.issueDate), size: 11, monospaced: true).foregroundStyle(.secondary)
+                        Text.numeric(Format.date(invoice.dueDate), size: 11, monospaced: true)
+                            .foregroundStyle(invoice.status == "Po splatnosti" ? .red : .primary)
+                    }.frame(maxWidth: .infinity, alignment: .trailing)
+                }.width(min: 135, ideal: 155)
+            }.overlay { if filtered.isEmpty { ContentUnavailableView("Žiadne faktúry", systemImage: "doc.text.magnifyingglass") } }
+                .contextMenu(forSelectionType: UUID.self) { ids in
+                    if let invoice = store.invoices.first(where: { ids.contains($0.id) }) {
+                        Button("Upraviť") { begin(invoice) }
+                        Button("Duplikovať") { duplicateInvoice(invoice) }
+                        Button("Exportovať PDF") { store.exportPDF(invoice) }
+                        Button("Vymazať", role: .destructive) { request { deleting = invoice } }
+                    }
+                } primaryAction: { ids in
+                    if let invoice = store.invoices.first(where: { ids.contains($0.id) }) { begin(invoice) }
+                }
+        }
+    }
+
+    private func request(_ action: @escaping () -> Void) {
+        guard draft?.flush() != false else { return }
+        action()
+    }
+    private func open(_ invoice: Invoice) {
+        draft?.stopAutosave()
+        selectedID = invoice.id
+        draft = InvoiceDraft(invoice, isNew: !store.database.invoices.contains { $0.id == invoice.id }, store: store)
+    }
+    private func begin(_ invoice: Invoice) {
+        request { open(invoice); tableMode = false }
+    }
+    private func createInvoice() {
+        request { search = ""; filter = "Všetky"; year = 0; open(store.newInvoice()); tableMode = false }
+    }
+    private func duplicateInvoice(_ invoice: Invoice) {
+        // Assign the number after any pending draft has been saved.
+        request { search = ""; filter = "Všetky"; year = 0; open(store.duplicate(invoice)); tableMode = false }
+    }
+    private func selectFilteredInvoice() {
+        guard !filtered.contains(where: { $0.id == selectedID }) else { return }
+        request {
+            if let first = filtered.first { open(first) }
+            else { draft?.stopAutosave(); draft = nil; selectedID = nil }
+        }
+    }
+}
+
+struct ExpandedInvoicePreview: View {
+    @EnvironmentObject private var store: Store
+    @Environment(\.dismiss) private var dismiss
+    let invoice: Invoice
+    private var size: CGSize {
+        let screen = NSApp.keyWindow?.screen?.visibleFrame.size ?? NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
+        return CGSize(width: min(860, screen.width - 80), height: min(900, screen.height - 100))
+    }
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text.numeric("Faktúra \(invoice.number)", weight: .semibold)
+                Spacer()
+                Button { store.exportPDF(invoice) } label: { Label("Exportovať PDF", systemImage: "square.and.arrow.down") }
+                IconButton("Zavrieť náhľad", "xmark") { dismiss() }.keyboardShortcut(.cancelAction)
+            }.padding(16)
+            Divider()
+            LivePreview(invoice: invoice, showsZoomControls: true)
+        }.frame(width: size.width, height: size.height)
+    }
+}
+
+struct InvoiceRow: View {
+    static let height: CGFloat = 64
+    let invoice: Invoice
+    var recovering = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text.numeric(invoice.number, weight: .semibold, monospaced: true).lineLimit(1).minimumScaleFactor(0.75)
+                StatusBadge(invoice: invoice).fixedSize()
+                Spacer(minLength: 0)
+                Text.numeric(Format.date(invoice.issueDate), size: 11, monospaced: true)
+                    .foregroundStyle(.secondary).fixedSize().help("Dátum vystavenia")
+            }.frame(height: 22)
+            HStack(spacing: 6) {
+                Text.numeric(invoice.customer.name).lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading).help(invoice.customer.name)
+                Image(systemName: "pencil.circle").font(.system(size: 12)).foregroundStyle(.secondary)
+                    .frame(width: 14, height: 14).opacity(recovering ? 1 : 0)
+                    .help("Rozpracované uložené").accessibilityLabel("Rozpracované uložené").accessibilityHidden(!recovering)
+                Text.numeric(Format.money(invoice.total, currency: invoice.currency), weight: .semibold, monospaced: true)
+                    .lineLimit(1).minimumScaleFactor(0.75).layoutPriority(1)
+            }.frame(height: 16)
+        }.padding(.vertical, 10).frame(height: Self.height)
+    }
+}
+
+struct StatusBadge: View {
+    let invoice: Invoice
+    var color: Color {
+        if invoice.remaining == 0 { return .accent }
+        return invoice.status == "Po splatnosti" ? .red : Color(red: 0.6, green: 0.38, blue: 0.05)
+    }
+    var body: some View { HStack(spacing: 4) { Circle().fill(color).frame(width: 5, height: 5); Text(invoice.status).font(.system(size: 10, weight: .medium)) }.foregroundStyle(color).padding(.vertical, 4).padding(.horizontal, 6).background(color.opacity(0.09), in: RoundedRectangle(cornerRadius: 4)) }
+}
+
+struct Metric: View {
+    let label: String
+    let value: String
+    var body: some View { VStack(alignment: .leading, spacing: 5) { Text(label).font(.system(size: 9, weight: .medium)).foregroundStyle(.secondary); Text.numeric(value, size: 14, weight: .medium, monospaced: true).lineLimit(1).minimumScaleFactor(0.75) } }
+}
+
+struct IconButton: View {
+    let title: String
+    let symbol: String
+    let action: () -> Void
+    init(_ title: String, _ symbol: String, action: @escaping () -> Void) { self.title = title; self.symbol = symbol; self.action = action }
+    var body: some View { Button(action: action) { Image(systemName: symbol).frame(width: 19, height: 21) }.help(title).accessibilityLabel(title) }
+}

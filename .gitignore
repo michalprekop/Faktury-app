@@ -1,0 +1,24 @@
+.build/
+.swiftpm/
+dist/
+tmp/
+.DS_Store
+output/
+
+# Lokálne faktúry, rozpracované údaje a zálohy
+database*.json
+invoice-drafts.json
+restore-pending.json
+backups/
+
+# Lokálne prostredie a súkromné kľúče
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Pracovné súbory Pythonu a Xcode
+__pycache__/
+*.py[cod]
+xcuserdata/
