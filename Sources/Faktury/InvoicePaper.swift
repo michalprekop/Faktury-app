@@ -100,16 +100,19 @@ struct InvoicePaper: View {
     @ViewBuilder private var header: some View {
         if mono {
             VStack(alignment: .leading, spacing: 42) {
-                HStack(alignment: .center) {
-                    if let data = invoice.logo, let logo = NSImage(data: data) {
-                        Image(nsImage: logo).resizable().scaledToFit().frame(width: 64, height: 64)
+                if let logo = MonoInvoiceBrand.wordmark {
+                    Image(nsImage: logo).resizable().scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .accessibilityLabel("Uncut Corners")
+                }
+                HStack(alignment: .bottom, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Číslo faktúry").font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary)
+                        PaperField("Číslo faktúry", text: $draft.invoice.number, size: 18, weight: .bold, numeric: true)
                     }
                     Spacer(minLength: 0)
-                    Text("FAKTÚRA").font(.system(size: 66, weight: .heavy, design: .monospaced))
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Číslo faktúry").font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary)
-                    PaperField("Číslo faktúry", text: $draft.invoice.number, size: 18, weight: .bold, numeric: true)
+                    Text("FAKTÚRA").font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .fixedSize().padding(.bottom, 3)
                 }
             }
         } else {

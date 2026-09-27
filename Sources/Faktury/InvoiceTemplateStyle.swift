@@ -1,6 +1,13 @@
 import SwiftUI
 import AppKit
 
+/// The Mono 01 header uses the supplied vector wordmark without changing stored invoice logos.
+enum MonoInvoiceBrand {
+    static let wordmarkData = Bundle.module.url(forResource: "uncut-corners-wordmark", withExtension: "svg",
+                                               subdirectory: "Resources").flatMap { try? Data(contentsOf: $0) }
+    static let wordmark = wordmarkData.flatMap { NSImage(data: $0) }
+}
+
 private struct InvoiceMonospacedKey: EnvironmentKey {
     static let defaultValue = false
 }

@@ -132,13 +132,14 @@ enum MonoInvoicePDF {
 
         beginPage()
         let compact = invoice.items.count > 1
-        let metadataTop: CGFloat = compact ? 90 : 124
-        picture(invoice.logo, NSRect(x: left, y: compact ? 22 : 38, width: 55, height: 55))
-        text("FAKTÚRA", left + 75, compact ? 16 : 24, width - 75, size: compact ? 54 : 66, weight: .heavy, alignment: .right)
+        let logoTop: CGFloat = compact ? 22 : 32
+        let logoSize = MonoInvoiceBrand.wordmark?.size ?? NSSize(width: 1559, height: 158)
+        let logoHeight = width * logoSize.height / logoSize.width
+        picture(MonoInvoiceBrand.wordmarkData, NSRect(x: left, y: logoTop, width: width, height: logoHeight))
+        let metadataTop = logoTop + logoHeight + (compact ? 14 : 30)
         text("Číslo faktúry", left, metadataTop, 245, size: 7.5, color: muted)
         let numberHeight = text(invoice.number, left, metadataTop + 14, 245, size: 12, weight: .bold)
-        text("Dátum vystavenia", 310, metadataTop, 253, size: 7.5, color: muted)
-        text(Format.date(invoice.issueDate), 310, metadataTop + 14, 253, size: 10)
+        text("FAKTÚRA", 310, metadataTop + 16, 253, size: 10, weight: .semibold, alignment: .right)
         y = metadataTop + max(45, 23 + numberHeight)
         rule(y, heavy: true); y += 21
         y = max(company("DODÁVATEĽ", invoice.supplier, x: left, top: y),
@@ -152,7 +153,8 @@ enum MonoInvoicePDF {
                     ("Variabilný symbol", invoice.variableSymbol),
                     ("Konštantný symbol", invoice.constantSymbol),
                     ("Špecifický symbol", invoice.specificSymbol)]
-        let dates = [("Dátum splatnosti", Format.date(invoice.dueDate)),
+        let dates = [("Dátum vystavenia", Format.date(invoice.issueDate)),
+                     ("Dátum splatnosti", Format.date(invoice.dueDate)),
                      ("Dátum dodania", invoice.deliveryDate.map(Format.date) ?? ""),
                      ("Forma úhrady", invoice.paymentMethod), ("Objednávka", invoice.orderNumber)]
         y = max(detailRows(bank, x: left, top: y), detailRows(dates, x: 310, top: y)) + 17
