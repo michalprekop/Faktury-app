@@ -80,8 +80,12 @@ enum MonoInvoicePDF {
             rule(774)
             let contacts = [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
                             invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
+            let gap: CGFloat = 12
+            let columnWidth = (width - CGFloat(max(0, contacts.count - 1)) * gap) / CGFloat(max(1, contacts.count))
             for (index, value) in contacts.enumerated() {
-                text(value, left + CGFloat(index % 2) * 278, 784 + CGFloat(index / 2) * 17, 253, size: 6.5, color: muted)
+                let alignment: NSTextAlignment = index == 0 ? .left : index == contacts.count - 1 ? .right : .center
+                text(value, left + CGFloat(index) * (columnWidth + gap), 784, columnWidth,
+                     size: 6.5, color: muted, alignment: alignment)
             }
             text("\(page)/\(pageCount ?? 1)", left + width - 40, 825, 40, size: 6.5, color: muted, alignment: .right)
             NSGraphicsContext.restoreGraphicsState(); context.restoreGState(); context.endPDFPage()
