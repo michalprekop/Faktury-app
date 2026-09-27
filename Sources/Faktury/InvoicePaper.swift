@@ -98,7 +98,7 @@ struct InvoicePaper: View {
         HStack(alignment: .center, spacing: 12) {
             Text("FAKTÚRA").font(.system(size: 14, weight: .semibold)).foregroundStyle(accent)
             Spacer(minLength: 28)
-            PaperField("Číslo faktúry", text: $draft.invoice.number, size: 40, weight: .semibold,
+            PaperField("Číslo faktúry", text: $draft.invoice.number, size: 30, weight: .semibold,
                        numeric: true, alignment: .trailing)
         }.frame(minHeight: 94)
     }

@@ -112,7 +112,7 @@ enum InvoicePDF {
         beginPage()
         let numberLeft = left + width - 400
         _ = text("FAKTÚRA", left, 64, numberLeft - left - 12, size: 10, weight: .semibold, color: accent)
-        let numberHeight = text(invoice.number, numberLeft, 52, 400, size: 29, weight: .semibold, alignment: .right, monospaced: true)
+        let numberHeight = text(invoice.number, numberLeft, 56.5, 400, size: 21.75, weight: .semibold, alignment: .right, monospaced: true)
         y = max(112, 62 + numberHeight)
         line(y - 16)
         let supplierBottom = company("DODÁVATEĽ", invoice.supplier, x: left, top: y, w: 237)
