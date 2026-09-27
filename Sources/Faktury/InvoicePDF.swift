@@ -68,14 +68,18 @@ enum InvoicePDF {
             y = 40
         }
         func endPage() {
-            line(784)
+            let footerTop: CGFloat = invoice.logo == nil ? 784 : 770
+            line(footerTop)
             let footer = [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)", invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
             let footerGap: CGFloat = 12
             let footerWidth = (width - CGFloat(max(0, footer.count - 1)) * footerGap) / CGFloat(max(1, footer.count))
             for (index, value) in footer.enumerated() {
                 let alignment: NSTextAlignment = index == 0 ? .left : index == footer.count - 1 ? .right : .center
-                _ = text(value, left + CGFloat(index) * (footerWidth + footerGap), 795, footerWidth, size: 7, color: muted, alignment: alignment)
+                _ = text(value, left + CGFloat(index) * (footerWidth + footerGap), footerTop + 11, footerWidth, size: 7, color: muted, alignment: alignment)
             }
+            let logoSide: CGFloat = 67 * 0.4
+            picture(invoice.logo, rect: NSRect(x: (paperWidth - logoSide) / 2, y: paperHeight - 12 - logoSide,
+                                              width: logoSide, height: logoSide))
             _ = text("\(page)/\(pageCount ?? 1)", paperWidth - 70, 821, 32, size: 7, color: muted, alignment: .right, monospaced: true)
             NSGraphicsContext.restoreGraphicsState()
             context.restoreGState()
@@ -106,9 +110,8 @@ enum InvoicePDF {
         }
 
         beginPage()
-        picture(invoice.logo, rect: NSRect(x: left, y: 27, width: 67, height: 67))
         let numberLeft = left + width - 400
-        _ = text("FAKTÚRA", numberLeft, 34, 400, size: 10, weight: .semibold, color: accent, alignment: .right)
+        _ = text("FAKTÚRA", left, 64, numberLeft - left - 12, size: 10, weight: .semibold, color: accent)
         let numberHeight = text(invoice.number, numberLeft, 52, 400, size: 29, weight: .semibold, alignment: .right, monospaced: true)
         y = max(112, 62 + numberHeight)
         line(y - 16)

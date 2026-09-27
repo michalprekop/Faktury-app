@@ -73,32 +73,34 @@ struct InvoicePaper: View {
 
     private var footer: some View {
         let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
-        return HStack(alignment: .top, spacing: 16) {
-            HStack(alignment: .top, spacing: 8) {
-                Text("Vystavil:").font(.system(size: 10)).padding(.vertical, 3).fixedSize()
-                PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
-            }.frame(maxWidth: .infinity, alignment: .leading)
-            ForEach(Array(contacts.enumerated()), id: \.offset) { index, contact in
-                Text.numeric(contact, size: 10)
-                    .multilineTextAlignment(index == contacts.count - 1 ? .trailing : .center)
-                    .padding(.vertical, 3)
-                    .frame(maxWidth: .infinity, alignment: index == contacts.count - 1 ? .trailing : .center)
+        return VStack(spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
+                HStack(alignment: .top, spacing: 8) {
+                    Text("Vystavil:").font(.system(size: 10)).padding(.vertical, 3).fixedSize()
+                    PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                ForEach(Array(contacts.enumerated()), id: \.offset) { index, contact in
+                    Text.numeric(contact, size: 10)
+                        .multilineTextAlignment(index == contacts.count - 1 ? .trailing : .center)
+                        .padding(.vertical, 3)
+                        .frame(maxWidth: .infinity, alignment: index == contacts.count - 1 ? .trailing : .center)
+                }
+            }
+            if let data = invoice.logo, let logo = NSImage(data: data) {
+                Image(nsImage: logo).resizable().scaledToFit()
+                    .frame(width: 94 * 0.4, height: 94 * 0.4)
+                    .frame(maxWidth: .infinity)
             }
         }.foregroundStyle(.secondary)
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 12) {
-            if let data = invoice.logo, let logo = NSImage(data: data) {
-                Image(nsImage: logo).resizable().scaledToFit().frame(width: 94, height: 94)
-            }
+        HStack(alignment: .center, spacing: 12) {
+            Text("FAKTÚRA").font(.system(size: 14, weight: .semibold)).foregroundStyle(accent)
             Spacer(minLength: 28)
-            VStack(alignment: .trailing, spacing: 8) {
-                Text("FAKTÚRA").font(.system(size: 14, weight: .semibold)).foregroundStyle(accent)
-                PaperField("Číslo faktúry", text: $draft.invoice.number, size: 40, weight: .semibold,
-                           numeric: true, alignment: .trailing)
-            }
-        }
+            PaperField("Číslo faktúry", text: $draft.invoice.number, size: 40, weight: .semibold,
+                       numeric: true, alignment: .trailing)
+        }.frame(minHeight: 94)
     }
 
     private var dates: some View {
