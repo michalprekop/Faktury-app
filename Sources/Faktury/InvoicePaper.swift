@@ -297,7 +297,20 @@ private struct PaperCompany: View {
     @State private var details = false
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
-            if let title { Text(title).font(.system(size: 11, weight: .semibold, design: mono ? .monospaced : .default)).foregroundStyle(accent).frame(height: 17) }
+            HStack(spacing: 6) {
+                if let title {
+                    Text(title).font(.system(size: 11, weight: .semibold, design: mono ? .monospaced : .default))
+                        .foregroundStyle(accent)
+                }
+                Button { details.toggle() } label: {
+                    Image(systemName: "ellipsis").font(.system(size: 13, design: mono ? .monospaced : .default))
+                        .frame(width: 24, height: 17)
+                }
+                .buttonStyle(.plain).foregroundStyle(.secondary)
+                .help(supplier ? "Nastavenia dodávateľa" : "Nastavenia odberateľa")
+                .accessibilityLabel(supplier ? "Nastavenia dodávateľa" : "Nastavenia odberateľa")
+                .popover(isPresented: $details) { CompanyFields(company: $company, supplier: supplier).padding(20).frame(width: 320) }
+            }.frame(height: 17)
             PaperField("Názov / meno", text: $company.name, size: 18, weight: .semibold)
             VStack(spacing: 3) {
                 PaperField("Ulica a číslo", text: $company.street)
@@ -313,11 +326,6 @@ private struct PaperCompany: View {
                 if !company.vatID.isEmpty { identifier("IČ DPH", text: $company.vatID) }
             }.padding(.top, 4)
         }.frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(alignment: .bottomTrailing) {
-                Button { details.toggle() } label: { Image(systemName: "ellipsis").font(.system(size: 13, design: mono ? .monospaced : .default)).frame(width: 24, height: 20) }
-                    .buttonStyle(.plain).foregroundStyle(.secondary).help("Ďalšie údaje firmy").accessibilityLabel("Ďalšie údaje firmy")
-                    .popover(isPresented: $details) { CompanyFields(company: $company, supplier: supplier).padding(20).frame(width: 320) }
-            }
     }
     private func identifier(_ title: String, text: Binding<String>) -> some View {
         HStack(spacing: 6) {
