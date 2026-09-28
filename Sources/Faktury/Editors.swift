@@ -99,7 +99,11 @@ struct InvoiceEditor: View {
                 IconButton("Vymazať", "trash", action: onDelete)
                 IconButton("Náhľad PDF", "doc.viewfinder") { if draft.flush() { expanded = draft.invoice } }.disabled(!draft.canExport)
                 IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
-                    .popover(isPresented: $options) { invoiceOptions }
+                    .popover(isPresented: $options) {
+                        invoiceOptions
+                            .background(Color(nsColor: .windowBackgroundColor))
+                            .presentationBackground(Color(nsColor: .windowBackgroundColor))
+                    }
                 Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
                     .buttonStyle(.borderedProminent).disabled(!draft.canExport)
             }.padding(.horizontal, 16).padding(.vertical, 13)

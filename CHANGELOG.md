@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1.1.2 — 28. 9. 2026
+
+- Možnosti faktúry v Mac aplikácii majú nepriesvitné pozadie, aby faktúra nepresvitala cez text a ovládacie prvky.
+
 ## 28. 9. 2026 — Širší PDF náhľad
 
 - Webový náhľad faktúry má širšie okno a papier využíva dostupnú šírku, aby sa text a položky zbytočne nelámali.
