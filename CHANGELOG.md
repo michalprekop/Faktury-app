@@ -1,5 +1,9 @@
 # Zmeny
 
+## 28. 9. 2026 — Širší PDF náhľad
+
+- Webový náhľad faktúry má širšie okno a papier využíva dostupnú šírku, aby sa text a položky zbytočne nelámali.
+
 ## 1.1.1 — 28. 9. 2026
 
 - Vrátilo sa pôvodné natívne rozhranie Mac aplikácie a úpravy priamo na faktúre.
