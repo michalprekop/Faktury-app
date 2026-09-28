@@ -10,6 +10,6 @@
 - Mac archív má Developer ID podpis, úspešnú notarizáciu, priložený notársky lístok a úspešné posúdenie Gatekeeper. SHA-256 súboru stiahnutého z verejnej download cesty sa zhodoval s lokálnym notarizovaným ZIP.
 - Aktualizovaná bola iba `~/Applications/Faktúry.app`. V jej UI je dostupných pôvodných 25 faktúr aj prepnutie do živého cloudového webu. Kontrolné súčty všetkých 4 pôvodných JSON súborov zostali po inštalácii a UI kontrole totožné.
 - UI overenie na syntetických účtoch: uloženie poznámky faktúry, náhľad s QR, administrácia, pridelenie druhej šablóny a jej následná dostupnosť v bežnom účte.
-- Natívna Mac aplikácia spustila Apple autorizačný tok s desktop challenge na serveri. Dokončenie interaktívneho Mac prihlásenia a návrat do WKWebView zatiaľ čakajú na prihlásenie používateľa; úspech webového prihlásenia nie je dôkazom dokončenia tohto samostatného toku.
+- Skutočné Apple prihlásenie v nainštalovanej Mac aplikácii úspešne vrátilo rovnaký účet vlastníka do WKWebView vrátane administrácie. Po riadnom ukončení a opätovnom spustení aplikácie zostalo prihlásenie zachované. Kontrolné súčty všetkých 4 pôvodných JSON súborov zostali totožné aj po tejto kontrole.
 
 Pôvodná lokálna databáza sa automaticky neimportuje do cloudu. Cloudový účet začína prázdny. Screenshoty, PDF, kontrolné súčty, zálohy a zostavené súbory sú lokálne v ignorovanom `output/`, nie v Gite.
