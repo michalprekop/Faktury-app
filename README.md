@@ -14,7 +14,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.1.2 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
+Mac distribúcia 1.1.3 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
 
 ## Pôvodný lokálny režim
 
@@ -23,12 +23,12 @@ Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudo
 ## Funkcie
 
 - Zoznam s veľkým náhľadom alebo tabuľka, hľadanie, filtre stavu a roka, zoradenie. Výber faktúry ani stav automatického ukladania neposúvajú bočný zoznam.
-- Nová faktúra, úprava a duplikovanie priamo na faktúre v hlavnom okne. Vľavo zostáva zoznam, vpravo upraviteľný papier s natívnymi textovými poľami a živými súčtami. QR kód sa počas úprav nepočíta ani nezobrazuje; vytvorí sa z aktuálnych platobných údajov až pri generovaní PDF alebo otvorení jeho náhľadu. Editor nemá zoom ani zväčšovanie vykreslenej plochy; veľkosť písma zostáva rovnaká pri zmene šírky okna. Všetky zmeny sa ukladajú automaticky vrátane neúplných faktúr a rozpísaných čísel. Presný stránkovaný PDF náhľad s lupou sa otvára ikonou dokumentu v detaile.
+- Nová faktúra, úprava a duplikovanie priamo na faktúre v hlavnom okne. Vľavo zostáva zoznam, vpravo upraviteľný papier s natívnymi textovými poľami a živými súčtami. QR kód sa počas úprav nepočíta ani nezobrazuje; vytvorí sa z aktuálnych platobných údajov až pri generovaní PDF alebo otvorení jeho náhľadu. Editor nemá zoom ani zväčšovanie vykreslenej plochy; veľkosť písma zostáva rovnaká pri zmene šírky okna. Všetky zmeny sa ukladajú automaticky vrátane neúplných faktúr a rozpísaných čísel. Jediné tlačidlo PDF na webe otvorí náhľad s exportom; na Macu uloží PDF cez natívny dialóg.
 - Faktúry sú rovno vystavené; stav sa určuje podľa úhrady a splatnosti. Vymazanie s potvrdením.
 - Položky, množstvo, jednotka, cena, zľava, voliteľná DPH, poznámka a dátumy.
 - Výber jedného účtu, evidencia uhradenej sumy, zostávajúca úhrada a preplatok.
 - Správa odberateľov, dodávateľa, loga, podpisu a bankových účtov vrátane predvoleného účtu.
-- Kliknutie na pozadie aplikácie zatvorí otvorený PDF náhľad faktúry rovnako ako X.
+- Kliknutie na pozadie webovej aplikácie zatvorí otvorený PDF náhľad faktúry rovnako ako X.
 - A4 PDF s viacstranovými položkami, diakritikou, logom a podpisom.
 - Šablóny faktúr: pôvodný vzhľad **Boring default 01** a čiernobiela **Mono 01** s vektorovým logom Uncut Corners cez celú šírku gridu, malým nápisom FAKTÚRA vpravo pri čísle, hrubými plnými a tenkými čiernymi prerušovanými čiarami a písmom SF Mono vo všetkých textoch. Obe zachovávajú fakturačné údaje, podpis a platobný QR kód. Mono 01 používa v hlavičke dodané logo zo zdrojov aplikácie; uložené logá faktúr sa nemenia a Boring default 01 ich naďalej zobrazuje.
 - Globálny výber je v **Nastavenia → Vzhľad → Šablóna faktúry**. Platí pre nové aj existujúce faktúry s voľbou **Podľa globálnych nastavení**. Ikona šablóny v hornej lište faktúry alebo **Možnosti faktúry → Šablóna faktúry** umožňuje pevne zvoliť vzhľad iba pre danú faktúru. Zmena sa ukladá automaticky; duplikovanie zachová individuálnu voľbu. Staršie dáta a zálohy používajú pôvodný vzhľad, kým šablónu nezmeníte. Farba zvýraznení sa používa v Boring default 01.

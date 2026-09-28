@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Copy, FileSearch, History, Printer, Settings2, Trash2 } from 'lucide-react';
+import { Copy, History, Printer, Settings2, Trash2 } from 'lucide-react';
 import {
   invoiceSchema,
   invoiceInput,
@@ -184,15 +184,6 @@ export function InvoiceEditor({
           </button>
           <button title="Vymazať" aria-label="Vymazať" onClick={onDelete}>
             <Trash2 size={16} />
-          </button>
-          <button
-            title="Náhľad PDF"
-            aria-label="Náhľad PDF"
-            onClick={async () => {
-              if (await flush()) setPreview(true);
-            }}
-          >
-            <FileSearch size={17} />
           </button>
           <button
             title="Možnosti faktúry"

@@ -77,7 +77,6 @@ struct InvoiceEditor: View {
     let onDuplicate: () -> Void
     let onDelete: () -> Void
     @State private var options = false
-    @State private var expanded: Invoice?
     private var invoice: Invoice { draft.invoice }
 
     var body: some View {
@@ -97,7 +96,6 @@ struct InvoiceEditor: View {
                     .accessibilityLabel("Šablóna faktúry")
                 IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
                 IconButton("Vymazať", "trash", action: onDelete)
-                IconButton("Náhľad PDF", "doc.viewfinder") { if draft.flush() { expanded = draft.invoice } }.disabled(!draft.canExport)
                 IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
                     .popover(isPresented: $options) {
                         invoiceOptions
@@ -121,8 +119,6 @@ struct InvoiceEditor: View {
                 }.padding(12)
             }
         }
-        .sheet(item: $expanded) { ExpandedInvoicePreview(invoice: $0) }
-        .dismissPopupOnBackgroundClick(isPresented: expanded != nil) { expanded = nil }
     }
 
     private var invoiceOptions: some View {

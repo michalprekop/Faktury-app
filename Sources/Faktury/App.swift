@@ -410,28 +410,6 @@ struct InvoicesView: View {
     }
 }
 
-struct ExpandedInvoicePreview: View {
-    @EnvironmentObject private var store: Store
-    @Environment(\.dismiss) private var dismiss
-    let invoice: Invoice
-    private var size: CGSize {
-        let screen = NSApp.keyWindow?.screen?.visibleFrame.size ?? NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
-        return CGSize(width: min(860, screen.width - 80), height: min(900, screen.height - 100))
-    }
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text.numeric("Faktúra \(invoice.number)", weight: .semibold)
-                Spacer()
-                Button { store.exportPDF(invoice) } label: { Label("Exportovať PDF", systemImage: "square.and.arrow.down") }
-                IconButton("Zavrieť náhľad", "xmark") { dismiss() }.keyboardShortcut(.cancelAction)
-            }.padding(16)
-            Divider()
-            LivePreview(invoice: invoice, showsZoomControls: true)
-        }.frame(width: size.width, height: size.height)
-    }
-}
-
 struct InvoiceRow: View {
     static let height: CGFloat = 64
     let invoice: Invoice

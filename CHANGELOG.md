@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1.1.3 — 28. 9. 2026
+
+- Z webu aj Mac aplikácie zmizla samostatná ikona náhľadu PDF. V hornej lište zostáva jedno tlačidlo PDF.
+
 ## 1.1.2 — 28. 9. 2026
 
 - Možnosti faktúry v Mac aplikácii majú nepriesvitné pozadie, aby faktúra nepresvitala cez text a ovládacie prvky.
