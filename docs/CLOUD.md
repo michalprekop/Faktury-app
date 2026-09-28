@@ -8,7 +8,7 @@ API získava vlastníka z overenej serverovej session. Nikdy neprijíma vlastní
 
 Prihlásenie overuje podpis Apple JWT, issuer, audience, expiry a nonce. Jednorazový OAuth state je viazaný na HttpOnly cookie konkrétneho prehliadača. Session je 30-dňová, token je v D1 len ako SHA-256 hash. Apple refresh token je AES-GCM šifrovaný a overuje sa najviac raz denne. Pozastavenie účtu vymaže všetky jeho sessions. API zápisy vyžadujú rovnaký Origin a CSRF token. Cookies sú Secure/HttpOnly; CSP blokuje cudzie skripty, rámce a obrázky zo vzdialených serverov. Obrázky šablón sú obmedzené PNG/JPEG, šablóny neumožňujú vložiť HTML alebo JS.
 
-Mac používa `ASWebAuthenticationSession`, overí jednorazový kód cez dvojminútový handoff viazaný na tajný verifier a session nastaví priamo do WKWebView cookie store. Session sa nevkladá do JavaScriptu. Natívne funkcie tlače/súborov prijímajú iba hlavný dokument dôveryhodnej HTTPS domény. Odkazy na cudzie weby sa otvárajú v externom prehliadači.
+Mac používa `ASWebAuthenticationSession`, overí jednorazový kód cez dvojminútový handoff viazaný na tajný verifier a session nastaví priamo do WKWebView cookie store. Session sa nevkladá do JavaScriptu. Od verzie 1.1.1 faktúry zobrazuje pôvodné SwiftUI rozhranie. URLSession používa overenú HttpOnly session a rovnakú kontrolu Origin/CSRF; natívne API nemá osobitné oprávnenia. Každý účet má samostatnú lokálnu cache a verzie záznamov. Konflikt sa neprepisuje. Admin sa otvára na webe.
 
 ## Nasadenie
 
@@ -67,4 +67,4 @@ Mac: `bash scripts/test-native.sh`, `bash scripts/release-mac.sh`, nahrať ZIP d
 
 Zdrojové zmeny commitovať a poslať na origin. Návrat riešiť novým revert commitom; nepoužívať force push. Worker podporuje Cloudflare version rollback. Pri zmene schémy sa najprv musí posúdiť kompatibilita; návrat kódu nie je automatická obnova dát.
 
-Toto vydanie neposiela faktúry e-mailom, neobsahuje platby/predplatné ani automatický import pôvodnej lokálnej databázy. Webový PDF export používa tlač prehliadača: A4, bez hlavičiek/pätičiek prehliadača. macOS tlač používa natívny dialóg a A4. Prevádzkovateľ má pred širším komerčným spustením doplniť vlastné kontaktné a zmluvné informácie služby; stránka `/privacy.html` popisuje skutočné technické spracovanie údajov.
+Toto vydanie neposiela faktúry e-mailom, neobsahuje platby/predplatné ani nevyžiadaný automatický import lokálnej databázy. Import pôvodného `database.json` do prázdneho účtu sa spúšťa v Nastaveniach → Zálohy. Migrácia `0004_native_imports.sql` a atomická transakcia zabraňujú opakovanému importu či prepísaniu účtu. Webový PDF export používa tlač prehliadača: A4, bez hlavičiek/pätičiek prehliadača. macOS tlač používa natívny dialóg a A4. Prevádzkovateľ má pred širším komerčným spustením doplniť vlastné kontaktné a zmluvné informácie služby; stránka `/privacy.html` popisuje skutočné technické spracovanie údajov.

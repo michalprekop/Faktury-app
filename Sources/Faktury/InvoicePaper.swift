@@ -111,10 +111,10 @@ struct InvoicePaper: View {
     @ViewBuilder private var header: some View {
         if mono {
             VStack(alignment: .leading, spacing: 42) {
-                if let logo = MonoInvoiceBrand.wordmark {
+                if let logo = MonoInvoiceBrand.image(for: invoice) {
                     Image(nsImage: logo).resizable().scaledToFit()
                         .frame(maxWidth: .infinity)
-                        .accessibilityLabel("Uncut Corners")
+                        .accessibilityLabel(invoice.cloudStyle?.config.wordmark ?? "Uncut Corners")
                 }
                 HStack(alignment: .bottom, spacing: 24) {
                     VStack(alignment: .leading, spacing: 4) {

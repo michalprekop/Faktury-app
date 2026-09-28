@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 final class Store: ObservableObject {
     @Published private(set) var database = Database()
     @Published var error: String?
+    @Published var cloudTemplates: [CloudInvoiceStyle]? = nil
     @Published var notice: String?
     @Published private(set) var settingsSaveMessage: String?
     @Published private(set) var invoiceRecovery: [InvoiceRecovery] = []
@@ -140,7 +141,9 @@ final class Store: ObservableObject {
         flushSettings()
         var numbering = database
         numbering.invoices += invoiceRecovery.map(\.invoice)
-        return numbering.newInvoice()
+        var invoice = numbering.newInvoice()
+        invoice.cloudStyle = cloudTemplates?.first { $0.id == database.settings.cloudTemplateID } ?? cloudTemplates?.first
+        return invoice
     }
 
     @discardableResult func update(_ change: (inout Database) -> Void) -> Bool {
@@ -153,6 +156,13 @@ final class Store: ObservableObject {
             database = next
             return true
         } catch { self.error = error.localizedDescription; return false }
+    }
+
+    @discardableResult func applyCloud(_ next: Database) -> Bool {
+        guard invoiceRecovery.isEmpty, pendingSettings == nil else { return false }
+        guard update({ $0 = next }) else { return false }
+        workspaceRevision += 1
+        return true
     }
 
     @discardableResult func save(_ invoice: Invoice) -> Bool {

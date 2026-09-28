@@ -10,15 +10,15 @@ Webová fakturačná aplikácia s Apple prihlásením, súkromným účtom a spr
 
 Prihlásenie cez Apple vytvorí účet čakajúci na aktiváciu. Správca v **Administrácia → Používatelia → Upraviť prístup** aktivuje účet a zaškrtne dostupné šablóny. Prvý prihlásený používateľ sa automaticky nestáva správcom. Šablóny sa vytvárajú v **Administrácia → Šablóny**, výberom rozloženia, farby, loga, textovej značky a pätičky. Šablóna sa používateľovi zobrazí až po pridelení.
 
-Web aj Mac pracujú s rovnakým cloudovým účtom. Faktúry a profil sa v cloudovom editore potvrdzujú tlačidlom **Uložiť**. Aplikácia upozorní na neuložené zmeny a súbežnú úpravu na inom zariadení; PDF je dostupné z uloženej faktúry. Čísla sú jedinečné v rámci účtu, vrátane koša. Kôš a história umožňujú obnovu. Šablóna na vystavenej faktúre je uložená spolu s dokumentom a neskoršia úprava alebo odobratie šablóny nemení jej vzhľad.
+Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné natívne rozhranie, web rovnaké rozloženie: zoznam vľavo, úpravy priamo na faktúre vpravo. Faktúry a nastavenia sa ukladajú automaticky. Pri súbežnej úprave na inom zariadení server odmietne prepísanie novšej verzie; rozpracované zmeny zostávajú v zariadení. PDF je dostupné po platnom uložení. Čísla sú jedinečné v rámci účtu, vrátane koša. Kôš a história umožňujú obnovu. Šablóna na vystavenej faktúre je uložená spolu s dokumentom a neskoršia úprava alebo odobratie šablóny nemení jej vzhľad.
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.1.0 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
+Mac distribúcia 1.1.1 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
 
 ## Pôvodný lokálny režim
 
-Existujúca inštalácia zachová pôvodné faktúry a známe rozhranie. Horná lišta umožňuje prepnúť na cloudový účet a späť. Lokálne dáta sa automaticky neodosielajú do cloudu; pôvodné súbory a rozpracované faktúry zostávajú v pôvodnom priečinku. Nasledujúce funkcie a automatické ukladanie sa týkajú lokálneho režimu.
+Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudového účtu ich nemení. Na prihlasovacej obrazovke možno otvoriť pôvodnú lokálnu zálohu. Import do prázdneho cloudového účtu sa spúšťa vo webových **Nastaveniach → Zálohy → Importovať pôvodné faktúry**. Súbor musí byť pôvodný `database.json`; import zachová faktúry, odberateľov, nastavenia, obrázky a identifikátory. Opakovaný rovnaký import nevytvorí duplicity, obsadený účet sa neprepisuje.
 
 ## Funkcie
 
@@ -42,7 +42,7 @@ Faktúry nemajú tlačidlo Uložiť: platné zmeny sa zapíšu po 450 ms nečinn
 
 ## Dáta
 
-Ukladajú sa do `~/Library/Application Support/sk.faktury.desktop/database.json`. Rozpracované faktúry a surový vstup sú v susednom `invoice-drafts.json`, zapisovanom atómovo. Export JSON zálohy zahŕňa aj tieto rozpracované údaje. Predchádzajúca verzia databázy zostáva v `database.previous.json`. Pred obnovením zálohy sa vytvorí aj samostatná kópia pôvodných dát vrátane rozpracovaných faktúr. Odporúča sa pravidelný export zálohy na iné úložisko.
+Pôvodné lokálne dáta sú v `~/Library/Application Support/sk.faktury.desktop/database.json`. Cloudový účet má oddelenú cache v `accounts/<user-id>/database.json` a synchronizačný stav v `cloud-sync.json`. Mac potrebuje internet na overenie účtu pri otvorení; počas práce uchová zmeny aj pri výpadku a synchronizáciu opakuje. Web uchová rozpísaný vstup oddelene pre účet v lokálnom úložisku prehliadača. Rozpracované faktúry a surový vstup sú v susednom `invoice-drafts.json`, zapisovanom atómovo. Export JSON zálohy zahŕňa aj tieto rozpracované údaje. Predchádzajúca verzia databázy zostáva v `database.previous.json`. Pred obnovením zálohy sa vytvorí aj samostatná kópia pôvodných dát vrátane rozpracovaných faktúr. Odporúča sa pravidelný export zálohy na iné úložisko.
 
 Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, nepripája sa do SuperFaktúry a nevytvára ISDOC. Sadzby DPH sú nastaviteľné. Nové profily začínajú prázdne.
 
@@ -64,7 +64,7 @@ Skript vytvorí pracovnú kópiu v `.build/distribution.noindex/Faktúry.app`, m
 
 `build-app.sh` vytvára vývojový ad-hoc podpis. Distribučné zostavenie robí `bash scripts/release-mac.sh`: Developer ID podpis, notarizácia, stapling a kontrola Gatekeeper. Výsledok je `output/release/Faktury-Mac.zip`. Kľúč a notársky profil musia byť dostupné v lokálnej Kľúčenke; nepíšu sa do Gitu.
 
-Pre túto aktualizáciu boli pôvodné lokálne JSON súbory zálohované do `output/pre-cloud-install-20260928`; kontrolné súčty po inštalácii zostali totožné. Pôvodný lokálny wordmark je uchovaný v `~/Library/Application Support/sk.faktury.desktop/legacy-wordmark.svg` a nešíri sa v novej aplikácii. Pri obnove starej lokálnej inštalácie možno použiť `Faktury-before.zip` v tom istom záložnom priečinku.
+Pred vydaním 1.1.1 boli pôvodné lokálne JSON súbory a predchádzajúca aplikácia zálohované do `output/pre-restore-20260928`; kontrolné súčty po inštalácii zostali totožné. Pôvodný lokálny wordmark je uchovaný v `~/Library/Application Support/sk.faktury.desktop/legacy-wordmark.svg` a nešíri sa v novej aplikácii. Pri obnove starej lokálnej inštalácie možno použiť `Faktury-1.1.0-before.zip` v tom istom záložnom priečinku.
 
 ## História a návrat k staršej verzii
 

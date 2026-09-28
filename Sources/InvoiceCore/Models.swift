@@ -134,6 +134,7 @@ public struct Invoice: Codable, Identifiable, Equatable {
     public var paymentMethod = "Bankový prevod"
     public var paymentQRFormat: PaymentQRFormat? = nil
     public var templateOverride: InvoiceTemplate? = nil
+    public var cloudStyle: CloudInvoiceStyle? = nil
     public var note = ""
     public var issuedBy = ""
     public var paid: Decimal = 0
@@ -188,6 +189,7 @@ public struct Settings: Codable, Equatable {
     public var defaultVAT: Decimal = 0
     public var invoiceAccentHex: String? = nil
     public var invoiceTemplate: InvoiceTemplate? = nil
+    public var cloudTemplateID: String? = nil
     public var logo: Data? = nil
     public var signature: Data? = nil
     public init() {}

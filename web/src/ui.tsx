@@ -76,7 +76,12 @@ export function Modal({
     };
   }, []);
   return (
-    <div className="modal-backdrop">
+    <div
+      className="modal-backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <section ref={dialog} role="dialog" aria-modal="true" aria-label={title} className="modal">
         <header>
           <h2>{title}</h2>

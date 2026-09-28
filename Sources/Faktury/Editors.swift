@@ -90,10 +90,7 @@ struct InvoiceEditor: View {
                     .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
                 Spacer(minLength: 8)
                 Menu {
-                    Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
-                        Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
-                        ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
-                    }
+                    InvoiceTemplatePicker(draft: draft)
                 } label: { Image(systemName: "doc.richtext") }
                     .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
                     .help("Šablóna faktúry: " + invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title)
@@ -126,10 +123,7 @@ struct InvoiceEditor: View {
 
     private var invoiceOptions: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
-                Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
-                ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
-            }
+            InvoiceTemplatePicker(draft: draft)
             Divider()
             if invoice.remaining > 0 {
                 Button {
@@ -214,5 +208,25 @@ struct CustomersView: View {
             Button("Zrušiť", role: .cancel) { deleting = nil }
             Button("Vymazať", role: .destructive) { if let id = deleting?.id { _ = store.update { $0.customers.removeAll { $0.id == id } } }; deleting = nil }
         } message: { Text("\(deleting?.name ?? "") bude odstránený z kontaktov. Údaje na existujúcich faktúrach zostanú zachované.") }
+    }
+}
+
+struct InvoiceTemplatePicker: View {
+    @EnvironmentObject private var store: Store
+    @ObservedObject var draft: InvoiceDraft
+    var body: some View {
+        if let templates = store.cloudTemplates {
+            Picker("Šablóna faktúry", selection: Binding(get: { draft.invoice.cloudStyle?.id ?? "" }, set: { id in
+                if let style = templates.first(where: { $0.id == id }) { draft.invoice.cloudStyle = style; draft.invoice.templateOverride = style.layout }
+            })) {
+                if let current = draft.invoice.cloudStyle, !templates.contains(where: { $0.id == current.id }) { Text(current.name).tag(current.id) }
+                ForEach(templates) { Text($0.name).tag($0.id) }
+            }
+        } else {
+            Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
+                Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
+                ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+            }
+        }
     }
 }

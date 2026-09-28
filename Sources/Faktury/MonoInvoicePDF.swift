@@ -148,9 +148,9 @@ enum MonoInvoicePDF {
         beginPage()
         let compact = invoice.items.count > 1
         let logoTop: CGFloat = compact ? 22 : 32
-        let logoSize = MonoInvoiceBrand.wordmark?.size ?? NSSize(width: 1559, height: 158)
+        let logoSize = MonoInvoiceBrand.image(for: invoice)?.size ?? NSSize(width: 1559, height: 158)
         let logoHeight = width * logoSize.height / logoSize.width
-        picture(MonoInvoiceBrand.wordmarkData, NSRect(x: left, y: logoTop, width: width, height: logoHeight))
+        picture(MonoInvoiceBrand.data(for: invoice), NSRect(x: left, y: logoTop, width: width, height: logoHeight))
         let metadataTop = logoTop + logoHeight + (compact ? 14 : 30)
         text("Číslo faktúry", left, metadataTop, 245, size: 7.5, color: muted)
         let numberHeight = text(invoice.number, left, metadataTop + 14, 245, size: 12, weight: .bold)

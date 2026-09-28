@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Save, Plus, Trash2, Download, Cloud } from 'lucide-react';
 import { profileSchema, type Profile, type Template } from '../shared/model';
 import { api } from './api';
@@ -9,87 +9,164 @@ export function Settings({
   version,
   templates,
   onSaved,
+  registerFlush,
+  accountID,
 }: {
   initial: Profile;
   version: number;
   templates: Template[];
+  registerFlush: (flush: (() => Promise<boolean>) | null) => void;
+  accountID: string;
   onSaved: (profile: Profile, version: number) => void;
 }) {
-  const [profile, setProfile] = useState(initial),
-    [saved, setSaved] = useState(initial),
-    [revision, setRevision] = useState(version),
+  const key = `faktury-profile:${accountID}`;
+  const recovered = useRef<{ profile: Profile; version: number } | null>(null);
+  const [profile, setProfile] = useState(() => {
+    try {
+      const v = localStorage.getItem(key);
+      if (v) {
+        recovered.current = JSON.parse(v);
+        return recovered.current!.profile;
+      }
+    } catch {}
+    return initial;
+  });
+  const [saved, setSaved] = useState(initial),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(''),
-    [tab, setTab] = useState('Firma');
+    [tab, setTab] = useState('Moja firma');
+  const latest = useRef(profile),
+    ack = useRef(initial),
+    revision = useRef(recovered.current?.version ?? version),
+    inflight = useRef<Promise<boolean> | null>(null),
+    blocked = useRef(false);
+  latest.current = profile;
   const dirty = JSON.stringify(profile) !== JSON.stringify(saved);
   useUnsaved(dirty);
-  const update = (part: Partial<Profile>) => {
-    setNotice('');
-    setProfile((p) => ({ ...p, ...part }));
-  };
-  async function save() {
+  function update(part: Partial<Profile>) {
+    blocked.current = false;
     setError('');
-    const result = profileSchema.safeParse(profile);
-    if (!result.success) {
-      setError(
-        result.error.issues
-          .map((i) => i.message)
-          .slice(0, 4)
-          .join(' '),
-      );
-      return;
-    }
-    setBusy(true);
+    setProfile((p) => ({ ...p, ...part }));
+  }
+  async function save(): Promise<boolean> {
+    if (inflight.current) return inflight.current;
+    const work = (async () => {
+      while (JSON.stringify(latest.current) !== JSON.stringify(ack.current)) {
+        const snapshot = latest.current,
+          result = profileSchema.safeParse(snapshot);
+        if (!result.success) {
+          setError(
+            result.error.issues
+              .slice(0, 2)
+              .map((i) => i.message)
+              .join(' '),
+          );
+          return false;
+        }
+        setBusy(true);
+        try {
+          const next = await api<{ version: number }>('/profile', {
+            method: 'PUT',
+            body: JSON.stringify({ profile: result.data, version: revision.current }),
+          });
+          revision.current = next.version;
+          ack.current = result.data;
+          setSaved(result.data);
+          onSaved(result.data, next.version);
+          if (JSON.stringify(latest.current) === JSON.stringify(snapshot)) {
+            latest.current = result.data;
+            setProfile(result.data);
+            localStorage.removeItem(key);
+          } else
+            localStorage.setItem(
+              key,
+              JSON.stringify({ profile: latest.current, version: next.version }),
+            );
+        } catch (e) {
+          blocked.current = true;
+          setError((e as Error).message);
+          return false;
+        }
+      }
+      setError('');
+      return true;
+    })();
+    inflight.current = work;
     try {
-      const next = await api<{ version: number }>('/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ profile: result.data, version: revision }),
-      });
-      setProfile(result.data);
-      setSaved(result.data);
-      setRevision(next.version);
-      onSaved(result.data, next.version);
-      setNotice('Profil je uložený v cloude.');
-    } catch (e) {
-      setError((e as Error).message);
+      return await work;
     } finally {
+      inflight.current = null;
       setBusy(false);
     }
   }
+  useEffect(() => {
+    registerFlush(save);
+    return () => registerFlush(null);
+  }, []);
+  useEffect(() => {
+    if (!dirty) return;
+    try {
+      localStorage.setItem(key, JSON.stringify({ profile, version: revision.current }));
+    } catch {
+      setError('Rozpracované nastavenia sa nepodarilo uložiť v prehliadači.');
+    }
+    if (blocked.current) return;
+    const timer = setTimeout(() => void save(), 450);
+    return () => clearTimeout(timer);
+  }, [profile, dirty]);
   return (
     <div className="page narrow" data-unsaved={dirty}>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">Váš pracovný priestor</span>
           <h1>Nastavenia</h1>
-          <p>Firemné údaje, bankové účty a vzhľad faktúr.</p>
         </div>
-        <button className="button" disabled={busy || !dirty} onClick={() => void save()}>
-          <Save size={16} />
-          {busy ? 'Ukladám…' : 'Uložiť zmeny'}
-        </button>
+        <span className="save-state">{busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}</span>
       </div>
       <ErrorBox error={error} />
+      {error && (
+        <button
+          onClick={() => {
+            blocked.current = false;
+            void save();
+          }}
+        >
+          Zopakovať uloženie
+        </button>
+      )}
       {notice && (
         <div className="notice" role="status">
           {notice}
         </div>
       )}
       <div className="tabs section-tabs">
-        {['Firma', 'Bankové účty', 'Faktúry', 'Vzhľad', 'Zálohy'].map((x) => (
+        {['Moja firma', 'Bankové účty', 'Vzhľad', 'Predvoľby', 'Zálohy'].map((x) => (
           <button key={x} className={tab === x ? 'active' : ''} onClick={() => setTab(x)}>
             {x}
           </button>
         ))}
       </div>
-      {tab === 'Firma' && (
+      {tab === 'Moja firma' && (
         <section className="panel">
           <h2>Údaje dodávateľa</h2>
           <p className="muted">
             Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.
           </p>
           <CompanyFields value={profile.supplier} onChange={(supplier) => update({ supplier })} />
+          <div className="image-grid">
+            <ImageInput
+              label="Logo firmy"
+              value={profile.logo}
+              onChange={(logo) => update({ logo })}
+              onError={setError}
+            />
+            <ImageInput
+              label="Podpis"
+              value={profile.signature}
+              onChange={(signature) => update({ signature })}
+              onError={setError}
+            />
+          </div>
         </section>
       )}
       {tab === 'Bankové účty' && (
@@ -157,7 +234,7 @@ export function Settings({
           </button>
         </section>
       )}
-      {tab === 'Faktúry' && (
+      {tab === 'Predvoľby' && (
         <section className="panel">
           <h2>Predvolené údaje</h2>
           <div className="form-grid">
@@ -229,7 +306,15 @@ export function Settings({
                 className={
                   'template-option' + (profile.defaultTemplateID === t.id ? ' selected' : '')
                 }
-                onClick={() => update({ defaultTemplateID: t.id })}
+                onClick={() =>
+                  update({
+                    defaultTemplateID: t.id,
+                    appearance: {
+                      accent: profile.appearance?.accent ?? t.config.accent,
+                      template: t.config.layout === 'mono' ? 'mono01' : 'boringDefault01',
+                    },
+                  })
+                }
               >
                 <span
                   className={`mini-paper ${t.config.layout}`}
@@ -245,20 +330,6 @@ export function Settings({
             ))}
           </div>
           {!templates.length && <p>Správca zatiaľ nepriradil žiadnu šablónu.</p>}
-          <div className="image-grid">
-            <ImageInput
-              label="Logo firmy"
-              value={profile.logo}
-              onChange={(logo) => update({ logo })}
-              onError={setError}
-            />
-            <ImageInput
-              label="Podpis"
-              value={profile.signature}
-              onChange={(signature) => update({ signature })}
-              onError={setError}
-            />
-          </div>
         </section>
       )}
       {tab === 'Zálohy' && <Backups />}
@@ -286,6 +357,34 @@ function Backups() {
       </p>
       <ErrorBox error={error} />
       <div className="button-row">
+        <label className="button secondary">
+          Importovať pôvodné faktúry
+          <input
+            type="file"
+            accept=".json,application/json"
+            className="sr-only"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setBusy(true);
+              setError('');
+              try {
+                if (file.size > 25_000_000) throw Error('Záloha je príliš veľká.');
+                const source = JSON.parse(await file.text());
+                const result = await api<{ imported: number }>('/native/import', {
+                  method: 'POST',
+                  body: JSON.stringify(source),
+                });
+                alert(`Importovaných ${result.imported} faktúr.`);
+                location.reload();
+              } catch (e) {
+                setError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          />
+        </label>
         <a className="button" href="/api/export" download>
           <Download size={16} />
           Exportovať všetky dáta

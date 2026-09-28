@@ -8,10 +8,6 @@ struct FakturyApp: App {
     @StateObject private var store = Store()
 
     init() {
-        if UserDefaults.standard.object(forKey: "faktury.cloudMode") == nil {
-            let existing = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sk.faktury.desktop/database.json")
-            UserDefaults.standard.set(!FileManager.default.fileExists(atPath: existing.path), forKey: "faktury.cloudMode")
-        }
         if let index = CommandLine.arguments.firstIndex(of: "--render-database"), CommandLine.arguments.count > index + 2 {
             Verification.renderDatabase(path: CommandLine.arguments[index + 1], directory: CommandLine.arguments[index + 2], expectSinglePage: CommandLine.arguments.contains("--expect-single-page"))
             exit(0)
@@ -112,6 +108,7 @@ enum SectionID: String, CaseIterable, Identifiable {
 }
 
 struct RootView: View {
+    var cloud: NativeCloudSync? = nil
     @EnvironmentObject private var store: Store
     @State private var selection: SectionID = .invoices
     @State private var selectedInvoice: UUID?
@@ -124,6 +121,22 @@ struct RootView: View {
                     Text("Faktúry").font(.system(size: 22, weight: .semibold))
                     Text.numeric(store.database.settings.supplier.name.isEmpty ? "Moja firma" : store.database.settings.supplier.name, size: 11)
                         .foregroundStyle(.secondary).lineLimit(1)
+                }
+                if let cloud {
+                    Menu {
+                        Text(cloud.user?.name ?? "Lokálna záloha")
+                        Text(cloud.message)
+                        if let failure = cloud.failure { Text(failure) }
+                        Button("Synchronizovať teraz") { Task { await cloud.synchronize() } }
+                        if cloud.user?.role == "admin" {
+                            Button("Administrácia") { NSWorkspace.shared.open(CloudEndpoint.origin.appending(queryItems: [URLQueryItem(name: "page", value: "admin")])) }
+                        }
+                        Button("Otvoriť web") { NSWorkspace.shared.open(CloudEndpoint.origin) }
+                        Divider()
+                        Button("Odhlásiť sa") { Task { await cloud.signOut() } }
+                    } label: { Image(systemName: cloud.failure == nil ? "icloud" : "exclamationmark.icloud") }
+                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                    .help(cloud.failure ?? cloud.message).accessibilityLabel("Cloudový účet")
                 }
                 Spacer(minLength: 24)
                 Picker("Navigácia", selection: $selection) {
@@ -269,7 +282,7 @@ struct InvoicesView: View {
         .onChange(of: year) { _, _ in selectFilteredInvoice() }
         .onChange(of: store.workspaceRevision) { _, _ in
             draft = nil
-            if let invoice = store.invoiceRecovery.max(by: { $0.modifiedAt < $1.modifiedAt })?.invoice ?? filtered.first { open(invoice) }
+            if let invoice = store.invoiceRecovery.max(by: { $0.modifiedAt < $1.modifiedAt })?.invoice ?? store.invoices.first(where: { $0.id == selectedID }) ?? filtered.first { open(invoice) }
             else { selectedID = nil }
         }
         .alert("Vymazať faktúru \(deleting?.number ?? "")?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {

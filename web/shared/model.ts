@@ -21,6 +21,7 @@ export const imageSchema = z
   .or(z.literal(''));
 export const companySchema = z
   .object({
+    id: z.string().uuid().optional(),
     name: text(),
     street: text(),
     postalCode: text(20),
@@ -76,6 +77,17 @@ export const templateSchema = z
 export const profileSchema = z
   .object({
     supplier: companySchema,
+    customers: z
+      .array(companySchema.extend({ id: z.string().uuid() }))
+      .max(5000)
+      .optional(),
+    appearance: z
+      .object({
+        accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+        template: z.enum(['boringDefault01', 'mono01']),
+      })
+      .strict()
+      .optional(),
     accounts: z.array(accountSchema).max(10),
     defaultAccountID: z.string().uuid().nullable(),
     dueDays: z.number().int().min(0).max(365),
@@ -112,9 +124,24 @@ export const itemSchema = z
   .strict();
 const invoiceBase = z
   .object({
-    id: z.string().uuid(),
+    id: z
+      .string()
+      .uuid()
+      .transform((v) => v.toLowerCase()),
     version: z.number().int().nonnegative(),
     number: text(40).min(1),
+    orderNumber: text(250).optional(),
+    nativeDates: z
+      .object({
+        createdAt: z.number().finite(),
+        updatedAt: z.number().finite(),
+        issueDate: z.number().finite(),
+        dueDate: z.number().finite(),
+        deliveryDate: z.number().finite().optional(),
+      })
+      .strict()
+      .optional(),
+    nativeTemplateOverride: z.enum(['boringDefault01', 'mono01']).nullable().optional(),
     issueDate: date,
     dueDate: date,
     deliveryDate: date.nullable(),
@@ -127,7 +154,7 @@ const invoiceBase = z
     variableSymbol: z.string().regex(/^\d{0,10}$/),
     constantSymbol: z.string().regex(/^\d{0,4}$/),
     specificSymbol: z.string().regex(/^\d{0,10}$/),
-    paymentMethod: z.enum(['Bankový prevod', 'Hotovosť', 'Karta', 'Dobierka']),
+    paymentMethod: z.enum(['', 'Bankový prevod', 'Hotovosť', 'Karta', 'Dobierka']),
     note: text(4000),
     issuedBy: text(),
     logo: imageSchema,
@@ -175,6 +202,8 @@ export type InvoiceSummary = {
   currency: string;
   paid: string;
   dueDate: string;
+  issueDate?: string;
+  searchText?: string;
   deleted_at: string | null;
 };
 export const emptyCompany = (): Company => ({

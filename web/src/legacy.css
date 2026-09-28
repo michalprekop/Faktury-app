@@ -1,0 +1,1177 @@
+.native-shell {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #242627;
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  overflow: hidden;
+}
+.native-shell button,
+.native-shell input,
+.native-shell select,
+.native-shell textarea {
+  font-family: inherit;
+}
+.native-shell button {
+  cursor: pointer;
+}
+.native-shell button:not(.button) {
+  border: 0;
+  background: none;
+  color: inherit;
+}
+.native-shell button:disabled {
+  opacity: 0.45;
+}
+.native-shell .numeric,
+.original-paper .numeric {
+  font-family: 'SFMono-Regular', Menlo, monospace;
+}
+.native-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #dadada;
+  flex-shrink: 0;
+  min-height: 70px;
+}
+.native-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.native-brand strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+}
+.native-brand small {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  margin-top: 2px;
+}
+.native-app-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #146c60;
+  color: white;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 2px #ffffff40;
+}
+.native-header > nav {
+  margin-left: auto;
+  width: 420px;
+}
+.native-segments {
+  display: flex;
+  background: #eee;
+  border-radius: 7px;
+  padding: 2px;
+  align-items: center;
+  gap: 1px;
+}
+.native-segments button {
+  gap: 5px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 13px;
+  flex: 1;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.native-segments button.active {
+  background: #fff;
+  box-shadow: 0 1px 3px #0002;
+}
+.account-menu {
+  position: relative;
+  z-index: 20;
+}
+.account-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  color: #146c60;
+}
+.account-menu > div {
+  position: absolute;
+  left: 0;
+  top: 24px;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 5px 18px #0002;
+  padding: 14px;
+  gap: 12px;
+  border-radius: 9px;
+}
+.account-menu small {
+  font-size: 11px;
+  color: #777;
+  overflow-wrap: anywhere;
+}
+.account-menu button,
+.account-menu a {
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 0;
+}
+.native-invoices {
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.native-overview {
+  display: flex;
+  gap: 14px;
+  padding: 14px 25px;
+  border-bottom: 1px solid #ddd;
+  align-items: center;
+}
+.native-overview > div strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+.native-overview small {
+  display: block;
+  color: #858585;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.native-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  width: 205px;
+  color: #888;
+}
+.native-search input {
+  border: 0;
+  background: none;
+  min-width: 0;
+  width: 100%;
+  font-size: 13px;
+  padding: 0;
+  outline: none;
+}
+.native-shell .button {
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  min-height: 30px;
+  padding: 6px 13px;
+  border-radius: 6px;
+  background: #146c59;
+  border: 1px solid #126550;
+  color: #fff;
+  box-shadow: none;
+  gap: 6px;
+}
+.native-shell .button.secondary {
+  color: #303030;
+  background: #f3f3f3;
+  border-color: #ddd;
+}
+.native-filters {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #ddd;
+}
+.native-filters select,
+.native-list-heading select {
+  width: auto;
+  border: 0;
+  background: #eee;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.native-filters > .native-segments:first-child {
+  max-width: 475px;
+  flex: 1;
+}
+.spacer {
+  flex: 1;
+}
+.native-split {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.native-invoice-list {
+  width: 325px;
+  min-width: 245px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ddd;
+}
+.native-list-heading {
+  height: 49px;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #888;
+}
+.native-list-scroll {
+  overflow: auto;
+  flex: 1;
+  padding: 8px 10px;
+}
+.native-invoice-row {
+  position: relative;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 0 2px;
+}
+.native-invoice-row.selected {
+  border-radius: 8px;
+  background: #e1e1e1;
+  border-color: transparent;
+}
+.native-invoice-row > button:first-child {
+  width: 100%;
+  padding: 10px 10px;
+  height: 64px;
+  text-align: left;
+  font-size: 13px;
+}
+.native-invoice-row > button > div {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 22px;
+}
+.native-invoice-row > button > div + div {
+  margin-top: 4px;
+  height: 16px;
+}
+.native-invoice-row small {
+  font-size: 11px;
+  color: #858585;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.native-invoice-row b {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.native-invoice-row .row-customer {
+  flex: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.native-status {
+  padding: 3px 5px;
+  font-size: 10px;
+  border-radius: 4px;
+  color: #956216;
+  background: #f7f2e9;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.native-status:before {
+  content: '•';
+  margin-right: 4px;
+}
+.native-status.paid {
+  color: #287765;
+  background: #eaf2ef;
+}
+.native-status.overdue {
+  color: #aa3d3d;
+  background: #faeeee;
+}
+.native-invoice-row.selected .native-status {
+  background: #fff;
+}
+.native-detail {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.native-empty {
+  height: 100%;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  gap: 12px;
+}
+.native-empty h2 {
+  font-size: 18px;
+}
+.native-invoice-list.table-mode {
+  width: 100%;
+  border: 0;
+}
+.table-mode .native-invoice-row > button:first-child {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.table-mode .native-invoice-row > button > div {
+  width: 45%;
+}
+.table-mode .native-invoice-row > button > div + div {
+  margin: 0;
+}
+.restore-button {
+  position: absolute;
+  right: 0;
+  top: 22px;
+}
+.original-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.original-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  min-height: 55px;
+  flex-shrink: 0;
+  background: #fff;
+}
+.original-editor-toolbar > b {
+  font-size: 17px;
+}
+.original-editor-toolbar .toolbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.original-editor-toolbar button:not(.button) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f2f2;
+  border-radius: 6px;
+  width: 30px;
+  height: 28px;
+}
+.original-editor-toolbar select {
+  max-width: 150px;
+  border: 0;
+  background: transparent;
+  color: #216557;
+  font-size: 11px;
+  padding: 2px;
+}
+.save-state {
+  font-size: 11px;
+  color: #858585;
+  white-space: nowrap;
+}
+.original-paper-canvas {
+  background: #ececec;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+}
+.original-paper.invoice-paper {
+  box-sizing: border-box;
+  background: #fff;
+  width: 100%;
+  min-width: 720px;
+  max-width: 1000px;
+  min-height: 1080px;
+  margin: auto;
+  padding: 44px 42px 40px;
+  box-shadow: 0 1px 5px #0003;
+  border: 0;
+  border-radius: 0;
+  color: #1c2629;
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.original-paper.mono {
+  font-family: 'SFMono-Regular', Menlo, monospace !important;
+  color: #202729;
+}
+.original-paper input,
+.original-paper textarea,
+.original-paper select {
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  padding: 3px 0;
+  outline: 0;
+  min-width: 0;
+  max-width: 100%;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+.original-paper .paper-inline {
+  width: 100%;
+}
+.original-paper input:hover,
+.original-paper textarea:hover {
+  background: #fafafa;
+}
+.original-paper input:focus,
+.original-paper textarea:focus,
+.original-paper select:focus {
+  outline: 1px solid #bcd6ce;
+  background: #f8fbfa;
+}
+.original-paper textarea {
+  resize: none;
+  overflow: hidden;
+  vertical-align: top;
+  white-space: pre-wrap;
+  field-sizing: content;
+}
+.original-paper p {
+  margin: 0;
+}
+.original-paper small {
+  font-size: 11px;
+  color: #888;
+}
+.original-wordmark {
+  width: 100%;
+  margin: 0 0 42px;
+}
+.original-wordmark img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  display: block;
+}
+.original-wordmark strong {
+  font-size: 52px;
+  line-height: 1.1;
+  display: block;
+  color: #000;
+}
+.original-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid #bbb;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  min-height: 94px;
+  gap: 25px;
+}
+.mono .original-title {
+  border-bottom: 10px solid #000;
+  min-height: 0;
+}
+.original-title b {
+  font-size: 14px;
+  padding-bottom: 5px;
+}
+.original-title h1 {
+  font-family: inherit !important;
+  font-size: 30px !important;
+  margin: 0;
+  line-height: 1.3;
+  font-weight: 600;
+}
+.original-title > h1 {
+  max-width: 70%;
+  text-align: right;
+}
+.original-title > h1 input {
+  text-align: right;
+}
+.mono .original-title h1 {
+  font-size: 18px !important;
+  font-weight: 700;
+}
+.original-title small {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.original-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.original-party {
+  min-width: 0;
+  line-height: 1.55;
+}
+.original-party h3 {
+  font-family: inherit;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  line-height: 1.5;
+  color: inherit;
+  text-transform: none;
+}
+.original-party > strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+.original-party .address-line {
+  display: flex;
+  gap: 8px;
+}
+.original-party .address-line input:first-child {
+  width: 58px;
+  flex-shrink: 0;
+}
+.original-party .identifiers {
+  margin-top: 14px;
+  color: #888;
+  font-size: 12px;
+}
+.identifiers > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+}
+.party-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.party-controls button {
+  padding: 0;
+  color: #888;
+}
+.party-controls select {
+  width: 20px !important;
+}
+.original-registration {
+  font-size: 10px;
+  color: #888;
+  padding: 16px 0 14px;
+  border-bottom: 1px solid #bbb;
+}
+.mono .original-registration {
+  border-bottom: 1px dashed #000;
+}
+.original-dates {
+  display: flex;
+  gap: 16px;
+  padding: 18px 0;
+}
+.original-dates > div {
+  flex: 1;
+  min-width: 0;
+}
+.original-dates small {
+  display: block;
+  margin-bottom: 7px;
+}
+.original-dates input,
+.original-dates select {
+  max-width: 100%;
+  font-size: 13px;
+}
+.original-bank {
+  font-size: 12px;
+  padding-bottom: 20px;
+  line-height: 1.7;
+}
+.original-bank > select {
+  color: #216557;
+}
+.original-symbols {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin-top: 8px;
+}
+.original-symbols input {
+  width: 100px;
+}
+.original-symbols > span {
+  white-space: nowrap;
+}
+.original-items {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+.mono .original-items {
+  border-top: 10px solid #000;
+}
+.original-items th {
+  white-space: nowrap;
+  font-family: inherit;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  padding: 12px 5px;
+  background: #f5f5f5;
+}
+.mono .original-items th {
+  white-space: nowrap;
+  background: white;
+}
+.original-items th:first-child {
+  width: auto;
+  text-align: left;
+  padding-left: 12px;
+}
+.original-items th:nth-child(2) {
+  width: 52px;
+}
+.original-items th:nth-child(3) {
+  width: 63px;
+}
+.original-items th:nth-child(4) {
+  width: 90px;
+}
+.original-items th:nth-child(5) {
+  width: 110px;
+}
+.original-items td {
+  font: inherit;
+  padding: 16px 5px;
+  vertical-align: top;
+  text-align: right;
+  border-bottom: 1px solid #ddd;
+}
+.mono .original-items td {
+  border-bottom: 1px dashed #000;
+}
+.original-items td:first-child {
+  position: relative;
+  padding-left: 12px;
+  text-align: left;
+}
+.original-items td:not(:first-child) input {
+  text-align: right;
+}
+.original-items td:first-child > strong {
+  font-weight: 500;
+}
+.item-detail {
+  color: #888;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+.item-menu {
+  position: absolute;
+  right: -24px;
+  top: 16px;
+  font-size: 11px;
+  z-index: 2;
+}
+.item-menu summary {
+  list-style: none;
+  color: #216557;
+  cursor: pointer;
+}
+.item-menu[open] {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  box-shadow: 0 3px 10px #0002;
+  width: 160px;
+}
+.item-menu label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.item-menu button {
+  display: flex;
+  gap: 5px;
+  padding-top: 8px;
+}
+.original-add {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+.original-add button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  color: #216557;
+  font: inherit;
+}
+.original-add select {
+  background: #f2f2f2;
+  padding: 3px 8px;
+}
+.original-closing {
+  display: flex;
+  gap: 36px;
+  padding-top: 24px;
+}
+.original-note {
+  flex: 1;
+  min-width: 0;
+  color: #888;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.original-totals {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.original-totals p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.original-totals p > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.original-totals input {
+  width: 100px !important;
+  text-align: right;
+}
+.original-totals p:first-child,
+.original-totals .original-remaining {
+  font-size: 14px;
+  font-weight: 600;
+}
+.original-totals p:first-child b,
+.original-totals .original-remaining b {
+  font-size: 17px;
+}
+.original-totals > .signature {
+  width: 238px;
+  height: 87px;
+  object-fit: contain;
+  align-self: flex-end;
+  max-width: 100%;
+}
+.original-totals > small {
+  text-align: right;
+  font-size: 10px;
+  margin-top: 8px;
+}
+.mono .original-closing {
+  flex-direction: column-reverse;
+  gap: 18px;
+}
+.mono .original-totals {
+  width: auto;
+  gap: 12px;
+}
+.mono .original-totals p:not(:nth-child(2)) {
+  border-bottom: 1px dashed #000;
+  padding-bottom: 10px;
+}
+.original-note .qr-code {
+  width: 130px;
+  height: 130px;
+  display: block;
+  margin-top: 20px;
+}
+.original-footer {
+  margin-top: auto;
+  padding-top: 64px;
+  font-size: 10px;
+  color: #888;
+}
+.original-footer > div {
+  border-top: 1px solid #bbb;
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+}
+.mono .original-footer > div {
+  border-top: 1px dashed #000;
+}
+.original-footer > div > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.original-footer > div > span:last-child {
+  text-align: right;
+}
+.original-footer > div > span:first-child {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+.original-footer input {
+  font-size: 10px;
+}
+.original-footer > img {
+  display: block;
+  object-fit: contain;
+  width: 38px;
+  height: 38px;
+  margin: 16px auto 0;
+}
+.native-shell > .page {
+  overflow: auto;
+  padding: 25px;
+  max-width: none;
+  flex: 1;
+}
+.native-shell h1 {
+  font-family: inherit;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.native-shell .page-heading {
+  margin-bottom: 20px;
+}
+.native-shell .page-heading h1 {
+  margin: 0;
+}
+.native-shell .panel {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 24px 0;
+}
+.native-shell .section-tabs {
+  border-bottom: 1px solid #ddd;
+  background: #eee;
+  border-radius: 6px;
+  max-width: 740px;
+  padding: 2px;
+}
+.native-shell .tabs button {
+  padding: 5px 15px;
+  font-size: 13px;
+  border: 0;
+}
+.native-shell .tabs button.active {
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px #0002;
+}
+.native-shell .field {
+  gap: 5px;
+}
+.native-shell .field > span {
+  font-size: 11px;
+  color: #777;
+}
+.native-shell .field input,
+.native-shell .field select,
+.native-shell .field textarea {
+  border: 1px solid #d0d0d0;
+  background: white;
+  border-radius: 4px;
+  padding: 5px 7px;
+  font-size: 13px;
+  min-height: 27px;
+}
+.native-shell .form-grid {
+  max-width: 740px;
+  gap: 14px;
+}
+.native-shell .modal-backdrop {
+  background: #0003;
+}
+.native-shell .modal {
+  border-radius: 9px;
+  max-height: 90vh;
+  overflow: auto;
+}
+.native-shell .modal h2 {
+  font-size: 18px;
+}
+.native-shell .modal > .button {
+  margin-top: 20px;
+}
+.native-shell .customer-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 20px 0;
+}
+.customer-row > div {
+  flex: 1;
+}
+.customer-row small {
+  display: block;
+  margin-top: 6px;
+  color: #888;
+}
+.preview-dialog .modal {
+  max-width: 940px;
+  width: 90vw;
+  background: #eee;
+  padding: 16px;
+}
+.preview-dialog .invoice-paper {
+  margin-top: 20px;
+  min-width: 0;
+  width: 794px;
+  max-width: 100%;
+}
+.retry-save {
+  padding: 6px;
+  color: #a22 !important;
+}
+@media (max-width: 900px) {
+  .native-header {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .native-header > nav {
+    width: auto;
+  }
+  .native-header nav svg {
+    display: none;
+  }
+  .native-invoice-list {
+    width: 260px;
+  }
+  .native-filters {
+    padding: 10px;
+    gap: 8px;
+  }
+  .original-editor-toolbar {
+    gap: 5px;
+    padding: 10px 8px;
+  }
+  .original-editor-toolbar select {
+    max-width: 100px;
+  }
+  .original-editor-toolbar .toolbar-actions {
+    gap: 4px;
+  }
+  .original-paper-canvas {
+    padding: 16px;
+  }
+  .native-segments button {
+    gap: 5px;
+    padding: 5px 8px;
+  }
+}
+@media print {
+  body {
+    background: white !important;
+  }
+  .native-shell {
+    height: auto !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+  .native-shell > * {
+    display: none !important;
+  }
+  .native-shell .native-invoices {
+    display: block !important;
+  }
+  .native-invoices > * {
+    display: none !important;
+  }
+  .native-invoices .native-split {
+    display: block !important;
+    overflow: visible !important;
+  }
+  .native-split > * {
+    display: none !important;
+  }
+  .native-split .native-detail {
+    display: block !important;
+  }
+  .native-detail .original-editor {
+    display: block !important;
+    height: auto !important;
+  }
+  .original-editor > * {
+    display: none !important;
+  }
+  .original-editor .preview-dialog {
+    display: block !important;
+  }
+  .preview-dialog .modal-backdrop {
+    position: static !important;
+    background: none !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+  .preview-dialog .modal {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .preview-dialog .modal > header,
+  .preview-dialog .modal > button {
+    display: none !important;
+  }
+  .original-paper.invoice-paper {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 270mm !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+    box-shadow: none !important;
+    font-size: 10pt !important;
+  }
+  .original-items tr,
+  .original-parties,
+  .original-totals {
+    break-inside: avoid;
+  }
+  .original-items thead {
+    display: table-header-group;
+  }
+  .original-footer {
+    padding-top: 25px;
+  }
+  .original-paper input {
+    border: 0 !important;
+  }
+  @page {
+    size: A4;
+    margin: 5mm;
+  }
+}
+.original-party h3 {
+  letter-spacing: 0;
+}
+.identifiers > div > span {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.identifiers > div > input {
+  width: 0;
+  flex: 1;
+}
+.original-party .address-line textarea {
+  flex: 1;
+  width: 0;
+}
+.original-party > strong textarea {
+  font-weight: 600;
+}
+.original-payment-band {
+  display: flex;
+  justify-content: space-between;
+  background: var(--invoice-accent);
+  color: white;
+  margin-top: 20px;
+  padding: 16px;
+  gap: 12px;
+}
+.original-payment-band > div {
+  min-width: 0;
+  border-right: 1px solid #ffffff80;
+  padding-right: 12px;
+}
+.original-payment-band > div:last-child {
+  border: 0;
+  padding-right: 0;
+}
+.original-payment-band small {
+  display: block;
+  color: inherit;
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+.original-payment-band strong {
+  font-size: 11px;
+  white-space: nowrap;
+}
+.original-paper .modal {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.original-paper .modal input {
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+.native-invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.native-invoice-table th {
+  text-align: left;
+  font-weight: 500;
+  color: #777;
+  background: #fafafa;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+}
+.native-invoice-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+}
+.native-invoice-table td small {
+  display: block;
+  color: #888;
+  margin-top: 4px;
+}
+.native-invoice-table tr.selected {
+  background: #e9f4ef;
+}
+.native-invoice-table button {
+  padding: 0;
+  color: inherit;
+}
+.native-invoice-table th:nth-child(4),
+.native-invoice-table td:nth-child(4) {
+  text-align: right;
+}

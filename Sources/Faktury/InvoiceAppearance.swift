@@ -12,6 +12,7 @@ extension InvoiceAccent {
 }
 
 struct InvoiceAppearanceSettings: View {
+    @EnvironmentObject private var store: Store
     @Binding var settings: InvoiceCore.Settings
     let invoice: Invoice
     private let swatches = [
@@ -27,12 +28,19 @@ struct InvoiceAppearanceSettings: View {
         HStack(alignment: .top, spacing: 32) {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Šablóna faktúry").font(.system(size: 18, weight: .semibold))
+                if let templates = store.cloudTemplates {
+                    Picker("Šablóna faktúry", selection: Binding(get: { settings.cloudTemplateID ?? "" }, set: { id in
+                        settings.cloudTemplateID = id
+                        settings.invoiceTemplate = templates.first(where: { $0.id == id })?.layout
+                    })) { ForEach(templates) { Text($0.name).tag($0.id) } }.labelsHidden()
+                } else {
                 Picker("Šablóna faktúry", selection: Binding(get: { settings.defaultInvoiceTemplate }, set: {
                     settings.invoiceTemplate = $0 == .boringDefault01 ? nil : $0
                 })) {
                     ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag($0) }
                 }.labelsHidden()
                     .help("Platí pre všetky faktúry, ktoré nemajú vybranú vlastnú šablónu.")
+                }
                 Divider()
                 Group {
                     Text("Farba zvýraznení").font(.system(size: 18, weight: .semibold))

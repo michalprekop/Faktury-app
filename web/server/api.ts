@@ -1,3 +1,4 @@
+import { importNative } from './native-import';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
@@ -13,6 +14,15 @@ import {
   type TemplateConfig,
 } from '../shared/model';
 import { backupAccount, exportAccount, scheduledBackup } from './backups';
+import {
+  nativeInvoiceSchema,
+  nativeSettingsSchema,
+  fromNativeInvoice,
+  fromNativeSettings,
+  toNativeInvoice,
+  toNativeSettings,
+} from '../shared/native';
+import { companySchema, type Invoice, type Profile } from '../shared/model';
 
 export const api = new Hono<AppContext>();
 function fail(status: 400 | 403 | 404 | 409, message: string): never {
@@ -71,11 +81,67 @@ api.use('*', async (c, next) => {
   if (c.get('user').status !== 'active') fail(403, 'Účet čaká na aktiváciu správcom.');
   await next();
 });
+api.post('/native/import', async (c) => importNative(c, await body(c, 25_000_000)));
+api.get('/native/profile', async (c) => {
+  const row = await c.env.DB.prepare('SELECT profile,profile_version FROM users WHERE id=?')
+    .bind(c.get('user').id)
+    .first<{ profile: string; profile_version: number }>();
+  const p = profileSchema.parse({ ...emptyProfile(), ...JSON.parse(row!.profile) });
+  return c.json({
+    settings: toNativeSettings(p),
+    customers: p.customers ?? [],
+    version: row!.profile_version,
+    defaultTemplateID: p.defaultTemplateID,
+  });
+});
+api.put('/native/profile', async (c) => {
+  const input = z
+    .object({
+      settings: nativeSettingsSchema,
+      customers: z.array(companySchema.extend({ id: z.string().uuid() })).max(5000),
+      version: z.number().int().nonnegative(),
+      templateID: z.string().nullable(),
+    })
+    .strict()
+    .parse(await body(c, 1500000));
+  return saveProfile(c, {
+    profile: fromNativeSettings(input.settings, input.customers, input.templateID),
+    version: input.version,
+  });
+});
+api.get('/native/invoices/:id', async (c) => {
+  const row = await c.env.DB.prepare(
+    'SELECT document,deleted_at FROM invoices WHERE user_id=? AND id=?',
+  )
+    .bind(c.get('user').id, c.req.param('id').toLowerCase())
+    .first<{ document: string; deleted_at: string | null }>();
+  if (!row || row.deleted_at) fail(404, 'Faktúra sa nenašla.');
+  const saved = JSON.parse(row.document) as SavedInvoice;
+  return c.json({
+    invoice: toNativeInvoice(saved),
+    version: saved.version,
+    template: { id: saved.templateID, name: saved.templateName, config: saved.templateSnapshot },
+  });
+});
+api.put('/native/invoices/:id', async (c) => {
+  const input = z
+    .object({
+      invoice: nativeInvoiceSchema,
+      version: z.number().int().nonnegative(),
+      templateID: z.string().min(1).max(64),
+    })
+    .strict()
+    .parse(await body(c));
+  return saveInvoice(c, fromNativeInvoice(input.invoice, input.version, input.templateID));
+});
 api.put('/profile', async (c) => {
   const input = z
     .object({ profile: profileSchema, version: z.number().int().nonnegative() })
     .strict()
     .parse(await body(c));
+  return saveProfile(c, input);
+});
+async function saveProfile(c: C, input: { profile: Profile; version: number }) {
   if (
     input.profile.defaultTemplateID &&
     !(await allowedTemplate(c, input.profile.defaultTemplateID))
@@ -89,7 +155,7 @@ api.put('/profile', async (c) => {
   if (!result.meta.changes)
     fail(409, 'Profil sa medzičasom zmenil na inom zariadení. Obnovte stránku.');
   return c.json({ version: input.version + 1 });
-});
+}
 api.get('/templates', async (c) => {
   const rows = await c.env.DB.prepare(
     'SELECT t.* FROM templates t JOIN template_grants g ON g.template_id=t.id WHERE g.user_id=? AND t.archived=0 ORDER BY t.name',
@@ -102,7 +168,7 @@ api.get('/invoices', async (c) => {
   const offset = Math.max(0, Math.min(1000000, Number(c.req.query('offset')) || 0));
   const trash = c.req.query('trash') === '1';
   const rows = await c.env.DB.prepare(
-    `SELECT id,number,version,updated_at,deleted_at,json_extract(document,'$.customer.name') AS customer,json_extract(document,'$.currency') AS currency,json_extract(document,'$.paid') AS paid,json_extract(document,'$.dueDate') AS dueDate,total FROM invoices WHERE user_id=? AND deleted_at IS ${trash ? 'NOT ' : ''}NULL ORDER BY updated_at DESC,id LIMIT 100 OFFSET ?`,
+    `SELECT id,number,version,updated_at,deleted_at,json_extract(document,'$.customer.name') AS customer,json_extract(document,'$.currency') AS currency,json_extract(document,'$.paid') AS paid,json_extract(document,'$.dueDate') AS dueDate,json_extract(document,'$.issueDate') AS issueDate,coalesce(json_extract(document,'$.items'),'') || coalesce(json_extract(document,'$.note'),'') || coalesce(json_extract(document,'$.customer'),'') AS searchText,total FROM invoices WHERE user_id=? AND deleted_at IS ${trash ? 'NOT ' : ''}NULL ORDER BY updated_at DESC,id LIMIT 100 OFFSET ?`,
   )
     .bind(c.get('user').id, offset)
     .all();
@@ -132,14 +198,15 @@ api.get('/invoices/:id', async (c) => {
   const row = await c.env.DB.prepare(
     'SELECT document,deleted_at FROM invoices WHERE user_id=? AND id=?',
   )
-    .bind(c.get('user').id, c.req.param('id'))
+    .bind(c.get('user').id, c.req.param('id').toLowerCase())
     .first<{ document: string; deleted_at: string | null }>();
   if (!row) fail(404, 'Faktúra sa nenašla.');
   return c.json({ ...JSON.parse(row.document), deletedAt: row.deleted_at });
 });
-api.put('/invoices/:id', async (c) => {
-  const input = invoiceSchema.parse(await body(c));
-  if (input.id !== c.req.param('id')) fail(400, 'Nesúhlasí identifikátor faktúry.');
+api.put('/invoices/:id', async (c) => saveInvoice(c, invoiceSchema.parse(await body(c))));
+async function saveInvoice(c: C, input: Invoice) {
+  if (input.id !== (c.req.param('id') ?? '').toLowerCase())
+    fail(400, 'Nesúhlasí identifikátor faktúry.');
   const userID = c.get('user').id;
   const existing = await c.env.DB.prepare(
     'SELECT document,version,deleted_at FROM invoices WHERE user_id=? AND id=?',
@@ -206,7 +273,7 @@ api.put('/invoices/:id', async (c) => {
     throw error;
   }
   return c.json(saved);
-});
+}
 api.post('/invoices/:id/trash', async (c) => {
   const input = z
     .object({ version: z.number().int().positive(), restore: z.boolean() })
@@ -221,7 +288,7 @@ api.post('/invoices/:id/trash', async (c) => {
       stamp,
       stamp,
       c.get('user').id,
-      c.req.param('id'),
+      c.req.param('id').toLowerCase(),
       input.version,
     )
     .run();
@@ -232,7 +299,7 @@ api.get('/invoices/:id/versions', async (c) => {
   const rows = await c.env.DB.prepare(
     'SELECT version,created_at FROM invoice_versions WHERE user_id=? AND invoice_id=? ORDER BY version DESC LIMIT 100',
   )
-    .bind(c.get('user').id, c.req.param('id'))
+    .bind(c.get('user').id, c.req.param('id').toLowerCase())
     .all();
   return c.json(rows.results);
 });
@@ -240,7 +307,7 @@ api.get('/invoices/:id/versions/:version', async (c) => {
   const row = await c.env.DB.prepare(
     'SELECT document FROM invoice_versions WHERE user_id=? AND invoice_id=? AND version=?',
   )
-    .bind(c.get('user').id, c.req.param('id'), Number(c.req.param('version')) || 0)
+    .bind(c.get('user').id, c.req.param('id').toLowerCase(), Number(c.req.param('version')) || 0)
     .first<{ document: string }>();
   if (!row) fail(404, 'Verzia sa nenašla.');
   return c.json(JSON.parse(row.document));

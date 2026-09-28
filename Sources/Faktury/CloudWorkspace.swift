@@ -14,33 +14,27 @@ enum CloudEndpoint {
 
 struct ProductRootView: View {
     @EnvironmentObject private var store: Store
-    @AppStorage("faktury.cloudMode") private var cloudMode = true
-    @StateObject private var cloud = CloudWorkspace()
-    private var hasLegacy: Bool { !store.database.invoices.isEmpty || !store.database.settings.supplier.name.isEmpty }
+    @StateObject private var cloud = NativeCloudSync()
+    @State private var localOnly = false
     var body: some View {
-        VStack(spacing: 0) {
-            if hasLegacy {
-                HStack {
-                    Text(cloudMode ? "Cloudový účet" : "Pôvodné faktúry v tomto Macu").font(.caption).foregroundStyle(.secondary)
-                    Spacer()
-                    Button(cloudMode ? "Otvoriť pôvodné lokálne faktúry" : "Otvoriť cloudový účet") {
-                        if cloudMode { cloud.confirmLeaving { cloudMode = false } }
-                        else if store.flushInvoices() && store.flushSettings() { cloudMode = true }
-                    }.buttonStyle(.borderless).font(.caption)
-                }.padding(.horizontal, 18).padding(.vertical, 7)
-                Divider()
-            }
-            if cloudMode {
-                ZStack(alignment: .top) {
-                    CloudWebView(workspace: cloud)
-                    if let error = cloud.error {
-                        HStack { Text(error); Spacer(); Button("Skúsiť znova") { cloud.load() } }.padding(12).background(.regularMaterial)
+        Group {
+            if let accountStore = cloud.store, !cloud.connecting {
+                RootView(cloud: cloud).environmentObject(accountStore)
+            } else if localOnly { RootView(cloud: cloud) }
+            else {
+                VStack(spacing: 18) {
+                    Image(systemName: "doc.text").font(.system(size: 42)).foregroundStyle(Color.accent)
+                    Text("Faktúry").font(.system(size: 26, weight: .semibold))
+                    if cloud.connecting { ProgressView("Načítavam vaše faktúry…") }
+                    else {
+                        Button("Prihlásiť sa cez Apple") { cloud.signIn() }.buttonStyle(.borderedProminent).controlSize(.large)
+                        if !store.database.invoices.isEmpty { Button("Otvoriť pôvodnú lokálnu zálohu") { localOnly = true } }
                     }
-                }
-            } else { RootView() }
+                    if let failure = cloud.failure ?? cloud.authentication.error { Text(failure).foregroundStyle(.red).frame(maxWidth: 500) }
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        .onAppear { cloud.installTerminationCheck(active: cloudMode, local: store) }
-        .onChange(of: cloudMode) { _, value in cloud.installTerminationCheck(active: value, local: store) }
+        .task { await cloud.connect() }
     }
 }
 
@@ -141,7 +135,8 @@ struct CloudWebView: NSViewRepresentable {
         downloads.removeAll { $0 === download }; error = "Súbor sa nepodarilo uložiť. Skúste stiahnutie znova."
     }
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor { webView.window ?? NSApp.keyWindow ?? ASPresentationAnchor() }
-    private func signIn() {
+    var onAuthenticated: (() -> Void)?
+    func signIn() {
         guard authentication == nil else { return }
         var bytes = [UInt8](repeating: 0, count: 32)
         guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else { error = "Prihlásenie sa nepodarilo spustiť."; return }
@@ -164,6 +159,7 @@ struct CloudWebView: NSViewRepresentable {
                     let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers, for: CloudEndpoint.origin).filter { $0.name == "__Host-faktury_session" && $0.isSecure && $0.isHTTPOnly }
                     guard cookies.count == 1 else { throw URLError(.userAuthenticationRequired) }
                     for cookie in cookies { await self.webView.configuration.websiteDataStore.httpCookieStore.setCookie(cookie) }
+                    self.onAuthenticated?()
                     self.load()
                 } catch { self.error = "Prihlásenie sa nepodarilo dokončiť. Skúste sa prihlásiť znova." }
             }
