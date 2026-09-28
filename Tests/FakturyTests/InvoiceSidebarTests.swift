@@ -8,7 +8,7 @@ final class InvoiceSidebarTests: XCTestCase {
     @MainActor func testSelectingVisibleInvoicesKeepsSidebarScrollPosition() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let source = try XCTUnwrap(store.database.invoices.first)
         XCTAssertTrue(store.update { database in
             database.invoices = (1...30).map { index in

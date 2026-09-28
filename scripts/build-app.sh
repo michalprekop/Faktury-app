@@ -6,7 +6,7 @@ swift build -c release
 APP="$PWD/.build/distribution.noindex/Faktúry.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/Faktury "$APP/Contents/MacOS/Faktury"
-cp -R .build/release/Faktury_Faktury.bundle "$APP/Contents/Resources/"
+rm -rf "$APP/Contents/Resources/Faktury_Faktury.bundle"
 cp packaging/Info.plist "$APP/Contents/Info.plist"
 swift scripts/create-icon.swift .build/AppIcon.iconset
 iconutil -c icns .build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"

@@ -1,0 +1,48 @@
+{
+  "name": "faktury-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "types": "wrangler types",
+    "check": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "dev": "npm run build && wrangler dev",
+    "preview": "npm run build && tsx scripts/preview.ts",
+    "deploy": "npm run build && wrangler deploy",
+    "db:local": "wrangler d1 migrations apply DB --local",
+    "format:check": "prettier --check src shared server scripts tests public index.html vite.config.ts tsconfig.json wrangler.jsonc package.json .prettierrc.json"
+  },
+  "dependencies": {
+    "bysquare": "^4.0.2",
+    "decimal.js": "^10.6.0",
+    "hono": "^4.13.10",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.48.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "esbuild": "^0.28.2",
+    "miniflare": "^4.20260730.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "wrangler": "^4.142.0"
+  },
+  "overrides": {
+    "miniflare": {
+      "undici": "^7.29.0",
+      "sharp": "^0.35.4"
+    }
+  }
+}

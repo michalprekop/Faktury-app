@@ -1,12 +1,24 @@
-# Faktúry pre macOS
+# Faktúry — web a Mac
 
-Natívna lokálna aplikácia v slovenčine, macOS 14 a novší, Apple Silicon.
+Webová fakturačná aplikácia s Apple prihlásením, súkromným účtom a správou šablón.
 
-## Spustenie
+- Web: https://faktury-app.freetransfer-online.workers.dev
+- Mac (macOS 14+, Apple Silicon): https://faktury-app.freetransfer-online.workers.dev/download/mac
+- Nainštalovaná kópia: `~/Applications/Faktúry.app`.
 
-Nainštalovaná aplikácia je v `~/Applications/Faktúry.app`. Otvára sa dvojklikom a nepotrebuje webový server ani internet.
+## Cloudový produkt
 
-Pri prvom spustení obsahuje dodávateľa, oba bankové účty v nastaveniach, odberateľa a uhradenú faktúru 2026025 z dodaného PDF. Na každej faktúre je iba jeden vybraný účet. Predvolená je Tatra banka.
+Prihlásenie cez Apple vytvorí účet čakajúci na aktiváciu. Správca v **Administrácia → Používatelia → Upraviť prístup** aktivuje účet a zaškrtne dostupné šablóny. Prvý prihlásený používateľ sa automaticky nestáva správcom. Šablóny sa vytvárajú v **Administrácia → Šablóny**, výberom rozloženia, farby, loga, textovej značky a pätičky. Šablóna sa používateľovi zobrazí až po pridelení.
+
+Web aj Mac pracujú s rovnakým cloudovým účtom. Faktúry a profil sa v cloudovom editore potvrdzujú tlačidlom **Uložiť**. Aplikácia upozorní na neuložené zmeny a súbežnú úpravu na inom zariadení; PDF je dostupné z uloženej faktúry. Čísla sú jedinečné v rámci účtu, vrátane koša. Kôš a história umožňujú obnovu. Šablóna na vystavenej faktúre je uložená spolu s dokumentom a neskoršia úprava alebo odobratie šablóny nemení jej vzhľad.
+
+Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
+
+Mac distribúcia 1.1.0 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
+
+## Pôvodný lokálny režim
+
+Existujúca inštalácia zachová pôvodné faktúry a známe rozhranie. Horná lišta umožňuje prepnúť na cloudový účet a späť. Lokálne dáta sa automaticky neodosielajú do cloudu; pôvodné súbory a rozpracované faktúry zostávajú v pôvodnom priečinku. Nasledujúce funkcie a automatické ukladanie sa týkajú lokálneho režimu.
 
 ## Funkcie
 
@@ -32,7 +44,7 @@ Faktúry nemajú tlačidlo Uložiť: platné zmeny sa zapíšu po 450 ms nečinn
 
 Ukladajú sa do `~/Library/Application Support/sk.faktury.desktop/database.json`. Rozpracované faktúry a surový vstup sú v susednom `invoice-drafts.json`, zapisovanom atómovo. Export JSON zálohy zahŕňa aj tieto rozpracované údaje. Predchádzajúca verzia databázy zostáva v `database.previous.json`. Pred obnovením zálohy sa vytvorí aj samostatná kópia pôvodných dát vrátane rozpracovaných faktúr. Odporúča sa pravidelný export zálohy na iné úložisko.
 
-Appka neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, nepripája sa do SuperFaktúry a nevytvára ISDOC. Sadzby DPH sú nastaviteľné. Dodávateľ z predlohy je nastavený ako neplatiteľ DPH.
+Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, nepripája sa do SuperFaktúry a nevytvára ISDOC. Sadzby DPH sú nastaviteľné. Nové profily začínajú prázdne.
 
 ## Vývoj a overenie
 
@@ -41,8 +53,8 @@ zabezpečuje systémová macOS knižnica liblzma; jej API hlavičky sú v `Sourc
 Nie je potrebný Homebrew ani externá služba počas behu aplikácie.
 
 ```sh
-swift test
-bash scripts/build-app.sh
+bash scripts/test-native.sh
+env DEVELOPER_DIR=/Library/Developer/CommandLineTools bash scripts/build-app.sh
 .build/release/Faktury --verify output/pdf
 ```
 
@@ -50,7 +62,9 @@ Testy pokrývajú desatinné výpočty, DPH, čiastočné úhrady, číslovanie,
 
 Skript vytvorí pracovnú kópiu v `.build/distribution.noindex/Faktúry.app`, mimo vyhľadávania Spotlight. Túto kópiu nespúšťajte ani nepripínajte do Docku; pri aktualizácii ňou nahraďte existujúcu aplikáciu v `~/Applications/Faktúry.app` až po jej ukončení. Nevytvárajte ďalšiu nainštalovanú ani QA aplikáciu.
 
-Zostavená aplikácia má lokálny ad-hoc podpis. Nie je notarizovaná na distribúciu iným používateľom.
+`build-app.sh` vytvára vývojový ad-hoc podpis. Distribučné zostavenie robí `bash scripts/release-mac.sh`: Developer ID podpis, notarizácia, stapling a kontrola Gatekeeper. Výsledok je `output/release/Faktury-Mac.zip`. Kľúč a notársky profil musia byť dostupné v lokálnej Kľúčenke; nepíšu sa do Gitu.
+
+Pre túto aktualizáciu boli pôvodné lokálne JSON súbory zálohované do `output/pre-cloud-install-20260928`; kontrolné súčty po inštalácii zostali totožné. Pôvodný lokálny wordmark je uchovaný v `~/Library/Application Support/sk.faktury.desktop/legacy-wordmark.svg` a nešíri sa v novej aplikácii. Pri obnove starej lokálnej inštalácie možno použiť `Faktury-before.zip` v tom istom záložnom priečinku.
 
 ## História a návrat k staršej verzii
 
@@ -64,7 +78,7 @@ Históriu zobrazí `git log --oneline`. Konkrétnu neskoršiu zmenu možno vrát
 Potom treba aplikáciu znovu zostaviť a nahradiť nainštalovanú kópiu podľa postupu vyššie.
 Pri zmenách dátového formátu treba pred návratom overiť kompatibilitu a exportovať zálohu.
 
-Git sleduje zdrojový kód, testy a zdrojové obrázky. Databáza faktúr, rozpracované údaje,
+Git sleduje zdrojový kód a testy. Pôvodné osobné logo a podpis sú v aktuálnej verzii zo sledovania vyradené; staršia história zostáva zachovaná. Databáza faktúr, rozpracované údaje,
 exportované PDF/JSON zálohy a zostavená aplikácia sa do repozitára neposielajú.
 Návrat k staršiemu kódu sám osebe neobnoví staršie fakturačné údaje.
 
@@ -79,7 +93,7 @@ QR obsahuje výhradne účet vybraný vo faktúre, majiteľa účtu (ak nie je u
 použije sa názov dodávateľa), zostávajúcu sumu, menu, VS, voliteľný KS/ŠS a správu
 s číslom faktúry. Platba nemá naplánovaný dátum vykonania. QR sa negeneruje pre
 uhradené faktúry ani hotovosť, kartu či dobierku. Neplatné údaje zobrazia upozornenie
-namiesto chybného QR. Žiadne platobné údaje neopúšťajú Mac.
+namiesto chybného QR. V lokálnom režime platobné údaje neopúšťajú Mac. Cloudový režim ukladá faktúru do vlastného účtu a QR generuje v zariadení.
 
 Špecifikácie:
 - https://portal.bysquare.com/files/bysquare-PAYspecifications-1.2.0.pdf

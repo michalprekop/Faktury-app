@@ -8,6 +8,10 @@ struct FakturyApp: App {
     @StateObject private var store = Store()
 
     init() {
+        if UserDefaults.standard.object(forKey: "faktury.cloudMode") == nil {
+            let existing = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sk.faktury.desktop/database.json")
+            UserDefaults.standard.set(!FileManager.default.fileExists(atPath: existing.path), forKey: "faktury.cloudMode")
+        }
         if let index = CommandLine.arguments.firstIndex(of: "--render-database"), CommandLine.arguments.count > index + 2 {
             Verification.renderDatabase(path: CommandLine.arguments[index + 1], directory: CommandLine.arguments[index + 2], expectSinglePage: CommandLine.arguments.contains("--expect-single-page"))
             exit(0)
@@ -20,7 +24,7 @@ struct FakturyApp: App {
 
     var body: some Scene {
         Window("Faktúry", id: "main") {
-            RootView().environmentObject(store)
+            ProductRootView().environmentObject(store)
                 .tint(Color.accent)
                 .preferredColorScheme(.light)
                 .environment(\.locale, Locale(identifier: "sk_SK"))
@@ -44,6 +48,7 @@ struct FakturyApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     static weak var shared: AppDelegate?
     var flushInvoiceChanges: (() -> Bool)?
+    var confirmCloudTermination: ((@escaping (Bool) -> Void) -> Void)?
     static let launchWidth: CGFloat = 1185
     private var didApplyLaunchWidth = false
     override init() { super.init(); Self.shared = self }
@@ -56,6 +61,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             alert.addButton(withTitle: "Späť do aplikácie")
             alert.runModal()
             return .terminateCancel
+        }
+        if let confirmCloudTermination {
+            confirmCloudTermination { allowed in NSApp.reply(toApplicationShouldTerminate: allowed) }
+            return .terminateLater
         }
         return .terminateNow
     }

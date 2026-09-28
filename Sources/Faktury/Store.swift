@@ -27,7 +27,7 @@ final class Store: ObservableObject {
         }.map(\.invoice)
     }
 
-    init(dataDirectory: URL? = nil) {
+    init(dataDirectory: URL? = nil, initialDatabase: Database = Database()) {
         let environment = ProcessInfo.processInfo.environment
         let base = dataDirectory ?? environment["FAKTURY_DATA_DIR"].map { URL(fileURLWithPath: $0) }
             ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sk.faktury.desktop")
@@ -40,7 +40,7 @@ final class Store: ObservableObject {
             if FileManager.default.fileExists(atPath: url.path) {
                 database = try DatabaseFile.decode(Data(contentsOf: url))
             } else {
-                database = Self.seed()
+                database = initialDatabase
                 try DatabaseFile.save(database, to: url)
             }
         } catch {
@@ -267,37 +267,41 @@ final class Store: ObservableObject {
     static func seed() -> Database {
         var db = Database()
         var supplier = Company()
-        supplier.name = "Michal Prekop"
-        supplier.street = "Komenského 1642/25"
-        supplier.postalCode = "02001"
-        supplier.city = "Púchov"
-        supplier.companyID = "43792511"
-        supplier.taxID = "1078677303"
-        supplier.registration = "Okresný úrad Považská Bystrica, Číslo živnostenského registra: 330-15469"
-        supplier.email = "prekop@hey.com"
-        supplier.website = "uncutcorners.com"
+        supplier.name = "Ukážkové štúdio"
+        supplier.street = "Ukážková 12"
+        supplier.postalCode = "81101"
+        supplier.city = "Bratislava"
+        supplier.companyID = "12345678"
+        supplier.taxID = "1234567890"
+        supplier.registration = "Ukážkový zápis v registri"
+        supplier.email = "studio@example.test"
+        supplier.website = "example.test"
         db.settings.supplier = supplier
         db.settings.issuedBy = supplier.name
         var tatra = BankAccount()
         tatra.name = "Tatra banka, a.s."
-        tatra.iban = "SK5211000000002941251513"
+        tatra.iban = "SK9611000000002918599669"
         tatra.swift = "TATRSKBX"
         var wise = BankAccount()
         wise.name = "Wise"
-        wise.iban = "BE34967027366490"
+        wise.iban = "BE68539007547034"
         wise.swift = "TRWIBEB1XXX"
         db.settings.accounts = [tatra, wise]
         db.settings.defaultAccountID = tatra.id
-        db.settings.logo = Bundle.module.url(forResource: "logo", withExtension: "png", subdirectory: "Resources").flatMap { try? Data(contentsOf: $0) }
-        db.settings.signature = Bundle.module.url(forResource: "signature", withExtension: "png", subdirectory: "Resources").flatMap { try? Data(contentsOf: $0) }
+        // Synthetic verification image, never the owner's real signature.
+        let sample = NSImage(size: NSSize(width: 240, height: 60))
+        sample.lockFocus()
+        ("VZOR" as NSString).draw(at: NSPoint(x: 30, y: 14), withAttributes: [.font: NSFont.systemFont(ofSize: 24), .foregroundColor: NSColor.gray])
+        sample.unlockFocus()
+        db.settings.signature = sample.tiffRepresentation.flatMap { NSBitmapImageRep(data: $0)?.representation(using: .png, properties: [:]) }
         var customer = Company()
-        customer.name = "arrielrogand s.r.o."
-        customer.street = "Slnečná ulica 192/13"
-        customer.postalCode = "90050"
-        customer.city = "Hrubá Borša"
-        customer.companyID = "50254987"
-        customer.taxID = "2120245644"
-        customer.vatID = "SK2120245644"
+        customer.name = "Ukážkový klient s.r.o."
+        customer.street = "Vzorová 15"
+        customer.postalCode = "81102"
+        customer.city = "Bratislava"
+        customer.companyID = "87654321"
+        customer.taxID = "0987654321"
+        customer.vatID = "SK0987654321"
         customer.vatPayer = true
         db.customers = [customer]
         var invoice = db.newInvoice()
@@ -308,7 +312,7 @@ final class Store: ObservableObject {
         invoice.dueDate = calendar.date(from: DateComponents(year: 2026, month: 9, day: 30, hour: 12))!
         invoice.customer = customer
         invoice.account = tatra
-        invoice.items[0].name = "Grafické práce - návrh propagačných materiálov pre Evanjelické lýceum"
+        invoice.items[0].name = "Grafické práce - návrh propagačných materiálov pre ukážkového klienta"
         invoice.items[0].unitPrice = 800
         invoice.paid = 800
         db.invoices = [invoice]

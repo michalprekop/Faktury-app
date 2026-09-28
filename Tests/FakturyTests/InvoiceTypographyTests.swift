@@ -9,7 +9,7 @@ final class InvoiceTypographyTests: XCTestCase {
     @MainActor func testInvoiceCanvasKeepsNativeTextSizeWhenWindowWidthChanges() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let draft = InvoiceDraft(Store.seed().invoices[0])
         let host = NSHostingView(rootView: InvoicePaperCanvas(draft: draft).environmentObject(store))
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 860, height: 900),

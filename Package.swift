@@ -8,7 +8,7 @@ let package = Package(
     targets: [
         .systemLibrary(name: "CLZMA"),
         .target(name: "InvoiceCore", dependencies: ["CLZMA"]),
-        .executableTarget(name: "Faktury", dependencies: ["InvoiceCore"], resources: [.copy("Resources")]),
+        .executableTarget(name: "Faktury", dependencies: ["InvoiceCore"], exclude: ["Resources"]),
         .testTarget(name: "InvoiceCoreTests", dependencies: ["InvoiceCore"]),
         .testTarget(name: "FakturyTests", dependencies: ["Faktury", "InvoiceCore"])
     ]

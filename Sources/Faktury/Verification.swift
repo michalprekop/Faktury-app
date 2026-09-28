@@ -50,7 +50,7 @@ enum Verification {
             let single = InvoicePDF.render(invoice)
             guard let doc = PDFDocument(data: single), doc.pageCount == 1 else { fatalError("Single page PDF invalid") }
             let content = doc.string ?? ""
-            for expected in ["2026025", "arrielrogand", "800,00", "TATRSKBX", "1078677303", "Podpis"] {
+            for expected in ["2026025", "Ukážkový klient", "800,00", "TATRSKBX", "1234567890", "Podpis"] {
                 precondition(content.contains(expected), "Missing PDF text: \(expected)")
             }
             precondition(!content.contains("TRWIBEB1XXX"), "Only one bank account belongs on an invoice")

@@ -22,3 +22,20 @@ backups/
 __pycache__/
 *.py[cod]
 xcuserdata/
+
+# Web application: dependencies, local sessions and Cloudflare development data
+node_modules/
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+web/dist/
+web/worker-configuration.d.ts
+*.p8
+*.p12
+*.provisionprofile
+*.dmg
+*.zip
+
+# Legacy owner artwork stays only on the original machine
+/Sources/Faktury/Resources/logo.png
+/Sources/Faktury/Resources/signature.png

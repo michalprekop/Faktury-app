@@ -6,7 +6,7 @@ final class InvoiceWorkflowTests: XCTestCase {
     @MainActor func testPaperDraftRecalculatesWithoutWritingUntilSave() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let before = try Data(contentsOf: store.url)
         let source = try XCTUnwrap(store.database.invoices.first)
         let draft = InvoiceDraft(store.duplicate(source), isNew: true)
@@ -28,7 +28,7 @@ final class InvoiceWorkflowTests: XCTestCase {
     @MainActor func testInvalidPaperInputBlocksSaveAndRemovingRowClearsOnlyItsErrors() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let source = try XCTUnwrap(store.database.invoices.first)
         let draft = InvoiceDraft(source)
         XCTAssertFalse(draft.hasChanges)
@@ -50,7 +50,7 @@ final class InvoiceWorkflowTests: XCTestCase {
     @MainActor func testNewAndDuplicateUsePaymentStatusWithoutChangingOriginal() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let originalData = try Data(contentsOf: store.url)
         let source = try XCTUnwrap(store.database.invoices.first)
         var fresh = store.newInvoice()
@@ -65,7 +65,7 @@ final class InvoiceWorkflowTests: XCTestCase {
         XCTAssertEqual(duplicate.paid, 0)
         XCTAssertEqual(try Data(contentsOf: store.url), originalData)
         XCTAssertTrue(store.save(duplicate))
-        let restored = Store(dataDirectory: directory)
+        let restored = Store(dataDirectory: directory, initialDatabase: Store.seed())
         XCTAssertEqual(restored.database.invoices.count, 2)
         XCTAssertEqual(restored.database.invoices.first { $0.id == source.id }, source)
         XCTAssertEqual(restored.database.invoices.first { $0.id == duplicate.id }?.number, fresh.number)
@@ -74,11 +74,11 @@ final class InvoiceWorkflowTests: XCTestCase {
     @MainActor func testSavingAnEditUpdatesExistingInvoice() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         var invoice = try XCTUnwrap(store.database.invoices.first)
         invoice.note = "Updated in the main window"
         XCTAssertTrue(store.save(invoice))
-        let restored = Store(dataDirectory: directory)
+        let restored = Store(dataDirectory: directory, initialDatabase: Store.seed())
         XCTAssertEqual(restored.database.invoices.count, 1)
         XCTAssertEqual(restored.database.invoices.first?.id, invoice.id)
         XCTAssertEqual(restored.database.invoices.first?.note, invoice.note)

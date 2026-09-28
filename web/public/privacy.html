@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Údaje a súkromie · Faktúry</title>
+    <style>
+      body {
+        font:
+          16px/1.65 system-ui,
+          sans-serif;
+        color: #23392f;
+        background: #f8f9f5;
+        max-width: 720px;
+        margin: 60px auto;
+        padding: 24px;
+      }
+      h1 {
+        font-size: 36px;
+        line-height: 1.2;
+      }
+      a {
+        color: inherit;
+      }
+      h2 {
+        margin-top: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/">← Faktúry</a>
+    <h1>Vaše údaje vo Faktúrach</h1>
+    <p>
+      Faktúry je služba s prístupom schvaľovaným správcom. Každý používateľ pracuje vo vlastnom
+      účte.
+    </p>
+    <h2>Prihlásenie</h2>
+    <p>
+      Prihlásenie zabezpečuje Apple. Služba dostáva identifikátor účtu, e-mail a meno, ak ich Apple
+      poskytne. Heslo Apple účtu sa do Faktúr neposiela. Apple môže namiesto bežného e-mailu
+      poskytnúť súkromnú relay adresu.
+    </p>
+    <h2>Uložené údaje</h2>
+    <p>
+      Profil firmy, bankové účty, faktúry, logá a podpisy sa ukladajú do databázy Cloudflare D1.
+      Zálohy sú v súkromnom Cloudflare R2 úložisku. Databáza a úložisko majú nastavenú jurisdikciu
+      EÚ; aplikácia používa globálnu sieť Cloudflare Workers. Prenos používa HTTPS.
+    </p>
+    <p>
+      Ostatní používatelia nemajú prístup k vašim faktúram. Administrácia umožňuje spravovať stav
+      účtu a priradené šablóny, nezobrazuje obsah cudzích faktúr. Prevádzkovateľ s technickým
+      prístupom ku Cloudflare databáze môže k údajom pristúpiť pri podpore alebo obnove; nejde o
+      koncové šifrovanie.
+    </p>
+    <h2>Zálohy a vaše možnosti</h2>
+    <p>
+      Údaje sú dostupné po prihlásení aj na novom počítači. V Nastaveniach si môžete stiahnuť export
+      účtu, vytvoriť zálohu a stiahnuť dostupné zálohy. Faktúry v koši sa dajú obnoviť a uloženej
+      faktúre sa uchováva história zmien. Denné zálohy sú plánované na 02:15 UTC; ich stav vidí
+      správca.
+    </p>
+    <p>
+      Údaje a zálohy sa zatiaľ uchovávajú do dohodnutej likvidácie so správcom. Požiadavku na
+      podporu, výmaz účtu alebo údajov adresujte správcovi, od ktorého ste získali prístup. Pred
+      výmazom si vyexportujte potrebné dokumenty.
+    </p>
+    <h2>Cookies a prevádzka</h2>
+    <p>
+      Služba používa nevyhnutné cookies na prihlásenie a ochranu prihlasovania. Neobsahuje reklamné
+      sledovanie. Prevádzkové záznamy zaznamenávajú chyby a správu oprávnení; aplikácia do nich
+      zámerne nezapisuje obsah faktúr ani prihlasovacie tokeny.
+    </p>
+    <p>
+      Pôvodné lokálne faktúry v Mac aplikácii sa automaticky nenahrávajú. Webová časť vyžaduje
+      internetové pripojenie.
+    </p>
+  </body>
+</html>

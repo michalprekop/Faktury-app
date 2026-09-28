@@ -2,17 +2,40 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>Faktúry</string>
-    <key>CFBundleDisplayName</key><string>Faktúry</string>
-    <key>CFBundleIdentifier</key><string>sk.faktury.desktop</string>
-    <key>CFBundleVersion</key><string>1</string>
-    <key>CFBundleShortVersionString</key><string>1.0.0</string>
-    <key>CFBundleExecutable</key><string>Faktury</string>
-    <key>CFBundleIconFile</key><string>AppIcon</string>
-    <key>CFBundleDevelopmentRegion</key><string>sk</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>LSMinimumSystemVersion</key><string>14.0</string>
-    <key>NSHighResolutionCapable</key><true/>
-    <key>NSPrincipalClass</key><string>NSApplication</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>sk</string>
+	<key>CFBundleDisplayName</key>
+	<string>Faktúry</string>
+	<key>CFBundleExecutable</key>
+	<string>Faktury</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>sk.faktury.desktop</string>
+	<key>CFBundleName</key>
+	<string>Faktúry</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.1.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Faktury Login</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>sk.faktury.desktop</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>

@@ -1,0 +1,3 @@
+# Do not put real secrets in Git. Configure production through Wrangler secrets.
+APPLE_PRIVATE_KEY=""
+TOKEN_ENCRYPTION_KEY=""

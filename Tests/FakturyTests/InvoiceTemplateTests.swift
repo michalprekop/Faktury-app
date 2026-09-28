@@ -22,7 +22,7 @@ final class InvoiceTemplateTests: XCTestCase {
     @MainActor func testGlobalSelectionAndInvoiceOverrideAutosaveIndependently() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let original = store.database.invoices
         var settings = store.database.settings
         settings.invoiceTemplate = .mono01
@@ -33,7 +33,7 @@ final class InvoiceTemplateTests: XCTestCase {
         let draft = InvoiceDraft(original[0], store: store)
         draft.invoice.templateOverride = .boringDefault01
         XCTAssertTrue(draft.flush())
-        let restored = Store(dataDirectory: directory)
+        let restored = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let saved = restored.database.invoices[0]
         XCTAssertEqual(restored.database.settings.defaultInvoiceTemplate, .mono01)
         XCTAssertEqual(saved.resolvedTemplate(default: .mono01), .boringDefault01)
@@ -44,18 +44,18 @@ final class InvoiceTemplateTests: XCTestCase {
         XCTAssertEqual(try DatabaseFile.decode(DatabaseFile.encode(restored.database)), restored.database)
         draft.invoice.templateOverride = nil
         XCTAssertTrue(draft.flush())
-        XCTAssertEqual(Store(dataDirectory: directory).database.invoices[0].resolvedTemplate(default: .mono01), .mono01)
+        XCTAssertEqual(Store(dataDirectory: directory, initialDatabase: Store.seed()).database.invoices[0].resolvedTemplate(default: .mono01), .mono01)
     }
 
     @MainActor func testIncompleteDraftRetainsTemplateAfterRestart() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let draft = InvoiceDraft(store.database.invoices[0], store: store)
         draft.invoice.templateOverride = .mono01
         draft.invoice.customer.name = ""
         XCTAssertTrue(draft.flush())
-        let restored = Store(dataDirectory: directory)
+        let restored = Store(dataDirectory: directory, initialDatabase: Store.seed())
         XCTAssertEqual(restored.invoiceRecovery.first?.invoice.templateOverride, .mono01)
         XCTAssertEqual(restored.invoiceRecovery.first?.invoice.customer.name, "")
         XCTAssertNil(restored.database.invoices[0].templateOverride)

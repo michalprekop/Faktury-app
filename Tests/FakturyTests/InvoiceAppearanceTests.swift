@@ -43,13 +43,13 @@ final class InvoiceAppearanceTests: XCTestCase {
     @MainActor func testColorAutosavesWithoutModifyingInvoiceData() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let store = Store(dataDirectory: directory)
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
         let original = store.database.invoices
         var settings = store.database.settings
         settings.invoiceAccentHex = "#2463A8"
         store.queueSettingsSave(settings)
         XCTAssertTrue(store.flushSettings())
-        let restored = Store(dataDirectory: directory)
+        let restored = Store(dataDirectory: directory, initialDatabase: Store.seed())
         XCTAssertEqual(restored.database.settings.invoiceAccent.hex, "#2463A8")
         XCTAssertEqual(restored.database.invoices, original)
     }
