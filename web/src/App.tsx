@@ -14,6 +14,35 @@ export default function App() {
     [templates, setTemplates] = useState<Template[]>([]),
     [error, setError] = useState('');
   useEffect(() => {
+    const openMenus = () =>
+      document.querySelectorAll<HTMLDetailsElement>(
+        'details.account-menu[open], details.item-menu[open]',
+      );
+    const dismissOutside = (event: PointerEvent) => {
+      for (const menu of openMenus()) {
+        if (event.target instanceof Node && !menu.contains(event.target)) menu.open = false;
+      }
+    };
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      const menus = openMenus();
+      if (!menus.length) return;
+      event.preventDefault();
+      event.stopPropagation();
+      for (const menu of menus) {
+        const restoreFocus = menu.contains(document.activeElement);
+        menu.open = false;
+        if (restoreFocus) menu.querySelector<HTMLElement>(':scope > summary')?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', dismissOutside, true);
+    document.addEventListener('keydown', dismissOnEscape, true);
+    return () => {
+      document.removeEventListener('pointerdown', dismissOutside, true);
+      document.removeEventListener('keydown', dismissOnEscape, true);
+    };
+  }, []);
+  useEffect(() => {
     void (async () => {
       try {
         setConfig(await api<LandingConfig>('/config'));
