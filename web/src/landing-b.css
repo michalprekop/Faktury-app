@@ -129,15 +129,37 @@
   font-size: 13px;
   white-space: nowrap;
 }
+.lb-button.lb-button-apple {
+  gap: 0;
+  padding: 0;
+}
+.lb-button-label {
+  padding: 16px 22px;
+  white-space: nowrap;
+}
+.lb-login .lb-button-label {
+  padding: 10px 16px;
+}
 .lb-apple {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 18px;
-  height: 20px;
+  width: 52px;
+  align-self: stretch;
+  margin-block: 6px;
+  border-left: 1px solid #191a1752;
+}
+.lb-login .lb-apple {
+  width: 44px;
+  margin-block: 5px;
 }
 .lb-apple img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: block;
   flex-shrink: 0;
   width: 40px;
@@ -960,6 +982,18 @@
     padding: 9px 12px;
     font-size: 12px;
     gap: 12px;
+  }
+  .lb-button-label {
+    padding: 14px 20px;
+  }
+  .lb-login .lb-button-label {
+    padding: 9px 14px;
+  }
+  .lb-apple {
+    width: 48px;
+  }
+  .lb-login .lb-apple {
+    width: 40px;
   }
   .lb-composition {
     margin-top: 40px;

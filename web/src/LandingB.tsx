@@ -24,8 +24,13 @@ function AppleMark() {
 
 function AccountAction({ ready }: { ready: boolean }) {
   return ready ? (
-    <a className="lb-button" href="/auth/apple" aria-label="Vytvoriť účet / Prihlásiť sa cez Apple">
-      Vytvoriť účet / Prihlásiť sa <AppleMark />
+    <a
+      className="lb-button lb-button-apple"
+      href="/auth/apple"
+      aria-label="Vytvoriť účet / Prihlásiť sa cez Apple"
+    >
+      <span className="lb-button-label">Vytvoriť účet / Prihlásiť sa</span>
+      <AppleMark />
     </a>
   ) : (
     <button className="lb-button" disabled>
@@ -197,11 +202,12 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
           )}
           {ready && (
             <a
-              className="lb-button lb-login"
+              className="lb-button lb-button-apple lb-login"
               href="/auth/apple"
               aria-label="Prihlásiť sa cez Apple"
             >
-              Prihlásiť sa <AppleMark />
+              <span className="lb-button-label">Prihlásiť sa</span>
+              <AppleMark />
             </a>
           )}
         </div>

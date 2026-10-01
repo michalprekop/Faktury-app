@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Vyvážené prihlasovacie tlačidlá
+
+- Text a Apple logo v žltých tlačidlách oddeľuje jemná zvislá linka s hrúbkou 1 px. Medzery a okraje sú zjednotené v hlavičke, úvode aj na konci stránky.
+
 ## 1. 10. 2026 — Žltý favicon INVOY
 
 - Karta prehliadača používa schválenú žltú ikonu s jednoradovým logom „INVOY.“ bez pootočenia.
