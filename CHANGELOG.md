@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.8 — 1. 10. 2026 — Jednotné vyhľadávacie polia
+
+- Vyhľadávanie odberateľov na Macu má výšku 40 px a je zarovnané s tlačidlom Nový odberateľ. Faktúry aj odberatelia používajú rovnaké vyhľadávacie pole.
+- Rovnaké pole je aj na webe; odberateľov možno filtrovať podľa názvu, IČO alebo mesta, aj bez diakritiky.
+
 ## 1. 10. 2026 — Zjednotenie webu s Mac aplikáciou
 
 - Pri logu na webe už nie je meno ani obláčik. Účet, administrácia a odhlásenie sú v Nastavenia → Účet, rovnako ako na Macu.

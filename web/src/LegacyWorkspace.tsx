@@ -541,6 +541,12 @@ function Customers({
 }) {
   const [editing, setEditing] = useState<(Company & { id: string }) | null>(null),
     [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const searchable = (value: string) =>
+    value.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('sk');
+  const customers = (profile.customers ?? [])
+    .filter((c) => searchable(`${c.name} ${c.companyID} ${c.city}`).includes(searchable(search)))
+    .sort((a, b) => a.name.localeCompare(b.name, 'sk', { numeric: true, sensitivity: 'base' }));
   async function save(customers: NonNullable<Profile['customers']>) {
     try {
       const next = { ...profile, customers };
@@ -557,7 +563,19 @@ function Customers({
   return (
     <div className="page native-customers">
       <div className="page-heading">
-        <h1>Odberatelia</h1>
+        <div>
+          <h1>Odberatelia</h1>
+          <p>{profile.customers?.length ?? 0} kontaktov</p>
+        </div>
+        <label className="native-search customer-search">
+          <Search size={15} aria-hidden="true" />
+          <input
+            aria-label="Hľadať firmu, IČO, mesto"
+            placeholder="Hľadať firmu, IČO, mesto"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </label>
         <button
           className="button"
           onClick={() => setEditing({ ...emptyCompany(), id: crypto.randomUUID() })}
@@ -566,7 +584,8 @@ function Customers({
         </button>
       </div>
       <ErrorBox error={error} />
-      {profile.customers?.map((c) => (
+      {customers.length === 0 && <div className="native-empty">Žiadni odberatelia</div>}
+      {customers.map((c) => (
         <div className="customer-row" key={c.id}>
           <Building2 size={22} />
           <div>

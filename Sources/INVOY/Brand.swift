@@ -51,6 +51,28 @@ struct BrandButtonStyle: ButtonStyle {
     }
 }
 
+struct BrandSearchField: View {
+    let placeholder: String
+    @Binding var text: String
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            TextField(placeholder, text: $text).textFieldStyle(.plain)
+                .focused($focused)
+        }
+        .font(.system(size: 13))
+        .padding(.horizontal, 8)
+        .frame(height: InvoyBrand.controlHeight)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8)
+            .strokeBorder(focused ? InvoyBrand.ink : Color.gray.opacity(0.2)))
+        .accessibilityElement(children: .contain)
+    }
+}
+
 struct BrandDropdown<Content: View>: View {
     let title: String
     let value: String

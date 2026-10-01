@@ -215,11 +215,7 @@ struct InvoicesView: View {
                     Text.numeric("\(store.invoices.filter { $0.status == "Po splatnosti" }.count) po splatnosti", size: 12).foregroundStyle(.secondary)
                 }
                 Spacer()
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField("Hľadať vo faktúrach", text: $search).textFieldStyle(.plain)
-                }.padding(.horizontal, 8).frame(width: 205, height: InvoyBrand.controlHeight).background(Color.white, in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(.gray.opacity(0.2)))
+                BrandSearchField(placeholder: "Hľadať vo faktúrach", text: $search).frame(width: 205)
                 Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
                     .buttonStyle(BrandButtonStyle()).controlSize(.large)
             }.padding(.horizontal, 24).padding(.vertical, 14)

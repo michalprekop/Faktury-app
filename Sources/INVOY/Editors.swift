@@ -180,7 +180,7 @@ struct CustomersView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) { Text("Odberatelia").font(.system(size: 26, weight: .semibold)); Text.numeric("\(store.database.customers.count) kontaktov", size: 12).foregroundStyle(.secondary) }
                 Spacer()
-                TextField("Hľadať firmu, IČO, mesto", text: $search).textFieldStyle(.roundedBorder).frame(width: 230)
+                BrandSearchField(placeholder: "Hľadať firmu, IČO, mesto", text: $search).frame(width: 230)
                 Button { editing = Company() } label: { Label("Nový odberateľ", systemImage: "plus") }.buttonStyle(BrandButtonStyle()).controlSize(.large)
             }.padding(25)
             Divider()

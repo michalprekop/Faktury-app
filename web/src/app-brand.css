@@ -178,6 +178,30 @@
   border-radius: 8px;
   background: #fff;
 }
+.native-shell > .native-customers {
+  width: 100%;
+  margin: 0;
+}
+.native-customers .page-heading {
+  gap: 8px;
+}
+.native-customers .page-heading h1 {
+  font-size: 26px;
+}
+.native-customers .page-heading p {
+  margin-top: 4px;
+}
+.native-customers .customer-search {
+  width: 230px;
+  flex-shrink: 0;
+}
+.native-customers .page-heading > .button {
+  margin-top: 0;
+  padding-inline: 17px;
+}
+.native-search > svg {
+  flex-shrink: 0;
+}
 .native-overview,
 .native-filters {
   padding-inline: 24px;
