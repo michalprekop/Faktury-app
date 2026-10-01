@@ -197,7 +197,7 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
         <div className="lb-header-actions">
           {config?.macAvailable && (
             <a className="lb-mac-link" href="/download/mac">
-              Pre Mac <ArrowDown size={15} />
+              Stiahnuť pre Mac <ArrowDown size={15} />
             </a>
           )}
           {ready && (

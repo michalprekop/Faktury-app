@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Jasnejšie stiahnutie pre Mac
+
+- Odkaz v hlavičke úvodnej stránky sa volá „Stiahnuť pre Mac“.
+
 ## 1. 10. 2026 — Jemné vrstvenie úvodných kariet
 
 - Bočné karty vo variante B sú mierne pootočené a zasahujú do okrajov stredovej faktúry. Farebné karty, texty aj sumy zostávajú čitateľné.
