@@ -212,6 +212,11 @@ export type User = {
   status: 'pending' | 'active' | 'suspended';
   created_at: string;
 };
+export type AdminUser = User & {
+  invoice_count: number;
+  customer_count: number;
+  last_seen_at: string | null;
+};
 export type InvoiceSummary = {
   id: string;
   number: string;

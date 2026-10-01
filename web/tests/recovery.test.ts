@@ -13,8 +13,12 @@ test('scheduled R2 snapshots restore account identities, templates and invoice c
     await scheduledBackup({ DB: h.db, FILES: bucket } as never);
     const day = new Date().toISOString().slice(0, 10);
     const control = (await (await bucket.get(`control/${day}.json`))!.json()) as {
-      users: { id: string }[];
+      users: { id: string; last_seen_at?: string | null }[];
     };
+    const lastSeen = control.users.find((u) => u.id === h.identities.alice.id)!.last_seen_at;
+    assert.ok(lastSeen);
+    // Backups created before activity tracking did not include this field.
+    delete control.users.find((u) => u.id === h.identities.pending.id)!.last_seen_at;
     const accounts: Record<string, unknown> = {};
     for (const user of control.users)
       accounts[user.id] = await (await bucket.get(`backups/${user.id}/${day}.json`))!.json();
@@ -32,6 +36,20 @@ test('scheduled R2 snapshots restore account identities, templates and invoice c
       .bind(h.identities.alice.id, input.id)
       .first<{ document: string }>();
     assert.equal(JSON.parse(restored!.document).note, input.note);
+    assert.equal(
+      (await h.db
+        .prepare('SELECT last_seen_at FROM users WHERE id=?')
+        .bind(h.identities.alice.id)
+        .first<{ last_seen_at: string }>())!.last_seen_at,
+      lastSeen,
+    );
+    assert.equal(
+      (await h.db
+        .prepare('SELECT last_seen_at FROM users WHERE id=?')
+        .bind(h.identities.pending.id)
+        .first<{ last_seen_at: string | null }>())!.last_seen_at,
+      null,
+    );
     assert.equal(
       (await h.db.prepare('SELECT count(*) AS n FROM users').first<{ n: number }>())!.n,
       4,

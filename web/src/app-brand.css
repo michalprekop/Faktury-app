@@ -134,7 +134,8 @@
 }
 .native-filters select,
 .native-list-heading select,
-.original-editor-toolbar select {
+.original-editor-toolbar select,
+.native-shell .admin-page .field select {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -163,7 +164,8 @@
 }
 .native-filters select:hover,
 .native-list-heading select:hover,
-.original-editor-toolbar select:hover {
+.original-editor-toolbar select:hover,
+.native-shell .admin-page .field select:hover {
   border-color: #c7c5bc;
 }
 .native-segments,

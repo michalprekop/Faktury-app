@@ -7,6 +7,7 @@ import {
   freshInvoice,
   templateSchema,
   type User,
+  type AdminUser,
   type Template,
 } from '../shared/model';
 import { api } from './api';
@@ -14,7 +15,7 @@ import { ErrorBox, Field, ImageInput, Modal, useUnsaved } from './ui';
 import { InvoicePaper } from './InvoicePaper';
 
 type AdminData = {
-  users: User[];
+  users: AdminUser[];
   grants: { user_id: string; template_id: string }[];
   backup: null | { day: string; status: string; accounts: number };
 };
@@ -24,7 +25,7 @@ export function Admin() {
     [tab, setTab] = useState('Používatelia'),
     [error, setError] = useState(''),
     [editor, setEditor] = useState<Template | null>(null),
-    [selected, setSelected] = useState<User | null>(null),
+    [selected, setSelected] = useState<AdminUser | null>(null),
     [grants, setGrants] = useState<string[]>([]),
     [status, setStatus] = useState<User['status']>('active'),
     [busy, setBusy] = useState(false),
@@ -43,7 +44,29 @@ export function Admin() {
   }
   useEffect(() => {
     void load();
+    const refresh = () => {
+      if (document.visibilityState === 'visible') void load();
+    };
+    const timer = window.setInterval(refresh, 60_000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
   }, []);
+  function editUser(user: AdminUser) {
+    setError('');
+    setSelected(user);
+    setStatus(user.status);
+    setGrants(
+      data!.grants
+        .filter(
+          (g) =>
+            g.user_id === user.id && templates.some((t) => t.id === g.template_id && !t.archived),
+        )
+        .map((g) => g.template_id),
+    );
+  }
   async function saveUser() {
     if (!selected) return;
     setBusy(true);
@@ -151,18 +174,38 @@ export function Admin() {
                 <tr>
                   <th scope="col">Používateľ</th>
                   <th scope="col">Stav</th>
-                  <th scope="col">Šablóny</th>
-                  <th scope="col">
-                    <span className="sr-only">Akcie</span>
+                  <th scope="col" className="admin-count">
+                    Faktúr
                   </th>
+                  <th scope="col" className="admin-count">
+                    Odberatelia
+                  </th>
+                  <th scope="col">Šablóny</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.users.map((user) => (
-                  <tr key={user.id}>
+                  <tr
+                    key={user.id}
+                    className="admin-user-row"
+                    tabIndex={0}
+                    aria-label={`Upraviť používateľa: ${user.name || user.email || 'Apple účet'}`}
+                    aria-haspopup="dialog"
+                    onClick={(event) => {
+                      event.currentTarget.focus();
+                      editUser(user);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        editUser(user);
+                      }
+                    }}
+                  >
                     <td>
                       <strong>{user.name || 'Apple účet'}</strong>
                       <small>{user.email}</small>
+                      <LastSeen value={user.last_seen_at} />
                     </td>
                     <td>
                       <span
@@ -182,6 +225,12 @@ export function Admin() {
                             : 'Pozastavený'}
                       </span>
                     </td>
+                    <td className="admin-count numeric">
+                      {user.invoice_count.toLocaleString('sk-SK')}
+                    </td>
+                    <td className="admin-count numeric">
+                      {user.customer_count.toLocaleString('sk-SK')}
+                    </td>
                     <td>
                       <div className="admin-template-tags">
                         {data.grants
@@ -196,39 +245,18 @@ export function Admin() {
                         )}
                       </div>
                     </td>
-                    <td>
-                      <button
-                        className="button secondary"
-                        aria-label={`Upraviť prístup: ${user.name || user.email || 'Apple účet'}`}
-                        onClick={() => {
-                          setSelected(user);
-                          setStatus(user.status);
-                          setGrants(
-                            data.grants
-                              .filter(
-                                (g) =>
-                                  g.user_id === user.id &&
-                                  templates.some((t) => t.id === g.template_id && !t.archived),
-                              )
-                              .map((g) => g.template_id),
-                          );
-                        }}
-                      >
-                        Upraviť prístup
-                      </button>
-                    </td>
                   </tr>
                 ))}
                 {!data && !error && (
                   <tr>
-                    <td colSpan={4} className="admin-empty">
+                    <td colSpan={5} className="admin-empty">
                       Načítavam používateľov…
                     </td>
                   </tr>
                 )}
                 {data?.users.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="admin-empty">
+                    <td colSpan={5} className="admin-empty">
                       Zatiaľ žiadni používatelia.
                     </td>
                   </tr>
@@ -307,46 +335,85 @@ export function Admin() {
         </>
       )}
       {selected && (
-        <Modal title="Prístup používateľa" onClose={() => setSelected(null)}>
-          <p>
-            <strong>{selected.name || 'Apple účet'}</strong>
-            <br />
-            {selected.email}
-          </p>
-          <ErrorBox error={error} />
-          <Field label="Stav účtu">
-            <select value={status} onChange={(e) => setStatus(e.target.value as User['status'])}>
-              <option value="pending">Čaká na aktiváciu</option>
-              <option value="active">Aktívny</option>
-              <option value="suspended">Pozastavený</option>
-            </select>
-          </Field>
-          <h3>Dostupné šablóny</h3>
-          <div className="grant-list">
-            {templates
-              .filter((t) => !t.archived)
-              .map((t) => (
-                <label key={t.id} className="check grant">
-                  <input
-                    type="checkbox"
-                    checked={grants.includes(t.id)}
-                    onChange={(e) =>
-                      setGrants(
-                        e.target.checked ? [...grants, t.id] : grants.filter((g) => g !== t.id),
-                      )
-                    }
-                  />
-                  <span>
-                    <strong>{t.name}</strong>
-                    <small>{t.description}</small>
-                  </span>
-                </label>
-              ))}
+        <Modal
+          title="Upraviť používateľa"
+          className="admin-user-modal"
+          onClose={() => {
+            if (!busy) setSelected(null);
+          }}
+        >
+          <div className="admin-user-overview">
+            <div className="admin-user-identity">
+              <strong>{selected.name || 'Apple účet'}</strong>
+              <span>{selected.email}</span>
+              <LastSeen value={selected.last_seen_at} />
+            </div>
+            <dl className="admin-user-stats">
+              <div>
+                <dt>Faktúr</dt>
+                <dd className="numeric">{selected.invoice_count.toLocaleString('sk-SK')}</dd>
+              </div>
+              <div>
+                <dt>Odberatelia</dt>
+                <dd className="numeric">{selected.customer_count.toLocaleString('sk-SK')}</dd>
+              </div>
+            </dl>
           </div>
-          <button className="button full" disabled={busy} onClick={() => void saveUser()}>
-            <Save size={16} />
-            Uložiť prístup
-          </button>
+          <ErrorBox error={error} />
+          <div className="admin-user-form">
+            <div>
+              <Field label="Stav účtu">
+                <select
+                  disabled={busy || selected.role === 'admin'}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as User['status'])}
+                >
+                  <option value="pending">Čaká na aktiváciu</option>
+                  <option value="active">Aktívny</option>
+                  <option value="suspended">Pozastavený</option>
+                </select>
+              </Field>
+              <p className="small-copy">
+                {selected.role === 'admin'
+                  ? 'Správcovský účet zostáva aktívny.'
+                  : 'Aktívny používateľ má prístup k aplikácii a prideleným šablónam.'}
+              </p>
+            </div>
+            <div>
+              <h3>Dostupné šablóny</h3>
+              <div className="grant-list">
+                {templates
+                  .filter((t) => !t.archived)
+                  .map((t) => (
+                    <label key={t.id} className="check grant">
+                      <input
+                        type="checkbox"
+                        disabled={busy}
+                        checked={grants.includes(t.id)}
+                        onChange={(e) =>
+                          setGrants(
+                            e.target.checked ? [...grants, t.id] : grants.filter((g) => g !== t.id),
+                          )
+                        }
+                      />
+                      <span>
+                        <strong>{t.name}</strong>
+                        <small>{t.description}</small>
+                      </span>
+                    </label>
+                  ))}
+              </div>
+            </div>
+          </div>
+          <footer className="admin-user-actions">
+            <button className="button secondary" disabled={busy} onClick={() => setSelected(null)}>
+              Zrušiť
+            </button>
+            <button className="button" disabled={busy} onClick={() => void saveUser()}>
+              <Save size={16} />
+              {busy ? 'Ukladám…' : 'Uložiť zmeny'}
+            </button>
+          </footer>
         </Modal>
       )}
       {editor && (
@@ -361,6 +428,27 @@ export function Admin() {
         />
       )}
     </main>
+  );
+}
+function LastSeen({ value }: { value: string | null }) {
+  return (
+    <small className="admin-last-seen">
+      Naposledy online:{' '}
+      {value ? (
+        <time className="numeric" dateTime={value} title="Časové pásmo: Europe/Bratislava">
+          {new Intl.DateTimeFormat('sk-SK', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Europe/Bratislava',
+          }).format(new Date(value))}
+        </time>
+      ) : (
+        'zatiaľ nezaznamenané'
+      )}
+    </small>
   );
 }
 function TemplateEditor({

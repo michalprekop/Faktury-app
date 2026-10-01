@@ -31,10 +31,12 @@ export function Modal({
   title,
   children,
   onClose,
+  className = '',
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  className?: string;
 }) {
   const dialog = useRef<HTMLElement>(null),
     close = useRef(onClose);
@@ -83,7 +85,13 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <section ref={dialog} role="dialog" aria-modal="true" aria-label={title} className="modal">
+      <section
+        ref={dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={`modal ${className}`}
+      >
         <header>
           <h2>{title}</h2>
           <button className="icon-button" onClick={onClose} aria-label="Zavrieť">

@@ -118,7 +118,9 @@ export async function scheduledBackup(env: Bindings) {
     }
     // Back up the control plane separately. This prefix has no public/API download route.
     const control = await env.DB.batch([
-      env.DB.prepare('SELECT id,apple_sub,email,name,role,status,created_at,updated_at FROM users'),
+      env.DB.prepare(
+        'SELECT id,apple_sub,email,name,role,status,created_at,updated_at,last_seen_at FROM users',
+      ),
       env.DB.prepare('SELECT * FROM templates'),
       env.DB.prepare('SELECT * FROM template_grants'),
       env.DB.prepare('SELECT * FROM audit_events ORDER BY created_at DESC LIMIT 10000'),

@@ -23,6 +23,7 @@ const userSchema = z.object({
   status: z.enum(['active', 'pending', 'suspended']),
   created_at: z.string(),
   updated_at: z.string(),
+  last_seen_at: z.string().datetime().nullable().optional(),
 });
 export function recoverySQL(control: unknown, accounts: Record<string, unknown>): string {
   const c = z
@@ -71,7 +72,7 @@ export function recoverySQL(control: unknown, accounts: Record<string, unknown>)
       .parse(accounts[user.id]);
     const profile = profileSchema.parse({ ...emptyProfile(), ...(a.profile as object) });
     statements.push(
-      `INSERT INTO users(id,apple_sub,email,name,role,status,profile,profile_version,created_at,updated_at) VALUES(${[user.id, user.apple_sub, user.email, user.name, user.role, user.status, JSON.stringify(profile), a.profileVersion, user.created_at, user.updated_at].map(sql).join(',')});`,
+      `INSERT INTO users(id,apple_sub,email,name,role,status,profile,profile_version,created_at,updated_at,last_seen_at) VALUES(${[user.id, user.apple_sub, user.email, user.name, user.role, user.status, JSON.stringify(profile), a.profileVersion, user.created_at, user.updated_at, user.last_seen_at].map(sql).join(',')});`,
     );
     for (const row of a.invoices) {
       const input = invoiceSchema.parse(invoiceInput(row.document));

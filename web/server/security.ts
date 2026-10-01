@@ -198,6 +198,14 @@ export async function authenticate(c: C) {
     if (!(await equal(c.req.header('X-CSRF-Token') ?? '', session.csrf)))
       throw new HTTPException(403, { message: 'Neplatné potvrdenie požiadavky. Obnovte stránku.' });
   }
+  // One write per account per minute, including concurrent web and Mac requests.
+  // Keep profile version/timestamps intact and retain activity after logout.
+  const stamp = Date.now();
+  await c.env.DB.prepare(
+    'UPDATE users SET last_seen_at=? WHERE id=? AND (last_seen_at IS NULL OR last_seen_at<?)',
+  )
+    .bind(new Date(stamp).toISOString(), user.id, new Date(stamp - 60_000).toISOString())
+    .run();
 }
 export async function body(c: C, limit = 700_000): Promise<unknown> {
   if (!c.req.header('Content-Type')?.startsWith('application/json'))

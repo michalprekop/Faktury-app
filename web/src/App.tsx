@@ -63,6 +63,20 @@ export default function App() {
       }
     })();
   }, []);
+  const userID = me?.user.id;
+  useEffect(() => {
+    if (!userID) return;
+    const reportActivity = () => {
+      if (document.visibilityState === 'visible')
+        void api('/activity', { method: 'POST', body: '{}' }).catch(() => {});
+    };
+    const timer = window.setInterval(reportActivity, 60_000);
+    document.addEventListener('visibilitychange', reportActivity);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', reportActivity);
+    };
+  }, [userID]);
   const canLeave = () =>
     !document.querySelector('[data-unsaved="true"]') ||
     confirm('Máte neuložené zmeny. Chcete túto stránku opustiť?');

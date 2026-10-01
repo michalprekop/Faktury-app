@@ -48,7 +48,7 @@
   border-radius: 8px;
 }
 .admin-table {
-  min-width: 720px;
+  min-width: 880px;
 }
 .admin-table th {
   height: 44px;
@@ -62,13 +62,26 @@
   vertical-align: middle;
 }
 .admin-table th:first-child {
-  width: 28%;
+  width: 32%;
 }
 .admin-table th:nth-child(2) {
-  width: 18%;
+  width: 16%;
 }
-.admin-table th:last-child {
-  width: 1%;
+.admin-table .admin-count {
+  width: 10%;
+  text-align: right;
+  white-space: nowrap;
+}
+.admin-table .admin-user-row {
+  cursor: pointer;
+}
+.admin-table .admin-user-row:hover,
+.admin-table .admin-user-row:focus-visible {
+  background: var(--invoy-brand-canvas);
+}
+.admin-table .admin-user-row:focus-visible {
+  outline: 2px solid var(--invoy-brand-ink);
+  outline-offset: -2px;
 }
 .admin-table td:first-child {
   overflow-wrap: anywhere;
@@ -78,8 +91,19 @@
   font-weight: 600;
 }
 .admin-table td > small {
+  display: block;
   font-size: 12px;
   color: var(--muted);
+}
+.admin-last-seen {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.admin-last-seen time {
+  white-space: nowrap;
 }
 .admin-table tr:last-child td {
   border-bottom: 0;
@@ -188,11 +212,96 @@
   font-size: 13px;
   color: var(--invoy-brand-ink);
 }
-.native-shell .admin-page .field :is(input, select, textarea) {
+.native-shell .admin-page .field :is(input, textarea) {
   min-height: var(--control-height);
   padding: 10px 12px;
   border-radius: 8px;
   border-color: var(--invoy-brand-line);
+}
+.native-shell .admin-page .field select {
+  width: 100%;
+}
+.admin-page .modal.admin-user-modal {
+  max-width: 840px;
+  padding: 28px;
+}
+.admin-user-overview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px;
+  margin-bottom: 28px;
+  border-radius: 8px;
+  background: var(--invoy-brand-surface);
+}
+.admin-user-identity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-user-identity > strong,
+.admin-user-identity > span {
+  display: block;
+}
+.admin-user-identity > strong {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.admin-user-identity > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.admin-user-stats {
+  display: flex;
+  gap: 28px;
+  flex-shrink: 0;
+  margin: 0;
+}
+.admin-user-stats dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-user-stats dd {
+  margin: 8px 0 0;
+  font-size: 22px;
+}
+.admin-user-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 28px;
+}
+.admin-user-form h3 {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+.admin-user-form .grant-list {
+  margin: 0;
+}
+.admin-user-form .grant {
+  align-items: flex-start;
+  padding: 14px;
+  border-color: var(--invoy-brand-line);
+  border-radius: 8px;
+}
+.admin-user-form .grant strong {
+  font-weight: 500;
+}
+.admin-user-form input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--invoy-brand-yellow);
+}
+.admin-user-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid var(--invoy-brand-line);
+  margin-top: 28px;
+  padding-top: 20px;
 }
 .native-shell .admin-page .field input[type='color'] {
   padding: 4px;
@@ -258,5 +367,16 @@
   }
   .admin-page .modal {
     padding: 20px;
+  }
+  .admin-page .modal.admin-user-modal {
+    padding: 20px;
+  }
+  .admin-user-overview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .admin-user-form {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }

@@ -13,6 +13,7 @@ import {
   type SavedInvoice,
   type Template,
   type TemplateConfig,
+  type AdminUser,
 } from '../shared/model';
 import { backupAccount, exportAccount, scheduledBackup } from './backups';
 import {
@@ -71,6 +72,8 @@ api.get('/me', async (c) => {
     profileVersion: row!.profile_version,
   });
 });
+// Visible web sessions report presence; native sessions already poll the same API.
+api.post('/activity', (c) => c.json({ ok: true }));
 api.post('/logout', async (c) => {
   await c.env.DB.prepare('DELETE FROM sessions WHERE token_hash=?')
     .bind(c.get('session').token_hash)
@@ -369,8 +372,11 @@ api.post('/admin/backup', async (c) => {
 });
 api.get('/admin/users', async (c) => {
   const rows = await c.env.DB.prepare(
-    'SELECT id,name,email,role,status,created_at FROM users ORDER BY created_at DESC LIMIT 1000',
-  ).all();
+    `SELECT u.id,u.name,u.email,u.role,u.status,u.created_at,u.last_seen_at,
+      (SELECT COUNT(*) FROM invoices i WHERE i.user_id=u.id) AS invoice_count,
+      COALESCE(json_array_length(u.profile, '$.customers'), 0) AS customer_count
+     FROM users u ORDER BY u.created_at DESC LIMIT 1000`,
+  ).all<AdminUser>();
   const grants = await c.env.DB.prepare('SELECT user_id,template_id FROM template_grants').all();
   const backup = await c.env.DB.prepare(
     'SELECT * FROM backup_runs ORDER BY day DESC LIMIT 1',
