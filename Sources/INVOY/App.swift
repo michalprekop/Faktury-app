@@ -294,7 +294,9 @@ struct InvoicesView: View {
                                isSelected: listSelection.wrappedValue == invoice.id)
                         .tag(invoice.id)
                         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
-                        .listRowBackground(listSelection.wrappedValue == invoice.id ? InvoyBrand.canvas : Color.clear)
+                        .listRowBackground(RoundedRectangle(cornerRadius: 8)
+                            .fill(listSelection.wrappedValue == invoice.id ? InvoyBrand.canvas : Color.clear)
+                            .padding(.horizontal, 10))
                         .contextMenu {
                             Button("Upraviť") { begin(invoice) }
                             Button("Duplikovať") { duplicateInvoice(invoice) }
