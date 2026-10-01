@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1. 10. 2026 — Varianty úvodnej stránky A a B
+
+- Pôvodná biela úvodná stránka zostáva zachovaná ako variant A na `/?variant=a`.
+- Nový variant B používa teplé sivé pozadie, veľkú centrovanú typografiu, žlté tlačidlá a vrstvené ukážky faktúr. Je dostupný na `/?variant=b` aj ako predvolený úvod.
+- Oba varianty možno otvoriť aj po prihlásení. Apple prihlásenie, produktové náhľady a stiahnutie aplikácie pre Mac zostávajú dostupné.
+
 ## 1. 10. 2026 — Jedno prihlasovacie tlačidlo
 
 - Tlačidlo „Vytvoriť účet / Prihlásiť sa“ má namiesto šípky logo Apple. Samostatné Apple tlačidlo pod ním už nie je zobrazené.

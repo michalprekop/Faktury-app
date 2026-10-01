@@ -54,7 +54,7 @@ Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, ne
 
 ## Vývoj a overenie
 
-Úvodná stránka webu je v `web/src/Landing.tsx` a má samostatné štýly `web/src/landing.css`. Používa lokálne uložené písmo Inter s licenciou v `web/public/fonts/Inter-LICENSE.txt`. Produktové obrázky v `web/public/product` zachytávajú iba syntetické údaje z lokálneho náhľadu. Pre overenie úvodnej stránky spustite vo `web/` príkaz `npm run preview -- --landing` a otvorte `http://127.0.0.1:8792/`; prihlasovacie tlačidlá sa zobrazia, skutočné Apple prihlásenie zostáva v tomto náhľade vypnuté.
+Úvodná stránka webu má dva zachované varianty. **Variant A** (pôvodný biely dizajn) je v `web/src/LandingA.tsx` a `web/src/landing.css`, dostupný na `https://invoy.xyz/?variant=a`. **Variant B** (teplé sivé pozadie, žlté akcenty a vrstvené ukážky) je v `web/src/LandingB.tsx` a `web/src/landing-b.css`, dostupný na `https://invoy.xyz/?variant=b` a je novým predvoleným úvodom. Výber rieši `web/src/Landing.tsx`; predvolený variant možno vrátiť zmenou `DEFAULT_VARIANT`. Parametre variantov zobrazia verejný úvod aj prihlásenému používateľovi, bežná adresa bez parametra naďalej otvorí jeho pracovný priestor. Používa lokálne uložené písmo Inter s licenciou v `web/public/fonts/Inter-LICENSE.txt`. Produktové obrázky v `web/public/product` zachytávajú iba syntetické údaje z lokálneho náhľadu. Pre overenie úvodnej stránky spustite vo `web/` príkaz `npm run preview -- --landing` a otvorte `http://127.0.0.1:8792/`; prihlasovacie tlačidlá sa zobrazia, skutočné Apple prihlásenie zostáva v tomto náhľade vypnuté.
 
 SwiftUI, AppKit, PDFKit, Core Image, Vision a Foundation. Kompresiu PAY by square
 zabezpečuje systémová macOS knižnica liblzma; jej API hlavičky sú v `Sources/CLZMA`.

@@ -6,4 +6,6 @@ https://appleid.cdn-apple.com/appleid/button/logo?size=32&color=black&border=fal
 
 Downloaded on 2026-10-01 at 3x resolution. The image includes Apple's original padding. CSS displays it inside an 18 × 20 px icon container; screen blending matches its black background to the dark button, including the hover state.
 
+Landing variant B uses the same asset with CSS inversion and multiply blending to show a black Apple logo on its yellow buttons. The source image remains unchanged.
+
 Apple documentation: https://developer.apple.com/documentation/signinwithapple/incorporating-sign-in-with-apple-into-other-platforms

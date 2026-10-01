@@ -54,7 +54,9 @@ export default function App() {
         <p>Otváram váš pracovný priestor…</p>
       </div>
     );
-  if (!me) return <Landing config={config} error={error} />;
+  const landingVariant = new URLSearchParams(location.search).get('variant');
+  if (!me || landingVariant === 'a' || landingVariant === 'b')
+    return <Landing config={config} error={error} />;
   if (me.user.status !== 'active')
     return (
       <div className="pending-page">
