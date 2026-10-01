@@ -150,12 +150,12 @@ enum MonoInvoicePDF {
         beginPage()
         let metadataTop: CGFloat
         if manolo {
-            // The pale supplied mark sits behind the original SVG, clipped to the header.
-            context.saveGState()
-            context.clip(to: CGRect(x: left, y: 0, width: width, height: 104))
-            picture(ManoloInvoiceBrand.data("background.png"), NSRect(x: (pageWidth - 334) / 2, y: -94, width: 334, height: 268))
+            // Draw the complete supplied artwork from the paper's top edge, behind the content.
+            if let background = ManoloInvoiceBrand.image("background.png") {
+                picture(ManoloInvoiceBrand.data("background.png"), NSRect(x: (pageWidth - 334) / 2, y: 0,
+                    width: 334, height: 334 * background.size.height / background.size.width))
+            }
             picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 304) / 2, y: compact ? 20 : 32, width: 304, height: 60))
-            context.restoreGState()
             metadataTop = compact ? 90 : 108
         } else {
             let logoTop: CGFloat = compact ? 22 : 32

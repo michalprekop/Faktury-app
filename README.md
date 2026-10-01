@@ -22,7 +22,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.2.13 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
+Mac distribúcia 1.2.14 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
 
 ## Pôvodný lokálny režim
 

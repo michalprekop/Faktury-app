@@ -65,6 +65,9 @@ struct InvoicePaper: View {
         }
         .padding(.horizontal, 42).padding(.top, 44).padding(.bottom, 40)
         .frame(minHeight: 1080, alignment: .top)
+        .background(alignment: .top) {
+            if manolo { ManoloInvoiceBackground() }
+        }
         .foregroundStyle(Color(red: 0.11, green: 0.15, blue: 0.16))
         .environmentObject(draft)
         .sheet(item: $newCustomer) { company in

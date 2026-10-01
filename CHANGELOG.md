@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.14 — 2. 10. 2026 — Celý znak Manolo & Bay
+
+- Znak v pozadí šablóny Manolo & Bay sa zobrazuje celý, bez orezania a bez medzery od horného okraja papiera. Úprava platí pre web, Mac aj PDF export.
+- Logo, rozloženie údajov a svetlobéžové zvýraznenie zostávajú zachované.
+
 ## 2. 10. 2026 — Jednotná a priestranná administrácia
 
 - Administrácia využíva celú šírku okna a rovnaké systémové písmo, tlačidlá, tabuľku a štítky ako hlavná aplikácia. Lepšie čitateľné sú aj šablóny a formuláre na úpravu prístupu.

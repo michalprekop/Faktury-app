@@ -18,20 +18,26 @@ enum ManoloInvoiceBrand {
     static func image(_ filename: String) -> NSImage? { data(filename).flatMap(NSImage.init(data:)) }
 }
 
+struct ManoloInvoiceBackground: View {
+    var body: some View {
+        if let background = ManoloInvoiceBrand.image("background.png") {
+            Image(nsImage: background).resizable().scaledToFit()
+                .frame(width: 450, height: 450 * background.size.height / background.size.width)
+                .allowsHitTesting(false).accessibilityHidden(true)
+        }
+    }
+}
+
 struct ManoloInvoiceHeader: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
-                if let background = ManoloInvoiceBrand.image("background.png") {
-                    Image(nsImage: background).resizable().scaledToFit()
-                        .frame(width: 450, height: 450 * 1048 / 1307).offset(y: -130).accessibilityHidden(true)
-                }
                 if let logo = ManoloInvoiceBrand.image("logo.svg") {
                     Image(nsImage: logo).resizable().scaledToFit()
                         .frame(width: min(410, proxy.size.width * 0.72), height: 81)
                         .offset(y: 45).accessibilityLabel("Manolo & Bay")
                 }
-            }.frame(width: proxy.size.width, height: 150, alignment: .top).clipped()
+            }.frame(width: proxy.size.width, height: 150, alignment: .top)
         }.frame(height: 150)
     }
 }

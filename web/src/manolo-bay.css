@@ -1,5 +1,7 @@
 /* Manolo & Bay keeps Mono 01's document grid with the supplied layered branding. */
 .original-paper.manoloBay {
+  position: relative;
+  isolation: isolate;
   background: #fff;
   color: #141414;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -8,7 +10,6 @@
   position: relative;
   height: 150px;
   flex: 0 0 150px;
-  overflow: hidden;
   margin-bottom: 24px;
 }
 .manolo-header img {
@@ -17,10 +18,16 @@
   transform: translateX(-50%);
   object-fit: contain;
 }
-.manolo-header .manolo-background {
+.manoloBay > .manolo-background {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  left: 50%;
+  transform: translateX(-50%);
   width: 450px;
+  height: auto;
   max-width: none;
-  top: -130px;
+  top: 0;
 }
 .manolo-header .manolo-logo {
   width: 410px;
@@ -66,4 +73,11 @@
   width: 70%;
   max-width: 180px;
   margin: 0 auto 12px;
+}
+
+@media print {
+  .original-paper.invoice-paper.manoloBay {
+    /* Keep the content inset while the artwork reaches the physical page edge. */
+    padding: 15mm !important;
+  }
 }

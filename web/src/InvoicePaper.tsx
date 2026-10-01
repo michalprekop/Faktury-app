@@ -256,9 +256,15 @@ export function InvoicePaper({
       style={{ '--invoice-accent': manolo ? manoloBay.accent : theme.accent } as CSSProperties}
       aria-label={edit ? 'Upraviteľná faktúra' : 'Náhľad faktúry'}
     >
+      {manolo && (
+        <>
+          {/* Scope the edge-to-edge print page to this template, including Safari. */}
+          <style media="print">{'@page { size: A4; margin: 0; }'}</style>
+          <img className="manolo-background" src={manoloBay.background} alt="" />
+        </>
+      )}
       {manolo ? (
         <div className="manolo-header">
-          <img className="manolo-background" src={manoloBay.background} alt="" />
           <img className="manolo-logo" src={manoloBay.logo} alt="Manolo & Bay" />
         </div>
       ) : (
