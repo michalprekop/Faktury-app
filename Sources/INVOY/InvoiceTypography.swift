@@ -36,26 +36,27 @@ struct InvoiceDateField: View {
 }
 
 struct MonospacedDatePicker: NSViewRepresentable {
+    @Environment(\.invoiceNumericMonospaced) private var numericMono
     let title: String
     @Binding var date: Date
     var fontSize: CGFloat = 13
     var bordered = true
 
-    static func makePicker() -> NSDatePicker {
+    static func makePicker(monospaced: Bool = true) -> NSDatePicker {
         let picker = NSDatePicker()
         picker.datePickerStyle = .textField
         picker.datePickerElements = .yearMonthDay
         picker.presentsCalendarOverlay = true
         picker.locale = Locale(identifier: "sk_SK")
         picker.timeZone = .current
-        picker.font = InvoiceTypography.font(size: 13, monospaced: true)
+        picker.font = InvoiceTypography.font(size: 13, monospaced: monospaced)
         picker.isBordered = true
         picker.drawsBackground = true
         return picker
     }
 
     func makeNSView(context: Context) -> NSDatePicker {
-        let picker = Self.makePicker()
+        let picker = Self.makePicker(monospaced: numericMono)
         picker.target = context.coordinator
         picker.action = #selector(Coordinator.changed(_:))
         return picker
@@ -63,7 +64,7 @@ struct MonospacedDatePicker: NSViewRepresentable {
 
     func updateNSView(_ picker: NSDatePicker, context: Context) {
         context.coordinator.date = $date
-        picker.font = InvoiceTypography.font(size: fontSize, monospaced: true)
+        picker.font = InvoiceTypography.font(size: fontSize, monospaced: numericMono)
         picker.isBordered = bordered
         picker.drawsBackground = bordered
         if picker.dateValue != date { picker.dateValue = date }

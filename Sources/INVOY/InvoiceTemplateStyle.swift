@@ -18,15 +18,25 @@ private struct InvoiceMonospacedKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct InvoiceNumericMonospacedKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
 extension EnvironmentValues {
     var invoiceMonospaced: Bool {
         get { self[InvoiceMonospacedKey.self] }
         set { self[InvoiceMonospacedKey.self] = newValue }
     }
+
+    var invoiceNumericMonospaced: Bool {
+        get { self[InvoiceNumericMonospacedKey.self] }
+        set { self[InvoiceNumericMonospacedKey.self] = newValue }
+    }
 }
 
 struct PaperText: View {
     @Environment(\.invoiceMonospaced) private var mono
+    @Environment(\.invoiceNumericMonospaced) private var numericMono
     let value: String
     var size: CGFloat = 13
     var weight: NSFont.Weight = .regular
@@ -37,6 +47,6 @@ struct PaperText: View {
     }
 
     var body: some View {
-        Text(value).font(Font(InvoiceTypography.font(size: size, weight: weight, monospaced: mono || monospaced)))
+        Text(value).font(Font(InvoiceTypography.font(size: size, weight: weight, monospaced: mono || (monospaced && numericMono))))
     }
 }

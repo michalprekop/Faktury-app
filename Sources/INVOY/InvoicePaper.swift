@@ -93,6 +93,7 @@ struct InvoicePaper: View {
             if manolo { ManoloInvoiceBackground() }
         }
         .foregroundStyle(Color(red: 0.11, green: 0.15, blue: 0.16))
+        .environment(\.invoiceNumericMonospaced, !manolo)
         .environmentObject(draft)
         .sheet(item: $newCustomer) { company in
             CustomerEditor(company: company) { customer in
@@ -468,6 +469,7 @@ private struct PaperItem: View {
 
 struct PaperField: View {
     @Environment(\.invoiceMonospaced) private var mono
+    @Environment(\.invoiceNumericMonospaced) private var numericMono
     let title: String
     @Binding var text: String
     var size: CGFloat = 13
@@ -491,7 +493,7 @@ struct PaperField: View {
 
     var body: some View {
         TextField("", text: $text, axis: .vertical)
-            .textFieldStyle(.plain).font(Font(InvoiceTypography.font(size: size, weight: weight, monospaced: numeric || mono)))
+            .textFieldStyle(.plain).font(Font(InvoiceTypography.font(size: size, weight: weight, monospaced: mono || (numeric && numericMono))))
             .lineLimit(1...)
             .multilineTextAlignment(alignment).focused($focused)
             .foregroundStyle(focused ? color : .clear)

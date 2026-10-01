@@ -13,7 +13,7 @@ enum ManoloPaymentColumns {
     }
 
     static func make(_ invoice: Invoice, width: CGFloat, scale: CGFloat = 1,
-                     monospaced: Bool = true) -> [Column] {
+                     monospaced: Bool = false) -> [Column] {
         let values: [(String, String, CGFloat)] = [
             ("IBAN", invoice.account.map { Format.iban($0.iban) } ?? "—", CGFloat(13)),
             ("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, 13),
@@ -52,7 +52,7 @@ struct ManoloPaymentSummary: View {
                     VStack(alignment: index == 3 ? .trailing : .leading, spacing: 7) {
                         Text(column.title).font(.system(size: 10))
                             .lineLimit(1).minimumScaleFactor(0.5)
-                        PaperText(column.value, size: column.valueSize, weight: .semibold, monospaced: true)
+                        PaperText(column.value, size: column.valueSize, weight: .semibold)
                             .lineLimit(1).minimumScaleFactor(0.5)
                     }
                     .frame(width: column.width, alignment: index == 3 ? .trailing : .leading)

@@ -9,6 +9,9 @@
 .original-paper.invoice-paper.manoloBay {
   padding-top: 38px;
 }
+.original-paper.manoloBay .numeric {
+  font-family: inherit;
+}
 .manolo-header {
   position: relative;
   height: 49px;
