@@ -86,8 +86,9 @@ struct InvoicePaper: View {
             rule
             footer.padding(.top, 14)
         }
+        .frame(minHeight: manolo ? pageWidth * 297 / 210 - 78 : nil, alignment: .top)
         .padding(.horizontal, 42).padding(.top, manolo ? 38 : 44).padding(.bottom, 40)
-        .frame(minHeight: pageWidth * 297 / 210, alignment: .top)
+        .frame(minHeight: manolo ? nil : pageWidth * 297 / 210, alignment: .top)
         .background(alignment: .top) {
             if manolo { ManoloInvoiceBackground() }
         }
@@ -296,19 +297,7 @@ struct InvoicePaper: View {
                 Text(invoice.currency).font(.system(size: 12, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
             }
             if manolo {
-                HStack(alignment: .center, spacing: 16) {
-                    bandValue("IBAN", invoice.account.map { Format.iban($0.iban) } ?? "—")
-                        .frame(width: max(170, (pageWidth - 168) * 0.39))
-                    bandValue("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol)
-                    bandValue("Dátum splatnosti", Format.date(invoice.dueDate))
-                    VStack(alignment: .trailing, spacing: 7) {
-                        Text("Suma na úhradu").font(.system(size: 10))
-                        PaperText(Format.money(invoice.remaining, currency: invoice.currency), size: 17,
-                                  weight: .semibold, monospaced: true)
-                            .lineLimit(1).minimumScaleFactor(0.6)
-                    }.frame(maxWidth: .infinity, alignment: .trailing)
-                }.padding(.horizontal, 18).padding(.vertical, 14)
-                    .background(Color(nsColor: ManoloInvoiceBrand.highlight))
+                ManoloPaymentSummary(invoice: invoice)
             } else {
                 totalLine("Suma na úhradu", invoice.remaining, strong: true, color: accent)
             }

@@ -260,8 +260,8 @@ export function InvoicePaper({
       >
         {manolo && (
           <>
-            {/* Scope the edge-to-edge print page to this template, including Safari. */}
-            <style media="print">{'@page { size: A4; margin: 0; }'}</style>
+            {/* Keep a physical bottom margin for the repeating footer, including Safari. */}
+            <style media="print">{'@page { size: A4; margin: 0 0 10mm; }'}</style>
             <img className="manolo-background" src={manoloBay.background} alt="" />
           </>
         )}

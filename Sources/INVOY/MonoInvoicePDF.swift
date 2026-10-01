@@ -79,14 +79,15 @@ enum MonoInvoicePDF {
             y = 32
         }
         func endPage() {
-            rule(774)
+            let footerTop: CGFloat = manolo ? pageHeight - 50 : 774
+            rule(footerTop)
             let contacts = manolo ? ManoloInvoiceBrand.contacts : [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
                             invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
             let gap: CGFloat = 12
             let columnWidth = (width - CGFloat(max(0, contacts.count - 1)) * gap) / CGFloat(max(1, contacts.count))
             for (index, value) in contacts.enumerated() {
                 let alignment: NSTextAlignment = index == 0 ? .left : index == contacts.count - 1 ? .right : .center
-                text(value, left + CGFloat(index) * (columnWidth + gap), 784, columnWidth,
+                text(value, left + CGFloat(index) * (columnWidth + gap), footerTop + 10, columnWidth,
                      size: 6.5, color: muted, alignment: alignment)
             }
             text("\(page)/\(pageCount ?? 1)", left + width - 40, 825, 40, size: 6.5, color: muted, alignment: .right)
@@ -235,10 +236,16 @@ enum MonoInvoicePDF {
         let note = [invoice.note.isEmpty ? "" : "Poznámka: \(invoice.note)", qrError].filter { !$0.isEmpty }.joined(separator: "\n")
         let closingHeight = max(qr == nil ? 0 : PaymentQRImage.blockHeight, invoice.signature == nil ? 0 : 85)
         let noteHeight = height(note, width, size: 8)
-        let summaryHeight = totals.reduce(CGFloat.zero) { result, row in
-            result + max(manolo && row.2 ? 48 : 25, height(Format.money(row.1, currency: invoice.currency), manolo ? width - 412 : 193,
-                                    size: row.2 ? 12 : 9, weight: row.2 ? .bold : .regular) + (manolo && row.2 ? 28 : 12))
+        let paymentColumns = ManoloPaymentColumns.make(invoice, width: width - 28, scale: 0.75, monospaced: false)
+        let paymentHeight = max(48, (paymentColumns.map {
+            height($0.value, $0.width, size: $0.valueSize, weight: .semibold)
+        }.max() ?? 0) + 28)
+        func totalRowHeight(_ amount: Decimal, strong: Bool) -> CGFloat {
+            if manolo && strong { return paymentHeight }
+            return max(25, height(Format.money(amount, currency: invoice.currency), 193,
+                                  size: strong ? 12 : 9, weight: strong ? .bold : .regular) + 12)
         }
+        let summaryHeight = totals.reduce(CGFloat.zero) { $0 + totalRowHeight($1.1, strong: $1.2) }
         // Keep a short closing section together instead of exporting a page containing only a QR/signature.
         let closingBlock = summaryHeight + 15 + (note.isEmpty ? 0 : noteHeight + 12) + closingHeight
         ensure(noteHeight < 120 && closingBlock < 650 ? closingBlock : min(summaryHeight, 400))
@@ -246,22 +253,20 @@ enum MonoInvoicePDF {
             ensure(max(25, height(Format.money(amount, currency: invoice.currency), 193,
                                   size: strong ? 12 : 9, weight: strong ? .bold : .regular) + 12))
             let highlighted = manolo && strong
-            let rowHeight = max(highlighted ? 48 : 25, height(Format.money(amount, currency: invoice.currency), manolo ? width - 412 : 193,
-                                size: strong ? 12 : 9, weight: strong ? .bold : .regular) + (highlighted ? 28 : 12))
+            let rowHeight = totalRowHeight(amount, strong: strong)
             ensure(rowHeight)
             if highlighted {
                 ManoloInvoiceBrand.highlight.setFill()
                 NSRect(x: left, y: y, width: width, height: rowHeight).fill()
             }
             if highlighted {
-                text("IBAN", left + 14, y + 9, 172, size: 7)
-                text(invoice.account.map { Format.iban($0.iban) } ?? "—", left + 14, y + 23, 172, size: 8.5, weight: .semibold)
-                text("Variabilný symbol", left + 198, y + 9, 88, size: 7)
-                text(invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, left + 198, y + 23, 88, size: 9, weight: .semibold)
-                text("Dátum splatnosti", left + 298, y + 9, 88, size: 7)
-                text(Format.date(invoice.dueDate), left + 298, y + 23, 88, size: 9, weight: .semibold)
-                text(label, left + 398, y + 9, width - 412, size: 7, alignment: .right)
-                text(Format.money(amount, currency: invoice.currency), left + 398, y + 22, width - 412, size: 12, weight: .bold, alignment: .right)
+                for (index, column) in paymentColumns.enumerated() {
+                    let alignment: NSTextAlignment = index == 3 ? .right : .left
+                    text(column.title, left + 14 + column.x, y + 9, column.width,
+                         size: 7.5, alignment: alignment)
+                    text(column.value, left + 14 + column.x, y + 23, column.width,
+                         size: column.valueSize, weight: .semibold, alignment: alignment)
+                }
             } else {
                 text(label, left, y + 6, 320, size: 9, weight: strong ? .bold : .regular)
                 text(Format.money(amount, currency: invoice.currency), 370, y + 6, 193, size: strong ? 12 : 9,

@@ -101,12 +101,14 @@
   padding: 14px 18px !important;
 }
 .manolo-payment-summary {
-  display: grid;
-  grid-template-columns: 2.1fr 1fr 1fr 1.3fr;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
   break-inside: avoid;
 }
 .manolo-payment-summary > div {
+  flex: 0 1 auto;
   min-width: 0;
 }
 .manolo-payment-summary small {
@@ -145,10 +147,24 @@
 
 @media print {
   .original-paper.invoice-paper.manoloBay {
+    min-height: 275mm !important;
     /* Keep the content inset while the artwork reaches the physical page edge. */
-    padding: 38px 42px 40px !important;
+    padding: 38px 42px 15mm !important;
+    /* Reserve footer space on every printed fragment of a long invoice. */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .preview-dialog .modal-backdrop:has(.manoloBay) {
+    /* A backdrop filter would make fixed footers follow the modal content. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
   .manoloBay .original-footer {
-    padding-top: 16px;
+    position: fixed;
+    bottom: 0;
+    left: 42px;
+    right: 42px;
+    margin: 0;
+    padding: 0;
   }
 }
