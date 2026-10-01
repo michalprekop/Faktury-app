@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Jedno prihlasovacie tlačidlo
+
+- Tlačidlo „Vytvoriť účet / Prihlásiť sa“ má namiesto šípky logo Apple. Samostatné Apple tlačidlo pod ním už nie je zobrazené.
+
 ## 1. 10. 2026 — Nová úvodná stránka
 
 - Úvodný web má nový čistý vzhľad s bielym pozadím, výraznou typografiou a prehľadným predstavením aplikácie.

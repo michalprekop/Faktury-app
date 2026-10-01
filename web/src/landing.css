@@ -189,19 +189,20 @@
   width: fit-content;
   max-width: 100%;
 }
-.home-apple {
-  align-self: center;
+.home-apple-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  margin-top: 10px;
-  border-radius: 6px;
+  flex-shrink: 0;
+  width: 18px;
+  height: 20px;
 }
-.home-apple img {
+.home-apple-icon img {
   display: block;
-  width: 208px;
-  height: 36px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  mix-blend-mode: screen;
 }
 .home-product {
   scroll-margin-top: 32px;

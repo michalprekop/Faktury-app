@@ -14,19 +14,16 @@ function AccountAction({ ready }: { ready: boolean }) {
   return (
     <div className="home-account">
       {ready ? (
-        <>
-          <a className="home-button home-button-primary" href="/auth/apple">
-            Vytvoriť účet / Prihlásiť sa <ArrowUpRight size={17} aria-hidden="true" />
-          </a>
-          <a className="home-apple" href="/auth/apple">
-            <img
-              src="/brand/sign-in-with-apple-sk.png"
-              alt="Prihlásiť sa cez Apple"
-              width="208"
-              height="36"
-            />
-          </a>
-        </>
+        <a
+          className="home-button home-button-primary"
+          href="/auth/apple"
+          aria-label="Vytvoriť účet / Prihlásiť sa cez Apple"
+        >
+          Vytvoriť účet / Prihlásiť sa
+          <span className="home-apple-icon" aria-hidden="true">
+            <img src="/brand/apple-logo-white.png" alt="" width="40" height="40" />
+          </span>
+        </a>
       ) : (
         <button className="home-button home-button-primary" disabled>
           Prihlásenie pripravujeme
