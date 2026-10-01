@@ -443,22 +443,19 @@ private struct PaperItem: View {
                 }
             }
         }.padding(12)
-            .overlay(alignment: .topTrailing) {
-                Menu {
-                    Button(hasDetail ? "Odobrať podrobný popis" : "Pridať podrobný popis") {
-                        if hasDetail {
-                            item.detail = ""
-                            showDetail = false
-                        } else {
-                            showDetail = true
-                        }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button(hasDetail ? "Odobrať podrobný popis" : "Pridať podrobný popis") {
+                    if hasDetail {
+                        item.detail = ""
+                        showDetail = false
+                    } else {
+                        showDetail = true
                     }
-                    Button("Zľava") { showDiscount = true }
-                    Divider()
-                    Button("Odstrániť položku", role: .destructive, action: remove).disabled(!canRemove)
-                } label: { Image(systemName: "ellipsis").font(.system(size: 13, design: mono ? .monospaced : .default)) }
-                .menuStyle(.borderlessButton).menuIndicator(.hidden).frame(width: 24)
-                .offset(x: 28, y: 12).help("Možnosti položky").accessibilityLabel("Možnosti položky")
+                }
+                Button("Zľava") { showDiscount = true }
+                Divider()
+                Button("Odstrániť položku", role: .destructive, action: remove).disabled(!canRemove)
             }
     }
 

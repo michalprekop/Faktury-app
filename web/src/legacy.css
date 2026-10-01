@@ -711,31 +711,36 @@
   line-height: 1.4;
   margin-top: 8px;
 }
-.item-menu {
-  position: absolute;
-  right: -24px;
-  top: 16px;
-  font-size: 11px;
-  z-index: 2;
+.original-items .item-discount {
+  display: block;
+  margin-top: 4px;
 }
-.item-menu summary {
-  list-style: none;
-  color: #216557;
-  cursor: pointer;
-}
-.item-menu[open] {
+.invoice-item-context-menu {
+  position: fixed;
+  z-index: 100;
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   background: #fff;
   border: 1px solid #ddd;
-  padding: 10px;
+  border-radius: 8px;
+  padding: 12px;
   box-shadow: 0 3px 10px #0002;
-  width: 160px;
+  width: 220px;
 }
-.item-menu label {
+.invoice-item-context-menu label {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  margin-bottom: 8px;
 }
-.item-menu button {
+.invoice-item-context-menu input {
+  width: 80px;
+  padding: 6px;
+}
+.invoice-item-context-menu button {
   display: flex;
   gap: 5px;
   padding-top: 8px;

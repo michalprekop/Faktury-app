@@ -131,6 +131,15 @@
 .manolo-payment-summary > div:last-child strong {
   font-size: 17px;
 }
+.editable-paper.manoloBay .manolo-payment-summary small {
+  font-size: 12px;
+}
+.editable-paper.manoloBay .manolo-payment-summary strong {
+  font-size: 15px;
+}
+.editable-paper.manoloBay .manolo-payment-summary > div:last-child strong {
+  font-size: 17px;
+}
 .manoloBay .original-footer > div > span:first-child {
   display: block;
   white-space: normal;

@@ -13,16 +13,17 @@ enum ManoloPaymentColumns {
     }
 
     static func make(_ invoice: Invoice, width: CGFloat, scale: CGFloat = 1,
-                     monospaced: Bool = false) -> [Column] {
+                     monospaced: Bool = false, labelSize: CGFloat = 10,
+                     valueSize: CGFloat = 13) -> [Column] {
         let values: [(String, String, CGFloat)] = [
-            ("IBAN", invoice.account.map { Format.iban($0.iban) } ?? "—", CGFloat(13)),
-            ("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, 13),
-            ("Dátum splatnosti", Format.date(invoice.dueDate), 13),
+            ("IBAN", invoice.account.map { Format.iban($0.iban) } ?? "—", valueSize),
+            ("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, valueSize),
+            ("Dátum splatnosti", Format.date(invoice.dueDate), valueSize),
             ("Suma na úhradu", Format.money(invoice.remaining, currency: invoice.currency), 17)
         ]
         var columns = values.map { title, value, size in
             Column(title: title, value: value, valueSize: size * scale, width: ceil(max(
-                InvoiceTypography.attributed(title, size: 10 * scale).size().width,
+                InvoiceTypography.attributed(title, size: labelSize * scale).size().width,
                 InvoiceTypography.attributed(value, size: size * scale, weight: .semibold,
                                              monospaced: monospaced).size().width
             )))
@@ -45,22 +46,23 @@ struct ManoloPaymentSummary: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let columns = ManoloPaymentColumns.make(invoice, width: proxy.size.width)
+            let columns = ManoloPaymentColumns.make(invoice, width: proxy.size.width,
+                                                     labelSize: 12, valueSize: 15)
             ZStack(alignment: .topLeading) {
                 ForEach(columns.indices, id: \.self) { index in
                     let column = columns[index]
                     VStack(alignment: index == 3 ? .trailing : .leading, spacing: 7) {
-                        Text(column.title).font(.system(size: 10))
-                            .lineLimit(1).minimumScaleFactor(0.5)
+                        Text(column.title).font(.system(size: 12))
+                            .fixedSize(horizontal: false, vertical: true)
                         PaperText(column.value, size: column.valueSize, weight: .semibold)
-                            .lineLimit(1).minimumScaleFactor(0.5)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(width: column.width, alignment: index == 3 ? .trailing : .leading)
                     .offset(x: column.x)
                 }
             }
         }
-        .frame(height: 40)
+        .frame(height: 44)
         .padding(.horizontal, 18).padding(.vertical, 14)
         .background(Color(nsColor: ManoloInvoiceBrand.highlight))
     }

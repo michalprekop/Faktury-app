@@ -1,6 +1,7 @@
 import { manoloBay } from '../shared/manolo-bay';
 import { A4Paper } from './A4Paper';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { encode, CurrencyCode, PaymentOptions } from 'bysquare/pay';
 import {
@@ -207,6 +208,31 @@ export function InvoicePaper({
     mono = theme.layout === 'mono' || manolo;
   const [qr, setQR] = useState(''),
     [qrError, setQRError] = useState('');
+  const [itemMenu, setItemMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuItem = invoice.items.find((item) => item.id === itemMenu?.id);
+  useEffect(() => {
+    if (!itemMenu) return;
+    menuRef.current?.querySelector('input')?.focus({ preventScroll: true });
+    const outside = (event: Event) => {
+      if (event.target instanceof Node && !menuRef.current?.contains(event.target))
+        setItemMenu(null);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setItemMenu(null);
+    };
+    const close = () => setItemMenu(null);
+    document.addEventListener('pointerdown', outside, true);
+    document.addEventListener('keydown', escape);
+    window.addEventListener('resize', close);
+    document.addEventListener('wheel', outside, { passive: true });
+    return () => {
+      document.removeEventListener('pointerdown', outside, true);
+      document.removeEventListener('keydown', escape);
+      window.removeEventListener('resize', close);
+      document.removeEventListener('wheel', outside);
+    };
+  }, [itemMenu]);
   useEffect(() => {
     let active = true;
     setQR('');
@@ -254,7 +280,11 @@ export function InvoicePaper({
   return (
     <A4Paper>
       <article
-        className={'invoice-paper original-paper ' + (manolo ? 'mono manoloBay' : theme.layout)}
+        className={
+          'invoice-paper original-paper ' +
+          (manolo ? 'mono manoloBay' : theme.layout) +
+          (edit ? ' editable-paper' : '')
+        }
         style={{ '--invoice-accent': manolo ? manoloBay.accent : theme.accent } as CSSProperties}
         aria-label={edit ? 'Upraviteľná faktúra' : 'Náhľad faktúry'}
       >
@@ -434,7 +464,32 @@ export function InvoicePaper({
                   ),
                 });
               return (
-                <tr key={item.id}>
+                <tr
+                  key={item.id}
+                  tabIndex={edit ? 0 : undefined}
+                  onContextMenu={
+                    edit
+                      ? (event) => {
+                          event.preventDefault();
+                          setItemMenu({ id: item.id, x: event.clientX, y: event.clientY });
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    edit
+                      ? (event) => {
+                          if (
+                            event.key === 'ContextMenu' ||
+                            (event.shiftKey && event.key === 'F10')
+                          ) {
+                            event.preventDefault();
+                            const rect = event.currentTarget.getBoundingClientRect();
+                            setItemMenu({ id: item.id, x: rect.right - 220, y: rect.top });
+                          }
+                        }
+                      : undefined
+                  }
+                >
                   <td>
                     <strong>
                       <Inline
@@ -454,42 +509,8 @@ export function InvoicePaper({
                         />
                       </div>
                     )}
-                    {edit ? (
-                      <details className="item-menu">
-                        <summary title="Možnosti položky">
-                          <MoreHorizontal size={15} />
-                        </summary>
-                        <label>
-                          Zľava %
-                          <Inline
-                            label="Zľava %"
-                            value={item.discount}
-                            numeric
-                            onChange={(v) => change('discount', v)}
-                          />
-                        </label>
-                        {invoice.supplier.vatPayer && (
-                          <label>
-                            DPH %
-                            <Inline
-                              label="DPH %"
-                              value={item.vatRate}
-                              numeric
-                              onChange={(v) => change('vatRate', v)}
-                            />
-                          </label>
-                        )}
-                        <button
-                          disabled={invoice.items.length === 1}
-                          onClick={() =>
-                            edit.update({ items: invoice.items.filter((i) => i.id !== item.id) })
-                          }
-                        >
-                          <Trash2 size={13} /> Odstrániť položku
-                        </button>
-                      </details>
-                    ) : (
-                      Number(item.discount) > 0 && <small>Zľava {item.discount} %</small>
+                    {Number(item.discount) > 0 && (
+                      <small className="item-discount">Zľava {item.discount} %</small>
                     )}
                   </td>
                   <td>
@@ -663,6 +684,55 @@ export function InvoicePaper({
             <img src={theme.logo || invoice.logo} alt="Logo dodávateľa" />
           )}
         </footer>
+        {edit &&
+          itemMenu &&
+          menuItem &&
+          createPortal(
+            <div
+              ref={menuRef}
+              className="invoice-item-context-menu"
+              role="dialog"
+              aria-label="Možnosti položky"
+              style={{
+                left: Math.max(8, Math.min(itemMenu.x, window.innerWidth - 236)),
+                top: Math.max(8, Math.min(itemMenu.y, window.innerHeight - 180)),
+              }}
+            >
+              {(
+                ['discount', ...(invoice.supplier.vatPayer ? ['vatRate'] : [])] as (
+                  'discount' | 'vatRate'
+                )[]
+              ).map((key) => (
+                <label key={key}>
+                  {key === 'discount' ? 'Zľava %' : 'DPH %'}
+                  <input
+                    aria-label={key === 'discount' ? 'Zľava %' : 'DPH %'}
+                    inputMode="decimal"
+                    value={menuItem[key]}
+                    onChange={(event) =>
+                      edit.update({
+                        items: invoice.items.map((item) =>
+                          item.id === menuItem.id
+                            ? { ...item, [key]: event.target.value.replace(',', '.') }
+                            : item,
+                        ),
+                      })
+                    }
+                  />
+                </label>
+              ))}
+              <button
+                disabled={invoice.items.length === 1}
+                onClick={() => {
+                  edit.update({ items: invoice.items.filter((item) => item.id !== menuItem.id) });
+                  setItemMenu(null);
+                }}
+              >
+                <Trash2 size={13} /> Odstrániť položku
+              </button>
+            </div>,
+            document.body,
+          )}
       </article>
     </A4Paper>
   );
