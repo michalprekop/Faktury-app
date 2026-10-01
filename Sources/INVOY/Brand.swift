@@ -136,3 +136,53 @@ struct BrandIconButtonStyle: ButtonStyle {
             .opacity(enabled ? 1 : 0.45)
     }
 }
+
+/// Keep native list/table selection and keyboard handling, but use the app palette.
+struct InvoiceSelectionBackground: NSViewRepresentable {
+    let selected: Bool
+
+    func makeNSView(context: Context) -> SelectionView { SelectionView() }
+    func updateNSView(_ view: SelectionView, context: Context) {
+        view.applyAppearance()
+        view.needsDisplay = true
+    }
+
+    final class SelectionView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            applyAppearance()
+        }
+
+        override func viewDidMoveToSuperview() {
+            super.viewDidMoveToSuperview()
+            applyAppearance()
+        }
+
+        override func viewWillDraw() {
+            // SwiftUI resets reused rows while filtering/reloading. Apply after that
+            // update, immediately before the native view hierarchy is drawn.
+            applyAppearance()
+            super.viewWillDraw()
+        }
+
+        func applyAppearance() {
+            var ancestor = superview
+            var row: NSTableRowView?
+            while let view = ancestor {
+                if let rowView = view as? NSTableRowView { row = rowView }
+                if let table = view as? NSTableView {
+                    if table.selectionHighlightStyle != .none { table.selectionHighlightStyle = .none }
+                    if let row {
+                        let color = row.isSelected ? NSColor(InvoyBrand.canvas) : .clear
+                        if row.backgroundColor != color {
+                            row.backgroundColor = color
+                            row.needsDisplay = true
+                        }
+                    }
+                    return
+                }
+                ancestor = view.superview
+            }
+        }
+    }
+}

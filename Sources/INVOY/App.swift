@@ -294,6 +294,7 @@ struct InvoicesView: View {
                                isSelected: listSelection.wrappedValue == invoice.id)
                         .tag(invoice.id)
                         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
+                        .listRowBackground(listSelection.wrappedValue == invoice.id ? InvoyBrand.canvas : Color.clear)
                         .contextMenu {
                             Button("Upraviť") { begin(invoice) }
                             Button("Duplikovať") { duplicateInvoice(invoice) }
@@ -333,6 +334,7 @@ struct InvoicesView: View {
                     Button { begin(invoice) } label: {
                         Text.numeric(invoice.number, weight: .semibold, monospaced: true)
                     }.buttonStyle(.plain).foregroundStyle(Color.accent).padding(.vertical, 14)
+                        .background(InvoiceSelectionBackground(selected: listSelection.wrappedValue == invoice.id))
                 }.width(min: 80, ideal: 105)
                 TableColumn("Odberateľ") { invoice in
                     VStack(alignment: .leading, spacing: 5) {
@@ -354,7 +356,8 @@ struct InvoicesView: View {
                             .foregroundStyle(invoice.status == "Po splatnosti" ? .red : .primary)
                     }.frame(maxWidth: .infinity, alignment: .trailing)
                 }.width(min: 135, ideal: 155)
-            }.overlay { if filtered.isEmpty { ContentUnavailableView("Žiadne faktúry", systemImage: "doc.text.magnifyingglass") } }
+            }.foregroundStyle(InvoyBrand.ink)
+                .overlay { if filtered.isEmpty { ContentUnavailableView("Žiadne faktúry", systemImage: "doc.text.magnifyingglass") } }
                 .contextMenu(forSelectionType: UUID.self) { ids in
                     if let invoice = store.invoices.first(where: { ids.contains($0.id) }) {
                         Button("Upraviť") { begin(invoice) }
@@ -420,6 +423,8 @@ struct InvoiceRow: View {
                     .lineLimit(1).minimumScaleFactor(0.75).layoutPriority(1)
             }.frame(height: 16)
         }.padding(.vertical, 10).frame(height: Self.height)
+            .foregroundStyle(InvoyBrand.ink)
+            .background(InvoiceSelectionBackground(selected: isSelected))
     }
 }
 

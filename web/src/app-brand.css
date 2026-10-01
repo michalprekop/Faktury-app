@@ -80,7 +80,10 @@
   background: var(--invoy-brand-surface);
   border-color: transparent;
 }
-.native-invoice-row.selected {
+.native-invoice-row.selected,
+.native-invoice-table tr.selected {
+  background: var(--invoy-brand-canvas);
+  color: var(--invoy-brand-ink);
   box-shadow: none;
 }
 .native-invoice-row:has(+ .native-invoice-row.selected) {

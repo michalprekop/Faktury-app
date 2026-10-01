@@ -37,10 +37,13 @@ final class InvoiceSidebarTests: XCTestCase {
             host.layoutSubtreeIfNeeded()
             try await Task.sleep(for: .milliseconds(180))
             host.layoutSubtreeIfNeeded()
+            host.display()
         }
         try await settle()
         let table = try XCTUnwrap(tables(in: host).first)
+        window.makeFirstResponder(table)
         XCTAssertEqual(table.numberOfRows, 30)
+        try assertNeutralSelection(in: table)
         XCTAssertEqual(table.rect(ofRow: 0).height, InvoiceRow.height, accuracy: 0.5)
         let scroll = try XCTUnwrap(table.enclosingScrollView)
         scroll.contentView.scroll(to: NSPoint(x: 0, y: 900))
@@ -54,6 +57,8 @@ final class InvoiceSidebarTests: XCTestCase {
         for index in [row, row + 1, row - 1, row] {
             table.selectRowIndexes(IndexSet(integer: index), byExtendingSelection: false)
             try await settle()
+            XCTAssertEqual(table.selectionHighlightStyle, .none)
+            try assertNeutralSelection(in: table)
             XCTAssertEqual(selectedID, store.invoices.sorted { $0.number > $1.number }[index].id)
             XCTAssertEqual(scroll.contentView.bounds.origin.y, position.y, accuracy: 0.5)
             XCTAssertEqual(table.frame.height, contentHeight, accuracy: 0.5)
@@ -66,6 +71,26 @@ final class InvoiceSidebarTests: XCTestCase {
         XCTAssertTrue(store.clearRecovery(pending.id))
         try await settle()
         XCTAssertEqual(scroll.contentView.bounds.origin.y, position.y, accuracy: 0.5)
+        try assertNeutralSelection(in: table)
+    }
+
+    @MainActor private func assertNeutralSelection(in table: NSTableView, file: StaticString = #filePath, line: UInt = #line) throws {
+        let row = try XCTUnwrap(table.rowView(atRow: table.selectedRow, makeIfNecessary: false))
+        let bitmap = try XCTUnwrap(row.bitmapImageRepForCachingDisplay(in: row.bounds))
+        row.cacheDisplay(in: row.bounds, to: bitmap)
+        var neutral = 0
+        var samples = 0
+        for y in stride(from: 0, to: bitmap.pixelsHigh, by: 4) {
+            for x in stride(from: 0, to: bitmap.pixelsWide, by: 4) {
+                guard let color = bitmap.colorAt(x: x, y: y) else { continue }
+                samples += 1
+                if abs(color.redComponent - 233 / 255.0) < 0.02,
+                   abs(color.greenComponent - 231 / 255.0) < 0.02,
+                   abs(color.blueComponent - 224 / 255.0) < 0.02 { neutral += 1 }
+            }
+        }
+        XCTAssertGreaterThan(Double(neutral) / Double(max(samples, 1)), 0.5,
+                             "Selected row should render the neutral brand background", file: file, line: line)
     }
 
     @MainActor func testRecoveryIndicatorDoesNotChangeRowHeight() {

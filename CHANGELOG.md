@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.9 — 1. 10. 2026 — Neutrálne označenie faktúry
+
+- Vybraná faktúra má na Macu aj webe teplé sivé pozadie s tmavým textom, bez modrého systémového zvýraznenia.
+- Výber myšou a klávesnicou aj poloha posunutého zoznamu zostávajú zachované.
+
 ## 1.2.8 — 1. 10. 2026 — Jednotné vyhľadávacie polia
 
 - Vyhľadávanie odberateľov na Macu má výšku 40 px a je zarovnané s tlačidlom Nový odberateľ. Faktúry aj odberatelia používajú rovnaké vyhľadávacie pole.
