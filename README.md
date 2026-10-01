@@ -54,6 +54,8 @@ Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, ne
 
 ## Identita značky
 
+Web a Mac používajú rovnaký schválený dizajn pracovného priestoru. Úpravy rozloženia, textov a ovládacích prvkov sa kontrolujú na oboch platformách v tom istom zadaní. Hlavička obsahuje iba logo a navigáciu; ponuka účtu je v **Nastavenia → Účet**. Systémová titulková lišta a systémové dialógy zostávajú natívne. Otvorený web kontroluje novú verziu pri návrate do okna a každú minútu; ponúknutá obnova najprv uloží faktúru aj nastavenia a pri chybe uloženia sa nespustí.
+
 Schválená hlavná farba je **INVOY Yellow `#F5FF36`**. Finálne logo je **INVOY.** v jednom riadku, vrátane bodky, podľa pätičky variantu B. Web aj Mac používajú spoločné vektorové logo a teplé neutrálne pozadie. Hlavné tlačidlá a vybrané taby v aplikácii majú žlté pozadie s tmavým textom bez orámovania; ovládacie prvky majú jednotnú výšku 40 px. Farby a logá používateľských faktúr určuje ich uložená šablóna. Natívna aplikácia načítava rovnaké SVG, ktoré build kopíruje do Resources; ikona Docku sa tiež vykresľuje z originálu. Vektorové originály a pravidlá použitia sú v [web/public/brand/README.md](web/public/brand/README.md).
 
 ## Vývoj a overenie

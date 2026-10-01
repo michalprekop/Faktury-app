@@ -1,6 +1,7 @@
 # INVOY
 
 - Komunikuj stručne a po slovensky.
+- Web a Mac sú jeden produkt s rovnakým UI. Každú zmenu dizajnu, textov, ovládacích prvkov a ich umiestnenia skontroluj a aplikuj na oboch platformách v tom istom zadaní. Referenciou je posledný schválený vzhľad; zmeny neobmedzuj na jednu platformu bez výslovného pokynu. Systémová lišta macOS a natívne systémové dialógy zostávajú platformové.
 - Dokončené úpravy aplikácie over, ulož do zrozumiteľne pomenovaného commitu a pošli na `origin` (`git@github.com:michalprekop/INVOY.git`). Používateľ chce históriu pre návrat k starším verziám.
 - Zachovaj históriu; nepoužívaj force push ani deštruktívny reset bez výslovného pokynu.
 - Do Gitu nepatria lokálne faktúry, databázy, zálohy, exporty, tajné údaje ani zostavené aplikácie. Rešpektuj `.gitignore`.

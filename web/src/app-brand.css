@@ -10,13 +10,11 @@
   --muted: #74756d;
 }
 .native-shell {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fff;
 }
 .native-header {
+  min-height: 69px;
   background: var(--invoy-brand-surface);
   border-color: var(--invoy-brand-line);
 }
@@ -24,9 +22,6 @@
 .loading .invoy-wordmark,
 .pending-page .invoy-wordmark {
   font-size: 30px;
-}
-.native-brand small {
-  margin-top: 4px;
 }
 .native-shell .button,
 .pending-page .button {
@@ -53,9 +48,23 @@
 .native-segments,
 .native-shell .section-tabs {
   background: var(--invoy-brand-canvas);
-  border-color: var(--invoy-brand-line);
+  border: 0;
   padding: 3px;
   border-radius: 9px;
+  gap: 2px;
+}
+.native-filters > .native-segments:first-child {
+  flex: 0 1 475px;
+}
+.native-filters > .native-segments:last-child {
+  width: 86px;
+  flex-shrink: 0;
+}
+.native-filters > .native-segments:last-child button {
+  padding-inline: 10px;
+}
+.native-overview > .button {
+  padding-inline: 17px;
 }
 .native-segments button.active,
 .native-shell .tabs button.active {
@@ -63,6 +72,7 @@
   color: var(--invoy-brand-ink);
   font-weight: 600;
   box-shadow: none;
+  border: 0;
   border-radius: 7px;
 }
 .native-invoice-row.selected,
@@ -166,6 +176,7 @@
 .native-search {
   height: var(--control-height);
   border-radius: 8px;
+  background: #fff;
 }
 .native-overview,
 .native-filters {
@@ -176,9 +187,62 @@
   flex-shrink: 0;
   padding-block: 12px;
 }
+.original-editor-toolbar .save-state,
+.settings-heading-actions .save-state {
+  font-size: 12px;
+  color: #858585;
+  font-weight: 400;
+}
+.original-editor-toolbar > .native-status {
+  flex-shrink: 0;
+}
 .original-editor-toolbar button:not(.button) {
   width: var(--control-height);
   height: var(--control-height);
   background: var(--invoy-brand-canvas);
   border-radius: 8px;
+}
+.settings-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.account-menu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 110px;
+  height: var(--control-height);
+  padding: 0 12px;
+  background: var(--invoy-brand-canvas);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.account-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.account-menu > div {
+  top: calc(var(--control-height) + 6px);
+  left: auto;
+  right: 0;
+}
+.app-update-notice {
+  position: fixed;
+  z-index: 100;
+  right: 24px;
+  bottom: 24px;
+  max-width: min(420px, calc(100vw - 48px));
+  padding: 14px;
+  border: 1px solid var(--invoy-brand-line);
+  border-radius: 10px;
+  background: var(--invoy-brand-surface);
+  box-shadow: 0 6px 24px #0002;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.app-update-notice p {
+  flex-basis: 100%;
+  margin: 0;
 }

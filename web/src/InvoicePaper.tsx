@@ -65,12 +65,14 @@ function Inline({
   onChange,
   numeric = false,
   multiline = false,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange?: (v: string) => void;
   numeric?: boolean;
   multiline?: boolean;
+  placeholder?: string;
 }) {
   if (!onChange) return <span className={numeric ? 'numeric' : ''}>{value}</span>;
   return multiline ? (
@@ -96,7 +98,7 @@ function Inline({
       aria-label={label}
       className={'paper-inline ' + (numeric ? 'numeric' : '')}
       value={value}
-      placeholder={label.split(' – ').at(-1)}
+      placeholder={placeholder ?? label.split(' – ').at(-1)}
       inputMode={numeric ? 'decimal' : undefined}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -120,6 +122,7 @@ function Party({
       value={String(value[key] ?? '')}
       numeric={numeric}
       multiline={['name', 'street', 'city'].includes(key)}
+      placeholder={['companyID', 'taxID', 'vatID'].includes(key) ? '—' : undefined}
       onChange={onChange ? (v) => onChange({ ...value, [key]: v }) : undefined}
     />
   );

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Building2,
-  Cloud,
+  ChevronDown,
   FileText,
-  LayoutList,
+  PanelLeft,
   Plus,
   Search,
-  Settings2,
+  Settings as SettingsIcon,
   Table2,
   Trash2,
   RotateCcw,
@@ -34,6 +34,7 @@ import { Admin } from './Admin';
 import { ErrorBox, Modal, CompanyFields } from './ui';
 import './legacy.css';
 import { BrandWordmark } from './BrandWordmark';
+import { AppUpdateNotice } from './AppUpdateNotice';
 
 type Me = { user: User; profile: Profile; profileVersion: number };
 export function LegacyWorkspace({
@@ -230,40 +231,17 @@ export function LegacyWorkspace({
     <div className="native-shell">
       <header className="native-header">
         <div className="native-brand">
-          <div>
-            <BrandWordmark />
-            <small>{me.profile.supplier.name || 'Moja firma'}</small>
-          </div>
+          <BrandWordmark />
         </div>
-        <details className="account-menu">
-          <summary aria-label="Cloudový účet" title="Cloudový účet">
-            <Cloud size={18} />
-          </summary>
-          <div>
-            <strong>{me.user.name}</strong>
-            <small>{me.user.email}</small>
-            <span>Uložené vo vašom účte</span>
-            {me.user.role === 'admin' && (
-              <button onClick={() => void navigate('admin')}>Administrácia</button>
-            )}
-            <a href="/download/mac">Stiahnuť pre Mac</a>
-            <button
-              onClick={async () => {
-                if (await ready()) await onLogout();
-              }}
-            >
-              Odhlásiť sa
-            </button>
-          </div>
-        </details>
         <nav className="native-segments">
           {[
             ['invoices', 'Faktúry', FileText],
             ['customers', 'Odberatelia', Building2],
-            ['settings', 'Nastavenia', Settings2],
+            ['settings', 'Nastavenia', SettingsIcon],
           ].map(([id, label, Icon]) => (
             <button
               key={String(id)}
+              aria-pressed={page === id}
               className={page === id ? 'active' : ''}
               onClick={() => void navigate(String(id))}
             >
@@ -297,7 +275,12 @@ export function LegacyWorkspace({
         <div className="native-filters">
           <div className="native-segments">
             {['Všetky', 'Uhradené', 'Neuhradené', 'Po splatnosti'].map((f) => (
-              <button key={f} className={filter === f ? 'active' : ''} onClick={() => setFilter(f)}>
+              <button
+                key={f}
+                aria-pressed={filter === f}
+                className={filter === f ? 'active' : ''}
+                onClick={() => setFilter(f)}
+              >
                 {f}
               </button>
             ))}
@@ -333,7 +316,7 @@ export function LegacyWorkspace({
                 if (await ready()) setTable(false);
               }}
             >
-              <LayoutList size={16} />
+              <PanelLeft size={16} />
             </button>
             <button
               className={table ? 'active' : ''}
@@ -503,6 +486,29 @@ export function LegacyWorkspace({
           templates={templates}
           onSaved={onProfile}
           accountID={me.user.id}
+          accountMenu={
+            <details className="account-menu">
+              <summary aria-label="Cloudový účet" title="Cloudový účet">
+                Účet <ChevronDown size={12} aria-hidden="true" />
+              </summary>
+              <div>
+                <strong>{me.user.name}</strong>
+                <small>{me.user.email}</small>
+                <span>Uložené vo vašom účte</span>
+                {me.user.role === 'admin' && (
+                  <button onClick={() => void navigate('admin')}>Administrácia</button>
+                )}
+                <a href="/download/mac">Stiahnuť pre Mac</a>
+                <button
+                  onClick={async () => {
+                    if (await ready()) await onLogout();
+                  }}
+                >
+                  Odhlásiť sa
+                </button>
+              </div>
+            </details>
+          }
           registerFlush={(f) => {
             settingsFlush.current = f;
           }}
@@ -512,6 +518,15 @@ export function LegacyWorkspace({
         <Customers profile={me.profile} version={me.profileVersion} onSaved={onProfile} />
       )}
       {page === 'admin' && me.user.role === 'admin' && <Admin />}
+      <AppUpdateNotice
+        beforeReload={async () => {
+          if (invoiceFlush.current && !(await invoiceFlush.current())) {
+            setPage('invoices');
+            return false;
+          }
+          return !settingsFlush.current || (await settingsFlush.current());
+        }}
+      />
     </div>
   );
 }

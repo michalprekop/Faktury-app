@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Copy, History, Printer, Settings2, Trash2 } from 'lucide-react';
+import { Copy, Download, History, Printer, Settings2, Trash2 } from 'lucide-react';
 import {
   invoiceSchema,
   invoiceInput,
   baseConfig,
+  totals,
   type SavedInvoice,
   type Invoice,
   type Profile,
@@ -59,6 +60,8 @@ export function InvoiceEditor({
     blocked = useRef(false);
   latest.current = invoice;
   const dirty = !saved || JSON.stringify(invoice) !== JSON.stringify(invoiceInput(saved));
+  const paid = Number(invoice.paid) >= Number(totals(invoice).total);
+  const overdue = !paid && invoice.dueDate < new Date().toLocaleDateString('sv-SE');
   useUnsaved(dirty);
   const theme =
     saved?.templateID === invoice.templateID
@@ -158,6 +161,9 @@ export function InvoiceEditor({
     <div className="original-editor" data-unsaved={dirty}>
       <div className="original-editor-toolbar">
         <b className="numeric">{invoice.number || 'Nová faktúra'}</b>
+        <span className={'native-status' + (paid ? ' paid' : overdue ? ' overdue' : '')}>
+          {paid ? 'Uhradená' : overdue ? 'Po splatnosti' : 'Na úhradu'}
+        </span>
         <span className="save-state">{busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}</span>
         <div className="toolbar-actions">
           <select
@@ -198,7 +204,7 @@ export function InvoiceEditor({
               if (await flush()) setPreview(true);
             }}
           >
-            <Printer size={15} /> PDF
+            <Download size={15} /> PDF
           </button>
         </div>
       </div>

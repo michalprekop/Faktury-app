@@ -1,5 +1,13 @@
 # Zmeny
 
+## 1. 10. 2026 — Zjednotenie webu s Mac aplikáciou
+
+- Pri logu na webe už nie je meno ani obláčik. Účet, administrácia a odhlásenie sú v Nastavenia → Účet, rovnako ako na Macu.
+- Pracovný priestor používa rovnaké systémové písmo, svetlé pozadie, rozmery tabov a dropdownov. Vybrané taby a hlavné tlačidlá sú žlté bez obrysu.
+- Hlavička faktúry zobrazuje aj stav úhrady. Prázdne identifikačné údaje používajú pomlčku namiesto zopakovaného názvu poľa.
+- Otvorený web upozorní na novú verziu vrátane zmien samotných štýlov. Obnova najprv uloží rozpracované zmeny; pri chybe zostane editor otvorený.
+- Projektové pravidlá vyžadujú kontrolovať a dodávať ďalšie zmeny UI spoločne pre web aj Mac.
+
 ## 1.2.7 — 1. 10. 2026 — Čierna horná lišta na Macu
 
 - Horná systémová lišta okna má čierne pozadie a svetlý názov aplikácie. Pracovný priestor zostáva svetlý.
