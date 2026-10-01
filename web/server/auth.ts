@@ -17,6 +17,7 @@ import {
 } from './security';
 import { z } from 'zod';
 import { loginDestination } from '../shared/navigation';
+import { createAccount } from './accounts';
 
 export const auth = new Hono<AppContext>();
 auth.get('/apple', async (c) => {
@@ -115,12 +116,11 @@ auth.post('/apple/callback', async (c) => {
           .join(' ')
           .slice(0, 200);
       } catch {}
-      const stamp = new Date().toISOString();
-      await c.env.DB.prepare(
-        'INSERT INTO users(id,apple_sub,email,name,created_at,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(apple_sub) DO NOTHING',
-      )
-        .bind(crypto.randomUUID(), identity.sub!, identity.email.slice(0, 320), name, stamp, stamp)
-        .run();
+      await createAccount(c.env.DB, {
+        subject: identity.sub!,
+        email: identity.email.slice(0, 320),
+        name,
+      });
       user = await c.env.DB.prepare('SELECT id,status FROM users WHERE apple_sub = ?')
         .bind(identity.sub!)
         .first<{ id: string; status: string }>();

@@ -78,6 +78,7 @@ export default function App() {
     );
   return (
     <LegacyWorkspace
+      key={me.user.id}
       me={me}
       templates={templates}
       onProfile={(profile, profileVersion) => setMe({ ...me, profile, profileVersion })}

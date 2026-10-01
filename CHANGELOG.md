@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1.2.16 — 2. 10. 2026 — Vlastné logo a podpis pre každý účet
+
+- Nový používateľ začína s prázdnym logom aj podpisom. Obrázky sa doplnia až po nahraní do jeho vlastného účtu.
+- Web pri zmene účtu obnoví pracovný priestor a nastavenia. Mac pri pripojení načíta iba cache a synchronizačný stav prihláseného používateľa.
+- Existujúce vlastné obrázky a faktúry zostávajú zachované. Testy overujú oddelenie dvoch účtov aj pridelenie šablóny bez prenosu obrázkov správcu.
+
 ## 1.2.15 — 2. 10. 2026 — Viac miesta na faktúre Manolo & Bay
 
 - Logo je o 40 % menšie s rovnakou medzerou nad ním aj pod ním. Obsah začína vyššie a menšie medzery uvoľňujú miesto pre položky aj platobný QR kód na webe, Macu aj v PDF.

@@ -18,7 +18,7 @@ struct ProductRootView: View {
     var body: some View {
         Group {
             if let accountStore = cloud.store, !cloud.connecting {
-                RootView(cloud: cloud).environmentObject(accountStore)
+                RootView(cloud: cloud).environmentObject(accountStore).id(accountStore.url)
             } else {
                 VStack(spacing: 18) {
                     BrandIcon(size: 112).padding(.bottom, 12)

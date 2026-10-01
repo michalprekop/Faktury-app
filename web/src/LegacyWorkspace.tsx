@@ -490,6 +490,7 @@ export function LegacyWorkspace({
       </div>
       {page === 'settings' && (
         <Settings
+          key={me.user.id}
           initial={me.profile}
           version={me.profileVersion}
           templates={templates}

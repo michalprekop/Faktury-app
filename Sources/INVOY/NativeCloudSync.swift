@@ -33,6 +33,7 @@ import InvoiceCore
     private var polling: Task<Void, Never>?
     private var applying = false
     private var rerun = false
+    private var reconnecting = false
     private var stateURL: URL? { store?.url.deletingLastPathComponent().appendingPathComponent("cloud-sync.json") }
     private let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral
@@ -61,8 +62,14 @@ import InvoiceCore
         return try JSONDecoder().decode(T.self, from: bytes)
     }
     func connect() async {
-        guard !syncing else { return }
+        guard !syncing, !reconnecting else { return }
+        guard store?.flushInvoices() != false, store?.flushSettings() != false else { return }
+        reconnecting = true
+        defer { reconnecting = false; connecting = false }
         connecting = true; failure = nil
+        // A login attempt must not retain the previous account's views or sync baseline.
+        observation = nil; debounce?.cancel(); polling?.cancel()
+        store = nil; state = nil; user = nil; cookie = ""; csrf = ""; rerun = false
         do {
             let cookies = await WKWebsiteDataStore.default().httpCookieStore.allCookies()
             guard let found = cookies.first(where: { $0.name == "__Host-faktury_session" && $0.domain == CloudEndpoint.origin.host && $0.isSecure && $0.isHTTPOnly && ($0.expiresDate ?? .distantFuture) > Date() }) else {
@@ -73,14 +80,10 @@ import InvoiceCore
             guard UUID(uuidString: me.user.id) != nil else { throw URLError(.badServerResponse) }
             user = me.user; csrf = me.csrf
             guard me.user.status == "active" else { throw DataError.invalid("Účet čaká na aktiváciu správcom.") }
-            let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("sk.faktury.desktop/accounts/" + me.user.id)
-            let accountStore = Store(dataDirectory: directory)
-            guard !accountStore.loadFailed else { throw DataError.invalid(accountStore.error ?? "Údaje účtu sa nepodarilo načítať.") }
+            let cache = try Self.openAccountCache(userID: me.user.id)
+            let accountStore = cache.store
             store = accountStore
-            if let stateURL, FileManager.default.fileExists(atPath: stateURL.path) {
-                state = try JSONDecoder().decode(State.self, from: Data(contentsOf: stateURL))
-            }
+            state = cache.state
             await synchronize()
             if state == nil { store = nil; connecting = false; return }
             observation = accountStore.$database.dropFirst().sink { [weak self] _ in self?.schedule() }
@@ -93,6 +96,18 @@ import InvoiceCore
             }
         } catch { failure = error.localizedDescription; message = "Pripojenie účtu sa nepodarilo" }
         connecting = false
+    }
+    static func openAccountCache(userID: String, root: URL? = nil) throws -> (store: Store, state: State?) {
+        guard UUID(uuidString: userID) != nil else { throw URLError(.badServerResponse) }
+        let root = root ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("sk.faktury.desktop")
+        let directory = root.appendingPathComponent("accounts/" + userID)
+        let store = Store(dataDirectory: directory)
+        guard !store.loadFailed else { throw DataError.invalid(store.error ?? "Údaje účtu sa nepodarilo načítať.") }
+        let stateURL = directory.appendingPathComponent("cloud-sync.json")
+        let state = FileManager.default.fileExists(atPath: stateURL.path)
+            ? try JSONDecoder().decode(State.self, from: Data(contentsOf: stateURL)) : nil
+        return (store, state)
     }
     private func schedule() {
         guard !applying else { return }
