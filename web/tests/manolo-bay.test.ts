@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { harness } from './harness';
 import { toNativeInvoice, fromNativeInvoice, chooseTemplate } from '../shared/native';
 import { type Template, type SavedInvoice } from '../shared/model';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { InvoicePaper } from '../src/InvoicePaper';
 
 test('Manolo & Bay is a separate, unassigned template and keeps its snapshot through web/Mac edits', async () => {
   const h = await harness();
@@ -35,6 +38,19 @@ test('Manolo & Bay is a separate, unassigned template and keeps its snapshot thr
     const saved = (await h
       .request('owner', '/api/invoices/' + invoice.id)
       .then((r) => r.json())) as SavedInvoice;
+    const markup = renderToStaticMarkup(
+      createElement(InvoicePaper, { invoice: saved, theme: template.config }),
+    );
+    const band = markup
+      .split('class="original-remaining manolo-payment-summary"')[1]
+      .split('</section>')[0];
+    assert.match(band, /IBAN/);
+    assert.ok(band.includes(saved.account!.iban.replace(/(.{4})/g, '$1 ').trim()));
+    assert.match(band, /Variabilný symbol/);
+    assert.match(band, /Dátum splatnosti/);
+    assert.match(band, /Suma na úhradu/);
+    assert.ok(markup.includes('manolobay.com'));
+    assert.ok(!markup.includes('Web:'));
     const native = toNativeInvoice(saved);
     assert.equal(native.templateOverride, 'manoloBay');
     assert.deepEqual(native.cloudStyle?.config, template.config);

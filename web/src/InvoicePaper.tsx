@@ -1,4 +1,5 @@
 import { manoloBay } from '../shared/manolo-bay';
+import { A4Paper } from './A4Paper';
 import { useEffect, useState, type CSSProperties } from 'react';
 import QRCode from 'qrcode';
 import { encode, CurrencyCode, PaymentOptions } from 'bysquare/pay';
@@ -251,410 +252,418 @@ export function InvoicePaper({
     />
   );
   return (
-    <article
-      className={'invoice-paper original-paper ' + (manolo ? 'mono manoloBay' : theme.layout)}
-      style={{ '--invoice-accent': manolo ? manoloBay.accent : theme.accent } as CSSProperties}
-      aria-label={edit ? 'Upraviteľná faktúra' : 'Náhľad faktúry'}
-    >
-      {manolo && (
-        <>
-          {/* Scope the edge-to-edge print page to this template, including Safari. */}
-          <style media="print">{'@page { size: A4; margin: 0; }'}</style>
-          <img className="manolo-background" src={manoloBay.background} alt="" />
-        </>
-      )}
-      {manolo ? (
-        <div className="manolo-header">
-          <img className="manolo-logo" src={manoloBay.logo} alt="Manolo & Bay" />
+    <A4Paper>
+      <article
+        className={'invoice-paper original-paper ' + (manolo ? 'mono manoloBay' : theme.layout)}
+        style={{ '--invoice-accent': manolo ? manoloBay.accent : theme.accent } as CSSProperties}
+        aria-label={edit ? 'Upraviteľná faktúra' : 'Náhľad faktúry'}
+      >
+        {manolo && (
+          <>
+            {/* Scope the edge-to-edge print page to this template, including Safari. */}
+            <style media="print">{'@page { size: A4; margin: 0; }'}</style>
+            <img className="manolo-background" src={manoloBay.background} alt="" />
+          </>
+        )}
+        {manolo ? (
+          <div className="manolo-header">
+            <img className="manolo-logo" src={manoloBay.logo} alt="Manolo & Bay" />
+          </div>
+        ) : (
+          mono && (
+            <div className="original-wordmark">
+              {theme.logo ? (
+                <img src={theme.logo} alt={theme.wordmark || 'Logo dodávateľa'} />
+              ) : (
+                theme.wordmark && <strong>{theme.wordmark}</strong>
+              )}
+            </div>
+          )
+        )}
+        <header className="original-title">
+          {mono ? (
+            <>
+              <div>
+                <small>Číslo faktúry</small>
+                <h1>{field('number', 'Číslo faktúry', true)}</h1>
+              </div>
+              <b>FAKTÚRA</b>
+            </>
+          ) : (
+            <>
+              <b>FAKTÚRA</b>
+              <h1>{field('number', 'Číslo faktúry', true)}</h1>
+            </>
+          )}
+        </header>
+        <div className="original-parties">
+          <Party
+            value={invoice.supplier}
+            title="DODÁVATEĽ"
+            onChange={edit ? (supplier) => edit.update({ supplier }) : undefined}
+          />
+          <Party
+            value={invoice.customer}
+            title="ODBERATEĽ"
+            onChange={edit ? (customer) => edit.update({ customer }) : undefined}
+            profile={edit?.profile}
+          />
         </div>
-      ) : (
-        mono && (
-          <div className="original-wordmark">
-            {theme.logo ? (
-              <img src={theme.logo} alt={theme.wordmark || 'Logo dodávateľa'} />
+        <div className="original-registration">
+          <Inline
+            label="Zápis v registri"
+            multiline
+            value={invoice.supplier.registration}
+            onChange={
+              edit
+                ? (v) => edit.update({ supplier: { ...invoice.supplier, registration: v } })
+                : undefined
+            }
+          />
+        </div>
+        <div className="original-dates">
+          {(['issueDate', 'dueDate', 'deliveryDate'] as const).map(
+            (key, i) =>
+              (key !== 'deliveryDate' || invoice.deliveryDate) && (
+                <div key={key}>
+                  <small>{['Dátum vystavenia', 'Dátum splatnosti', 'Dátum dodania'][i]}</small>
+                  {edit ? (
+                    <input
+                      aria-label={['Dátum vystavenia', 'Dátum splatnosti', 'Dátum dodania'][i]}
+                      type="date"
+                      value={invoice[key] ?? ''}
+                      onChange={(e) => edit.update({ [key]: e.target.value })}
+                    />
+                  ) : (
+                    <span className="numeric">{displayDate(invoice[key] ?? '')}</span>
+                  )}
+                </div>
+              ),
+          )}
+          <div>
+            <small>Forma úhrady</small>
+            {edit ? (
+              <select
+                aria-label="Forma úhrady"
+                value={invoice.paymentMethod}
+                onChange={(e) =>
+                  edit.update({ paymentMethod: e.target.value as Invoice['paymentMethod'] })
+                }
+              >
+                {['', 'Bankový prevod', 'Hotovosť', 'Karta', 'Dobierka'].map((v) => (
+                  <option key={v}>{v}</option>
+                ))}
+              </select>
             ) : (
-              theme.wordmark && <strong>{theme.wordmark}</strong>
+              invoice.paymentMethod
             )}
           </div>
-        )
-      )}
-      <header className="original-title">
-        {mono ? (
-          <>
-            <div>
-              <small>Číslo faktúry</small>
-              <h1>{field('number', 'Číslo faktúry', true)}</h1>
-            </div>
-            <b>FAKTÚRA</b>
-          </>
-        ) : (
-          <>
-            <b>FAKTÚRA</b>
-            <h1>{field('number', 'Číslo faktúry', true)}</h1>
-          </>
-        )}
-      </header>
-      <div className="original-parties">
-        <Party
-          value={invoice.supplier}
-          title="DODÁVATEĽ"
-          onChange={edit ? (supplier) => edit.update({ supplier }) : undefined}
-        />
-        <Party
-          value={invoice.customer}
-          title="ODBERATEĽ"
-          onChange={edit ? (customer) => edit.update({ customer }) : undefined}
-          profile={edit?.profile}
-        />
-      </div>
-      <div className="original-registration">
-        <Inline
-          label="Zápis v registri"
-          multiline
-          value={invoice.supplier.registration}
-          onChange={
-            edit
-              ? (v) => edit.update({ supplier: { ...invoice.supplier, registration: v } })
-              : undefined
-          }
-        />
-      </div>
-      <div className="original-dates">
-        {(['issueDate', 'dueDate', 'deliveryDate'] as const).map(
-          (key, i) =>
-            (key !== 'deliveryDate' || invoice.deliveryDate) && (
-              <div key={key}>
-                <small>{['Dátum vystavenia', 'Dátum splatnosti', 'Dátum dodania'][i]}</small>
-                {edit ? (
-                  <input
-                    aria-label={['Dátum vystavenia', 'Dátum splatnosti', 'Dátum dodania'][i]}
-                    type="date"
-                    value={invoice[key] ?? ''}
-                    onChange={(e) => edit.update({ [key]: e.target.value })}
-                  />
-                ) : (
-                  <span className="numeric">{displayDate(invoice[key] ?? '')}</span>
-                )}
-              </div>
-            ),
-        )}
-        <div>
-          <small>Forma úhrady</small>
+        </div>
+        <div className="original-bank">
           {edit ? (
             <select
-              aria-label="Forma úhrady"
-              value={invoice.paymentMethod}
+              aria-label="Bankový účet"
+              value={invoice.account?.id ?? ''}
               onChange={(e) =>
-                edit.update({ paymentMethod: e.target.value as Invoice['paymentMethod'] })
+                edit.update({
+                  account: edit.profile.accounts.find((a) => a.id === e.target.value) ?? null,
+                })
               }
             >
-              {['', 'Bankový prevod', 'Hotovosť', 'Karta', 'Dobierka'].map((v) => (
-                <option key={v}>{v}</option>
+              <option value="">Bez účtu</option>
+              {invoice.account &&
+                !edit.profile.accounts.some((a) => a.id === invoice.account!.id) && (
+                  <option value={invoice.account.id}>{invoice.account.iban}</option>
+                )}
+              {edit.profile.accounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.iban.replace(/(.{4})/g, '$1 ')}
+                  {a.swift ? ' / ' + a.swift : ''}
+                </option>
               ))}
             </select>
           ) : (
-            invoice.paymentMethod
+            invoice.account && (
+              <span className="numeric">
+                {invoice.account.iban.replace(/(.{4})/g, '$1 ')}
+                {invoice.account.swift ? ' / ' + invoice.account.swift : ''}
+              </span>
+            )
           )}
+          <div className="original-symbols">
+            <span>Variabilný symbol:</span>
+            {field('variableSymbol', 'Variabilný symbol', true)}
+            {invoice.constantSymbol && (
+              <>
+                <span>KS:</span>
+                {field('constantSymbol', 'Konštantný symbol', true)}
+              </>
+            )}
+            {invoice.specificSymbol && (
+              <>
+                <span>ŠS:</span>
+                {field('specificSymbol', 'Špecifický symbol', true)}
+              </>
+            )}
+          </div>
+          {invoice.orderNumber && <div>Objednávka: {field('orderNumber', 'Objednávka')}</div>}
         </div>
-      </div>
-      <div className="original-bank">
-        {edit ? (
-          <select
-            aria-label="Bankový účet"
-            value={invoice.account?.id ?? ''}
-            onChange={(e) =>
-              edit.update({
-                account: edit.profile.accounts.find((a) => a.id === e.target.value) ?? null,
-              })
-            }
-          >
-            <option value="">Bez účtu</option>
-            {invoice.account &&
-              !edit.profile.accounts.some((a) => a.id === invoice.account!.id) && (
-                <option value={invoice.account.id}>{invoice.account.iban}</option>
-              )}
-            {edit.profile.accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.iban.replace(/(.{4})/g, '$1 ')}
-                {a.swift ? ' / ' + a.swift : ''}
-              </option>
-            ))}
-          </select>
-        ) : (
-          invoice.account && (
-            <span className="numeric">
-              {invoice.account.iban.replace(/(.{4})/g, '$1 ')}
-              {invoice.account.swift ? ' / ' + invoice.account.swift : ''}
-            </span>
-          )
-        )}
-        <div className="original-symbols">
-          <span>Variabilný symbol:</span>
-          {field('variableSymbol', 'Variabilný symbol', true)}
-          {invoice.constantSymbol && (
-            <>
-              <span>KS:</span>
-              {field('constantSymbol', 'Konštantný symbol', true)}
-            </>
-          )}
-          {invoice.specificSymbol && (
-            <>
-              <span>ŠS:</span>
-              {field('specificSymbol', 'Špecifický symbol', true)}
-            </>
-          )}
-        </div>
-        {invoice.orderNumber && <div>Objednávka: {field('orderNumber', 'Objednávka')}</div>}
-      </div>
-      <table className="original-items">
-        <thead>
-          <tr>
-            <th>POLOŽKA</th>
-            <th>POČET</th>
-            <th>JEDNOTKA</th>
-            <th>CENA / MJ</th>
-            <th>{invoice.supplier.vatPayer ? 'SPOLU S DPH' : 'SPOLU'}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoice.items.map((item, index) => {
-            const change = (key: string, v: string) =>
-              edit?.update({
-                items: invoice.items.map((x) =>
-                  x.id === item.id
-                    ? {
-                        ...x,
-                        [key]: ['quantity', 'unitPrice', 'discount', 'vatRate'].includes(key)
-                          ? v.replace(',', '.')
-                          : v,
-                      }
-                    : x,
-                ),
-              });
-            return (
-              <tr key={item.id}>
-                <td>
-                  <strong>
-                    <Inline
-                      label="Názov položky"
-                      value={item.name}
-                      onChange={edit ? (v) => change('name', v) : undefined}
-                      multiline
-                    />
-                  </strong>
-                  {(item.detail || edit) && (
-                    <div className="item-detail">
+        <table className="original-items">
+          <thead>
+            <tr>
+              <th>POLOŽKA</th>
+              <th>POČET</th>
+              <th>JEDNOTKA</th>
+              <th>CENA / MJ</th>
+              <th>{invoice.supplier.vatPayer ? 'SPOLU S DPH' : 'SPOLU'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invoice.items.map((item, index) => {
+              const change = (key: string, v: string) =>
+                edit?.update({
+                  items: invoice.items.map((x) =>
+                    x.id === item.id
+                      ? {
+                          ...x,
+                          [key]: ['quantity', 'unitPrice', 'discount', 'vatRate'].includes(key)
+                            ? v.replace(',', '.')
+                            : v,
+                        }
+                      : x,
+                  ),
+                });
+              return (
+                <tr key={item.id}>
+                  <td>
+                    <strong>
                       <Inline
-                        label="Podrobný popis"
-                        value={item.detail}
-                        onChange={edit ? (v) => change('detail', v) : undefined}
+                        label="Názov položky"
+                        value={item.name}
+                        onChange={edit ? (v) => change('name', v) : undefined}
                         multiline
                       />
-                    </div>
-                  )}
-                  {edit ? (
-                    <details className="item-menu">
-                      <summary title="Možnosti položky">
-                        <MoreHorizontal size={15} />
-                      </summary>
-                      <label>
-                        Zľava %
+                    </strong>
+                    {(item.detail || edit) && (
+                      <div className="item-detail">
                         <Inline
-                          label="Zľava %"
-                          value={item.discount}
-                          numeric
-                          onChange={(v) => change('discount', v)}
+                          label="Podrobný popis"
+                          value={item.detail}
+                          onChange={edit ? (v) => change('detail', v) : undefined}
+                          multiline
                         />
-                      </label>
-                      {invoice.supplier.vatPayer && (
+                      </div>
+                    )}
+                    {edit ? (
+                      <details className="item-menu">
+                        <summary title="Možnosti položky">
+                          <MoreHorizontal size={15} />
+                        </summary>
                         <label>
-                          DPH %
+                          Zľava %
                           <Inline
-                            label="DPH %"
-                            value={item.vatRate}
+                            label="Zľava %"
+                            value={item.discount}
                             numeric
-                            onChange={(v) => change('vatRate', v)}
+                            onChange={(v) => change('discount', v)}
                           />
                         </label>
-                      )}
-                      <button
-                        disabled={invoice.items.length === 1}
-                        onClick={() =>
-                          edit.update({ items: invoice.items.filter((i) => i.id !== item.id) })
-                        }
-                      >
-                        <Trash2 size={13} /> Odstrániť položku
-                      </button>
-                    </details>
-                  ) : (
-                    Number(item.discount) > 0 && <small>Zľava {item.discount} %</small>
-                  )}
-                </td>
-                <td>
-                  <Inline
-                    label="Množstvo"
-                    value={item.quantity}
-                    numeric
-                    onChange={edit ? (v) => change('quantity', v) : undefined}
-                  />
-                </td>
-                <td>
-                  <Inline
-                    label="Jednotka"
-                    value={item.unit}
-                    onChange={edit ? (v) => change('unit', v) : undefined}
-                  />
-                </td>
-                <td>
-                  <Inline
-                    label="Cena / MJ"
-                    value={edit ? item.unitPrice : money(item.unitPrice, invoice.currency)}
-                    numeric
-                    onChange={edit ? (v) => change('unitPrice', v) : undefined}
-                  />
-                </td>
-                <td className="numeric">{money(sum.rows[index].total, invoice.currency)}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      {edit && (
-        <div className="original-add">
-          <button
-            onClick={() =>
-              edit.update({
-                items: [
-                  ...invoice.items,
-                  {
-                    id: crypto.randomUUID(),
-                    name: '',
-                    detail: '',
-                    quantity: '1',
-                    unit: 'ks',
-                    unitPrice: '0',
-                    discount: '0',
-                    vatRate: edit.profile.defaultVAT,
-                  },
-                ],
-              })
-            }
-          >
-            <Plus size={15} /> Pridať položku
-          </button>
-          <select
-            aria-label="Mena"
-            value={invoice.currency}
-            onChange={(e) => edit.update({ currency: e.target.value as Invoice['currency'] })}
-          >
-            {['EUR', 'CZK', 'USD', 'GBP'].map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-        </div>
-      )}
-      <div className="original-closing">
-        <div className="original-note">
-          {field('note', 'Poznámka', false, true)}
-          {!edit && qr && <img className="qr-code" src={qr} alt="Platobný QR kód" />}
-          {qrError && <span role="alert">{qrError}</span>}
-        </div>
-        <section className="original-totals">
-          {invoice.supplier.vatPayer && (
-            <>
-              <p>
-                <span>Základ dane</span>
-                <b className="numeric">{money(sum.net, invoice.currency)}</b>
-              </p>
-              {sum.taxRates.map((r) => (
-                <p key={r.rate}>
-                  <span>DPH {r.rate} %</span>
-                  <b className="numeric">{money(r.vat, invoice.currency)}</b>
-                </p>
+                        {invoice.supplier.vatPayer && (
+                          <label>
+                            DPH %
+                            <Inline
+                              label="DPH %"
+                              value={item.vatRate}
+                              numeric
+                              onChange={(v) => change('vatRate', v)}
+                            />
+                          </label>
+                        )}
+                        <button
+                          disabled={invoice.items.length === 1}
+                          onClick={() =>
+                            edit.update({ items: invoice.items.filter((i) => i.id !== item.id) })
+                          }
+                        >
+                          <Trash2 size={13} /> Odstrániť položku
+                        </button>
+                      </details>
+                    ) : (
+                      Number(item.discount) > 0 && <small>Zľava {item.discount} %</small>
+                    )}
+                  </td>
+                  <td>
+                    <Inline
+                      label="Množstvo"
+                      value={item.quantity}
+                      numeric
+                      onChange={edit ? (v) => change('quantity', v) : undefined}
+                    />
+                  </td>
+                  <td>
+                    <Inline
+                      label="Jednotka"
+                      value={item.unit}
+                      onChange={edit ? (v) => change('unit', v) : undefined}
+                    />
+                  </td>
+                  <td>
+                    <Inline
+                      label="Cena / MJ"
+                      value={edit ? item.unitPrice : money(item.unitPrice, invoice.currency)}
+                      numeric
+                      onChange={edit ? (v) => change('unitPrice', v) : undefined}
+                    />
+                  </td>
+                  <td className="numeric">{money(sum.rows[index].total, invoice.currency)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {edit && (
+          <div className="original-add">
+            <button
+              onClick={() =>
+                edit.update({
+                  items: [
+                    ...invoice.items,
+                    {
+                      id: crypto.randomUUID(),
+                      name: '',
+                      detail: '',
+                      quantity: '1',
+                      unit: 'ks',
+                      unitPrice: '0',
+                      discount: '0',
+                      vatRate: edit.profile.defaultVAT,
+                    },
+                  ],
+                })
+              }
+            >
+              <Plus size={15} /> Pridať položku
+            </button>
+            <select
+              aria-label="Mena"
+              value={invoice.currency}
+              onChange={(e) => edit.update({ currency: e.target.value as Invoice['currency'] })}
+            >
+              {['EUR', 'CZK', 'USD', 'GBP'].map((v) => (
+                <option key={v}>{v}</option>
               ))}
-            </>
-          )}
-          <p>
-            <span>Celková suma</span>
-            <b className="numeric">{money(sum.total, invoice.currency)}</b>
-          </p>
-          <p>
-            <span>Uhradené</span>
-            <span>
-              {edit ? field('paid', 'Uhradené', true) : money(invoice.paid, invoice.currency)}{' '}
-              {edit && invoice.currency}
-            </span>
-          </p>
+            </select>
+          </div>
+        )}
+        <div className="original-closing">
+          <div className="original-note">
+            {field('note', 'Poznámka', false, true)}
+            {!edit && qr && <img className="qr-code" src={qr} alt="Platobný QR kód" />}
+            {qrError && <span role="alert">{qrError}</span>}
+          </div>
+          <section className="original-totals">
+            {invoice.supplier.vatPayer && (
+              <>
+                <p>
+                  <span>Základ dane</span>
+                  <b className="numeric">{money(sum.net, invoice.currency)}</b>
+                </p>
+                {sum.taxRates.map((r) => (
+                  <p key={r.rate}>
+                    <span>DPH {r.rate} %</span>
+                    <b className="numeric">{money(r.vat, invoice.currency)}</b>
+                  </p>
+                ))}
+              </>
+            )}
+            <p>
+              <span>Celková suma</span>
+              <b className="numeric">{money(sum.total, invoice.currency)}</b>
+            </p>
+            <p>
+              <span>Uhradené</span>
+              <span>
+                {edit ? field('paid', 'Uhradené', true) : money(invoice.paid, invoice.currency)}{' '}
+                {edit && invoice.currency}
+              </span>
+            </p>
+            {manolo ? (
+              <div className="original-remaining manolo-payment-summary">
+                <div>
+                  <small>IBAN</small>
+                  <strong className="numeric">
+                    {invoice.account?.iban.replace(/(.{4})/g, '$1 ').trim() || '—'}
+                  </strong>
+                </div>
+                <div>
+                  <small>Variabilný symbol</small>
+                  <strong className="numeric">{invoice.variableSymbol || '—'}</strong>
+                </div>
+                <div>
+                  <small>Dátum splatnosti</small>
+                  <strong className="numeric">{displayDate(invoice.dueDate)}</strong>
+                </div>
+                <div>
+                  <small>Suma na úhradu</small>
+                  <strong className="numeric">{money(sum.remaining, invoice.currency)}</strong>
+                </div>
+              </div>
+            ) : (
+              <p className="original-remaining">
+                <span>Suma na úhradu</span>
+                <b className="numeric">{money(sum.remaining, invoice.currency)}</b>
+              </p>
+            )}
+            {Number(sum.overpaid) > 0 && (
+              <p>
+                <span>Preplatok</span>
+                <b className="numeric">{money(sum.overpaid, invoice.currency)}</b>
+              </p>
+            )}
+            <small>Podpis a pečiatka</small>
+            {invoice.signature && (
+              <img className="signature" src={invoice.signature} alt="Podpis a pečiatka" />
+            )}
+          </section>
+        </div>
+        {!mono && (
+          <div className="original-payment-band">
+            {[
+              ['IBAN', invoice.account?.iban.replace(/(.{4})/g, '$1 ') ?? invoice.paymentMethod],
+              ['Variabilný symbol', invoice.variableSymbol],
+              ['Splatnosť', displayDate(invoice.dueDate)],
+              ['Na úhradu', money(sum.remaining, invoice.currency)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <small>{label}</small>
+                <strong className="numeric">{value}</strong>
+              </div>
+            ))}
+          </div>
+        )}
+        <footer className="original-footer">
+          {!manolo && theme.footer && <p>{theme.footer}</p>}
           {manolo ? (
-            <div className="original-remaining manolo-payment-summary">
-              <div>
-                <small>Variabilný symbol</small>
-                <strong className="numeric">{invoice.variableSymbol || '—'}</strong>
-              </div>
-              <div>
-                <small>Dátum splatnosti</small>
-                <strong className="numeric">{displayDate(invoice.dueDate)}</strong>
-              </div>
-              <div>
-                <small>Suma na úhradu</small>
-                <strong className="numeric">{money(sum.remaining, invoice.currency)}</strong>
-              </div>
+            <div>
+              {manoloBay.contacts.map((contact) => (
+                <span key={contact}>{contact}</span>
+              ))}
             </div>
           ) : (
-            <p className="original-remaining">
-              <span>Suma na úhradu</span>
-              <b className="numeric">{money(sum.remaining, invoice.currency)}</b>
-            </p>
-          )}
-          {Number(sum.overpaid) > 0 && (
-            <p>
-              <span>Preplatok</span>
-              <b className="numeric">{money(sum.overpaid, invoice.currency)}</b>
-            </p>
-          )}
-          <small>Podpis a pečiatka</small>
-          {invoice.signature && (
-            <img className="signature" src={invoice.signature} alt="Podpis a pečiatka" />
-          )}
-        </section>
-      </div>
-      {!mono && (
-        <div className="original-payment-band">
-          {[
-            ['IBAN', invoice.account?.iban.replace(/(.{4})/g, '$1 ') ?? invoice.paymentMethod],
-            ['Variabilný symbol', invoice.variableSymbol],
-            ['Splatnosť', displayDate(invoice.dueDate)],
-            ['Na úhradu', money(sum.remaining, invoice.currency)],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <small>{label}</small>
-              <strong className="numeric">{value}</strong>
+            <div>
+              <span>Vystavil: {field('issuedBy', 'Vystavil')}</span>
+              {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
+                .filter(Boolean)
+                .map((c, i) => (
+                  <span key={i}>{c}</span>
+                ))}
             </div>
-          ))}
-        </div>
-      )}
-      <footer className="original-footer">
-        {!manolo && theme.footer && <p>{theme.footer}</p>}
-        {manolo ? (
-          <div>
-            {manoloBay.contacts.map((contact) => (
-              <span key={contact}>{contact}</span>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <span>Vystavil: {field('issuedBy', 'Vystavil')}</span>
-            {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
-              .filter(Boolean)
-              .map((c, i) => (
-                <span key={i}>{c}</span>
-              ))}
-          </div>
-        )}
-        {!mono && (theme.logo || invoice.logo) && (
-          <img src={theme.logo || invoice.logo} alt="Logo dodávateľa" />
-        )}
-      </footer>
-    </article>
+          )}
+          {!mono && (theme.logo || invoice.logo) && (
+            <img src={theme.logo || invoice.logo} alt="Logo dodávateľa" />
+          )}
+        </footer>
+      </article>
+    </A4Paper>
   );
 }

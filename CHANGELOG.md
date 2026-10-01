@@ -1,5 +1,12 @@
 # Zmeny
 
+## 1.2.17 — 2. 10. 2026 — Pomer A4 a platobné údaje Manolo & Bay
+
+- Papier v editore a PDF náhľade sa na webe aj Macu zväčšuje rovnomerne podľa formátu A4. Užšie okno nepreusporiada obsah a nenatiahne stránku.
+- Logo Manolo & Bay je posunuté o 22 px nižšie. Znak v pozadí zostáva od horného okraja.
+- Béžový platobný blok obsahuje aj IBAN účtu vybraného na faktúre, spolu s variabilným symbolom, splatnosťou a sumou.
+- Pätička zobrazuje iba manolobay.com bez označenia „Web:“.
+
 ## 2. 10. 2026 — Viac miesta na faktúry
 
 - Filtre stavu, počet faktúr, vyhľadávanie, nová faktúra a prepínanie zoznamu sú v jednom riadku na webe aj Macu. Pre faktúru tak zostáva viac miesta.

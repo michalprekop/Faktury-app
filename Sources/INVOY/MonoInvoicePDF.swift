@@ -155,8 +155,9 @@ enum MonoInvoicePDF {
                 picture(ManoloInvoiceBrand.data("background.png"), NSRect(x: (pageWidth - 334) / 2, y: 0,
                     width: 334, height: 334 * background.size.height / background.size.width))
             }
-            picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 182.4) / 2, y: 12, width: 182.4, height: 36))
-            metadataTop = 60
+            // 22 CSS pixels correspond to 16.5 PDF points.
+            picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 182.4) / 2, y: 28.5, width: 182.4, height: 36))
+            metadataTop = 76.5
         } else {
             let logoTop: CGFloat = compact ? 22 : 32
             let logoSize = MonoInvoiceBrand.image(for: invoice)?.size ?? NSSize(width: 1559, height: 158)
@@ -235,7 +236,7 @@ enum MonoInvoicePDF {
         let closingHeight = max(qr == nil ? 0 : PaymentQRImage.blockHeight, invoice.signature == nil ? 0 : 85)
         let noteHeight = height(note, width, size: 8)
         let summaryHeight = totals.reduce(CGFloat.zero) { result, row in
-            result + max(manolo && row.2 ? 48 : 25, height(Format.money(row.1, currency: invoice.currency), manolo ? 179 : 193,
+            result + max(manolo && row.2 ? 48 : 25, height(Format.money(row.1, currency: invoice.currency), manolo ? width - 412 : 193,
                                     size: row.2 ? 12 : 9, weight: row.2 ? .bold : .regular) + (manolo && row.2 ? 28 : 12))
         }
         // Keep a short closing section together instead of exporting a page containing only a QR/signature.
@@ -245,7 +246,7 @@ enum MonoInvoicePDF {
             ensure(max(25, height(Format.money(amount, currency: invoice.currency), 193,
                                   size: strong ? 12 : 9, weight: strong ? .bold : .regular) + 12))
             let highlighted = manolo && strong
-            let rowHeight = max(highlighted ? 48 : 25, height(Format.money(amount, currency: invoice.currency), manolo ? 179 : 193,
+            let rowHeight = max(highlighted ? 48 : 25, height(Format.money(amount, currency: invoice.currency), manolo ? width - 412 : 193,
                                 size: strong ? 12 : 9, weight: strong ? .bold : .regular) + (highlighted ? 28 : 12))
             ensure(rowHeight)
             if highlighted {
@@ -253,12 +254,14 @@ enum MonoInvoicePDF {
                 NSRect(x: left, y: y, width: width, height: rowHeight).fill()
             }
             if highlighted {
-                text("Variabilný symbol", left + 14, y + 9, 155, size: 7)
-                text(invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, left + 14, y + 23, 155, size: 9, weight: .semibold)
-                text("Dátum splatnosti", left + 185, y + 9, 145, size: 7)
-                text(Format.date(invoice.dueDate), left + 185, y + 23, 145, size: 9, weight: .semibold)
-                text(label, 370, y + 9, 179, size: 7, alignment: .right)
-                text(Format.money(amount, currency: invoice.currency), 370, y + 22, 179, size: 12, weight: .bold, alignment: .right)
+                text("IBAN", left + 14, y + 9, 172, size: 7)
+                text(invoice.account.map { Format.iban($0.iban) } ?? "—", left + 14, y + 23, 172, size: 8.5, weight: .semibold)
+                text("Variabilný symbol", left + 198, y + 9, 88, size: 7)
+                text(invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, left + 198, y + 23, 88, size: 9, weight: .semibold)
+                text("Dátum splatnosti", left + 298, y + 9, 88, size: 7)
+                text(Format.date(invoice.dueDate), left + 298, y + 23, 88, size: 9, weight: .semibold)
+                text(label, left + 398, y + 9, width - 412, size: 7, alignment: .right)
+                text(Format.money(amount, currency: invoice.currency), left + 398, y + 22, width - 412, size: 12, weight: .bold, alignment: .right)
             } else {
                 text(label, left, y + 6, 320, size: 9, weight: strong ? .bold : .regular)
                 text(Format.money(amount, currency: invoice.currency), 370, y + 6, 193, size: strong ? 12 : 9,

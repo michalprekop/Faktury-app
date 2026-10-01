@@ -6,6 +6,24 @@ import InvoiceCore
 @testable import INVOY
 
 final class InvoiceTemplateTests: XCTestCase {
+    @MainActor func testManoloPaperUsesA4ProportionsAtDifferentWidths() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
+        var invoice = store.database.invoices[0]
+        invoice.templateOverride = .manoloBay
+        invoice.paid = 0
+        let draft = InvoiceDraft(invoice, store: store)
+        let canonical = NSHostingView(rootView: InvoicePaper(draft: draft).environmentObject(store).frame(width: 800))
+        XCTAssertEqual(canonical.fittingSize.height, 800 * 297 / 210, accuracy: 1)
+        for width: CGFloat in [720, 800, 1000] {
+            let host = NSHostingView(rootView: InvoicePaperSurface(draft: draft, width: width)
+                .environmentObject(store).frame(width: width))
+            let size = host.fittingSize
+            XCTAssertEqual(size.width, width, accuracy: 0.1)
+            XCTAssertEqual(size.height, width * 297 / 210, accuracy: 1, "Width \(width)")
+        }
+    }
     @MainActor func testManoloBayEditorRendersRequestedHighlight() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -53,7 +71,10 @@ final class InvoiceTemplateTests: XCTestCase {
             invoice.paymentQRFormat = format
             let document = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice)))
             XCTAssertEqual(document.pageCount, 1)
+            let bounds = try XCTUnwrap(document.page(at: 0)).bounds(for: .mediaBox)
+            XCTAssertEqual(bounds.height / bounds.width, 297 / 210.0, accuracy: 0.00002)
             let content = normalized(document.string ?? "")
+            XCTAssertFalse(content.contains("Web:"))
             for value in ManoloInvoiceBrand.contacts + [invoice.number, invoice.supplier.name, invoice.customer.name,
                 invoice.items[0].detail, Format.iban(invoice.account!.iban), "Suma na úhradu"] {
                 XCTAssertTrue(content.contains(normalized(value)), "Missing: \(value)")

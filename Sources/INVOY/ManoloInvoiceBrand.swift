@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Versioned, supplied artwork shared with the web renderer.
 enum ManoloInvoiceBrand {
-    static let contacts = ["Vystavil: Dominika Vašek", "Web: manolobay.com", "dominika@manolobay.com"]
+    static let contacts = ["Vystavil: Dominika Vašek", "manolobay.com", "dominika@manolobay.com"]
     static let highlight = NSColor(srgbRed: 242 / 255, green: 238 / 255, blue: 234 / 255, alpha: 1)
 
     static func data(_ filename: String) -> Data? {

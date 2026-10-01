@@ -7,7 +7,7 @@
   font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 .original-paper.invoice-paper.manoloBay {
-  padding-top: 16px;
+  padding-top: 38px;
 }
 .manolo-header {
   position: relative;
@@ -102,8 +102,8 @@
 }
 .manolo-payment-summary {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: 2.1fr 1fr 1fr 1.3fr;
+  gap: 16px;
   break-inside: avoid;
 }
 .manolo-payment-summary > div {
@@ -146,7 +146,7 @@
 @media print {
   .original-paper.invoice-paper.manoloBay {
     /* Keep the content inset while the artwork reaches the physical page edge. */
-    padding: 16px 42px 40px !important;
+    padding: 38px 42px 40px !important;
   }
   .manoloBay .original-footer {
     padding-top: 16px;

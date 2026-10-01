@@ -22,7 +22,7 @@ final class InvoiceTypographyTests: XCTestCase {
         }
     }
 
-    @MainActor func testInvoiceCanvasKeepsNativeTextSizeWhenWindowWidthChanges() async throws {
+    @MainActor func testInvoiceCanvasScalesNativeControlsUniformlyWithTheA4Page() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
@@ -45,7 +45,9 @@ final class InvoiceTypographyTests: XCTestCase {
             XCTAssertEqual(pickers.count, 2)
             for picker in pickers {
                 XCTAssertEqual(picker.font?.pointSize, 13)
-                XCTAssertEqual(picker.convert(picker.bounds, to: host).width, picker.bounds.width, accuracy: 0.01)
+                let scale = max(720, min(1000, width - 48)) / 800
+                XCTAssertEqual(picker.convert(picker.bounds, to: host).width, picker.bounds.width * scale, accuracy: 0.01)
+                XCTAssertEqual(picker.convert(picker.bounds, to: host).height, picker.bounds.height * scale, accuracy: 0.01)
             }
         }
         XCTAssertEqual(PaperField("Názov položky", text: .constant("Text")).size, 13)

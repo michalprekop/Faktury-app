@@ -10,7 +10,7 @@ struct InvoicePaperCanvas: View {
         GeometryReader { proxy in
             let width = max(720, min(1000, proxy.size.width - 48))
             ScrollView([.horizontal, .vertical]) {
-                InvoicePaper(draft: draft)
+                InvoicePaperSurface(draft: draft, width: width)
                     .environment(\.invoiceMonospaced, draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate) == .mono01)
                     .frame(width: width, alignment: .topLeading)
                     .background { Rectangle().fill(.white).shadow(color: .black.opacity(0.12), radius: 4, y: 1) }
@@ -22,10 +22,33 @@ struct InvoicePaperCanvas: View {
     }
 }
 
+/// Lay out at a stable A4 width and zoom uniformly; a narrow window must not reflow the page.
+struct InvoicePaperSurface: View {
+    @ObservedObject var draft: InvoiceDraft
+    let width: CGFloat
+    @State private var height: CGFloat = 800 * 297 / 210
+    var body: some View {
+        InvoicePaper(draft: draft)
+            .frame(width: 800).fixedSize(horizontal: false, vertical: true)
+            .background(GeometryReader { proxy in
+                Color.clear.preference(key: InvoicePaperHeight.self, value: proxy.size.height)
+            })
+            .onPreferenceChange(InvoicePaperHeight.self) { height = $0 }
+            .scaleEffect(width / 800, anchor: .topLeading)
+            .frame(width: width, height: height * width / 800, alignment: .topLeading)
+    }
+}
+
+private struct InvoicePaperHeight: PreferenceKey {
+    static var defaultValue: CGFloat = 800 * 297 / 210
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
 struct InvoicePaper: View {
     @Environment(\.invoiceMonospaced) private var mono
     @EnvironmentObject private var store: Store
     @ObservedObject var draft: InvoiceDraft
+    private let pageWidth: CGFloat = 800
     @State private var newCustomer: Company?
     private var manolo: Bool { invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate) == .manoloBay }
     private var monoLayout: Bool { mono || manolo }
@@ -63,8 +86,8 @@ struct InvoicePaper: View {
             rule
             footer.padding(.top, 14)
         }
-        .padding(.horizontal, 42).padding(.top, manolo ? 16 : 44).padding(.bottom, 40)
-        .frame(minHeight: 1080, alignment: .top)
+        .padding(.horizontal, 42).padding(.top, manolo ? 38 : 44).padding(.bottom, 40)
+        .frame(minHeight: pageWidth * 297 / 210, alignment: .top)
         .background(alignment: .top) {
             if manolo { ManoloInvoiceBackground() }
         }
@@ -273,7 +296,9 @@ struct InvoicePaper: View {
                 Text(invoice.currency).font(.system(size: 12, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
             }
             if manolo {
-                HStack(alignment: .center, spacing: 24) {
+                HStack(alignment: .center, spacing: 16) {
+                    bandValue("IBAN", invoice.account.map { Format.iban($0.iban) } ?? "—")
+                        .frame(width: max(170, (pageWidth - 168) * 0.39))
                     bandValue("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol)
                     bandValue("Dátum splatnosti", Format.date(invoice.dueDate))
                     VStack(alignment: .trailing, spacing: 7) {
