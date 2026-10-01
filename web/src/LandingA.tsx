@@ -127,7 +127,11 @@ export function LandingA({ config, error }: { config: LandingConfig | null; erro
             </div>
             <img
               className="home-product-image"
-              src={preview === 'invoice' ? '/product/invoice.jpg' : '/product/overview.jpg'}
+              src={
+                preview === 'invoice'
+                  ? '/product/invoice.jpg?v=20261002'
+                  : '/product/overview.jpg?v=20261002'
+              }
               alt={
                 preview === 'invoice'
                   ? 'INVOY: zoznam faktúr vľavo a úprava faktúry priamo na papieri vpravo.'

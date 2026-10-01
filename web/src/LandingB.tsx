@@ -316,7 +316,11 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
                 <Cloud size={15} />
               </div>
               <img
-                src={preview === 'invoice' ? '/product/invoice.jpg' : '/product/overview.jpg'}
+                src={
+                  preview === 'invoice'
+                    ? '/product/invoice.jpg?v=20261002'
+                    : '/product/overview.jpg?v=20261002'
+                }
                 alt={
                   preview === 'invoice'
                     ? 'INVOY: zoznam faktúr a úprava faktúry priamo na papieri.'
