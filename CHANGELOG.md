@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.4 — 1. 10. 2026 — Čistejšia hlavička na Macu
+
+- Pri logu sa už nezobrazuje meno ani ikona obláčika. Hlavička obsahuje len logo a hlavnú navigáciu.
+- Ponuka účtu, synchronizácie, administrácie a odhlásenia je dostupná cez Nastavenia → Účet.
+
 ## 1.2.3 — 1. 10. 2026 — Zarovnanie filtrov na Macu
 
 - Taby stavu faktúr začínajú na rovnakom ľavom okraji ako logo a počet faktúr. Odsadenie horných riadkov je jednotné.

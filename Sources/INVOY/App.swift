@@ -115,27 +115,7 @@ struct RootView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    BrandWordmark(height: 30)
-                    Text.numeric(store.database.settings.supplier.name.isEmpty ? "Moja firma" : store.database.settings.supplier.name, size: 11)
-                        .foregroundStyle(.secondary).lineLimit(1)
-                }
-                if let cloud {
-                    Menu {
-                        Text(cloud.user?.name ?? "Lokálna záloha")
-                        Text(cloud.message)
-                        if let failure = cloud.failure { Text(failure) }
-                        Button("Synchronizovať teraz") { Task { await cloud.synchronize() } }
-                        if cloud.user?.role == "admin" {
-                            Button("Administrácia") { NSWorkspace.shared.open(CloudEndpoint.origin.appending(queryItems: [URLQueryItem(name: "page", value: "admin")])) }
-                        }
-                        Button("Otvoriť web") { NSWorkspace.shared.open(CloudEndpoint.origin) }
-                        Divider()
-                        Button("Odhlásiť sa") { Task { await cloud.signOut() } }
-                    } label: { Image(systemName: cloud.failure == nil ? "icloud" : "exclamationmark.icloud") }
-                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                    .help(cloud.failure ?? cloud.message).accessibilityLabel("Cloudový účet")
-                }
+                BrandWordmark(height: 30)
                 Spacer(minLength: 24)
                 HStack(spacing: 2) {
                     ForEach(SectionID.allCases) { section in
@@ -161,7 +141,7 @@ struct RootView: View {
                     .disabled(selection != .invoices)
                     .accessibilityHidden(selection != .invoices)
                 if selection == .customers { CustomersView() }
-                if selection == .settings { SettingsView() }
+                if selection == .settings { SettingsView(cloud: cloud) }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .bottom) {
