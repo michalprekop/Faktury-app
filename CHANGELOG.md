@@ -3,7 +3,7 @@
 ## 1.2.0 — 1. 10. 2026
 
 - Aplikácia sa volá INVOY. Nový názov používa web, Mac aplikácia, ikona, stiahnuté súbory aj GitHub projekt.
-- Web má vlastnú adresu invoy.xyz. Adresy s www a pôvodná webová adresa smerujú na novú doménu.
+- Web má vlastnú adresu invoy.xyz a presmerovanie z www.invoy.xyz. Pôvodná webová adresa zostáva funkčná aj počas šírenia DNS.
 - Prihlásenie cez Apple podporuje novú doménu. Existujúce účty, faktúry, šablóny a lokálne dáta zostávajú zachované.
 - Staršie Mac verzie sa naďalej môžu pripájať k pôvodnému API. Nová Mac verzia 1.2.0 používa invoy.xyz a má podpis aj notarizáciu Apple.
 

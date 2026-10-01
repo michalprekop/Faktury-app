@@ -8,7 +8,7 @@ Webová fakturačná aplikácia s Apple prihlásením, súkromným účtom a spr
 
 ## Názov a doména
 
-Od verzie 1.2.0 sa produkt volá **INVOY**. Hlavná adresa je `https://invoy.xyz`; `www.invoy.xyz` a pôvodné webové odkazy sa presmerujú na hlavnú adresu. Jediná nainštalovaná aplikácia sa pri aktualizácii premenuje z `Faktúry.app` na `INVOY.app`.
+Od verzie 1.2.0 sa produkt volá **INVOY**. Hlavná adresa je `https://invoy.xyz`; `www.invoy.xyz` sa presmeruje na hlavnú adresu. Pôvodná webová adresa zostáva funkčná aj počas šírenia DNS a používa rovnaké dáta. Jediná nainštalovaná aplikácia sa pri aktualizácii premenuje z `Faktúry.app` na `INVOY.app`.
 
 Identita aplikácie `sk.faktury.desktop`, Apple Services ID, existujúce D1/R2 úložiská, formát záloh a kľúče lokálnych dát zostávajú kompatibilné s pôvodnou verziou. Ich zmena by odpojila existujúce účty, dáta alebo rozpracované údaje. Slovo „Faktúry“ v navigácii označuje druh dokumentov.
 

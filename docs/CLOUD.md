@@ -14,7 +14,7 @@ Mac používa `ASWebAuthenticationSession`, overí jednorazový kód cez dvojmin
 
 Produkčná adresa je `https://invoy.xyz`, alias `www.invoy.xyz` sa presmeruje so zachovaním cesty a parametrov. Registrar Porkbun používa `olga.ns.cloudflare.com` a `randy.ns.cloudflare.com`; obe domény sú Custom Domains existujúceho Workeru `faktury-app`. Konfigurácia domén aj `APP_ORIGIN` je vo `web/wrangler.jsonc`.
 
-Worker, databáza a súkromný bucket si zachovávajú svoje technické názvy a identifikátory. Pôvodná Workers adresa presmeruje verejné stránky; staršie Mac verzie na nej môžu ďalej používať API a Apple callback so samostatne overovaným pôvodným Origin. Cookies sa medzi doménami nekopírujú. Na novej doméne je potrebné nové Apple prihlásenie do toho istého účtu.
+Worker, databáza a súkromný bucket si zachovávajú svoje technické názvy a identifikátory. Pôvodná Workers adresa zostáva funkčná aj počas šírenia DNS; web aj staršie Mac verzie na nej môžu ďalej používať API a Apple callback so samostatne overovaným pôvodným Origin. Cookies sa medzi doménami nekopírujú. Na novej doméne je potrebné nové Apple prihlásenie do toho istého účtu.
 
 Apple Services ID `sk.faktury.web` musí povoľovať `invoy.xyz` a návratovú adresu `https://invoy.xyz/auth/apple/callback`; pôvodnú doménu a callback ponechať kvôli starším Mac verziám. Názvy Apple identifikátorov možno premenovať na INVOY, samotné identifikátory a kľúče sa nemenia.
 

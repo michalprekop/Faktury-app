@@ -14,9 +14,7 @@ app.use('*', async (c, next) => {
     if (url.hostname === 'www.invoy.xyz')
       return c.redirect(c.env.APP_ORIGIN + url.pathname + url.search, 308);
     if (url.origin === legacyOrigin) {
-      // Existing Mac versions keep their host-bound sessions until they update.
-      if (!/^\/(api|auth)(\/|$)/.test(url.pathname) && url.pathname !== '/health')
-        return c.redirect(c.env.APP_ORIGIN + url.pathname + url.search, 308);
+      // Keep the original web and Mac sessions working during DNS propagation.
       c.env = { ...c.env, APP_ORIGIN: legacyOrigin };
     }
   }
