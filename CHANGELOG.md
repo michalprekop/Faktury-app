@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1.2.6 — 1. 10. 2026 — Žlté ovládacie prvky a oprava DIČ
+
+- Vybrané taby a hlavné tlačidlá majú na webe aj Macu opäť žlté pozadie s tmavým textom, bez orámovania.
+- Jednotná výška ovládacích prvkov 40 px zostáva zachovaná.
+- Prázdne DIČ v Mac editore zobrazuje pomlčku namiesto opakovaného názvu a pretínajúcej čiary. Identifikačné údaje sú zarovnané a zostávajú priamo editovateľné.
+
 ## 1.2.5 — 1. 10. 2026 — Čierne ovládacie prvky so žltými detailmi
 
 - Hlavné tlačidlá a vybrané taby majú na webe aj Macu čierne pozadie, žltý text a jemný žltý obrys.

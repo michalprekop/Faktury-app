@@ -6,6 +6,22 @@ import InvoiceCore
 @testable import INVOY
 
 final class InvoiceTypographyTests: XCTestCase {
+    @MainActor func testEmptyInvoiceIdentifierKeepsOneLineOfEditableSpace() throws {
+        for mono in [false, true] {
+            func height(_ value: String) -> CGFloat {
+                let host = NSHostingView(rootView:
+                    PaperField("DIČ", text: .constant(value), size: 12, numeric: true, placeholder: "—")
+                        .environment(\.invoiceMonospaced, mono).frame(width: 260))
+                return host.fittingSize.height
+            }
+            let empty = height("")
+            let filled = height("2020654321")
+            let font = InvoiceTypography.font(size: 12, monospaced: true)
+            XCTAssertGreaterThanOrEqual(empty, font.ascender - font.descender + 6)
+            XCTAssertEqual(empty, filled, accuracy: 1)
+        }
+    }
+
     @MainActor func testInvoiceCanvasKeepsNativeTextSizeWhenWindowWidthChanges() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }

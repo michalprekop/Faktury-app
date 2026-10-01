@@ -42,12 +42,11 @@ struct BrandButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(InvoyBrand.yellow)
+            .foregroundStyle(InvoyBrand.ink)
             .padding(.horizontal, size == .large ? 17 : 13)
             .frame(minHeight: InvoyBrand.controlHeight)
-            .background(InvoyBrand.ink, in: RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.yellow.opacity(0.55), lineWidth: 1))
-            .overlay(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(configuration.isPressed ? 0.08 : 0)))
+            .background(InvoyBrand.yellow, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).fill(.black.opacity(configuration.isPressed ? 0.08 : 0)))
             .opacity(enabled ? 1 : 0.45)
     }
 }
@@ -94,11 +93,10 @@ struct BrandSegment: View {
                 else { Text(title).lineLimit(1) }
             }
             .font(.system(size: 13, weight: selected ? .semibold : .regular))
-            .foregroundStyle(selected ? InvoyBrand.yellow : InvoyBrand.ink)
+            .foregroundStyle(InvoyBrand.ink)
             .padding(.horizontal, symbol == nil ? 12 : 10)
             .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6)
-            .background(selected ? InvoyBrand.ink : .clear, in: RoundedRectangle(cornerRadius: 7))
-            .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(selected ? InvoyBrand.yellow.opacity(0.55) : .clear, lineWidth: 1))
+            .background(selected ? InvoyBrand.yellow : .clear, in: RoundedRectangle(cornerRadius: 7))
         }.buttonStyle(.plain).accessibilityLabel(title)
             .accessibilityAddTraits(selected ? .isSelected : [])
     }

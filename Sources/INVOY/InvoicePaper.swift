@@ -342,9 +342,9 @@ private struct PaperCompany: View {
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
     private func identifier(_ title: String, text: Binding<String>) -> some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(title + ":").font(.system(size: 12, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
-            PaperField(title, text: text, size: 12, numeric: true, color: .secondary)
+            PaperField(title, text: text, size: 12, numeric: true, color: .secondary, placeholder: "—")
         }
     }
 }
@@ -424,24 +424,28 @@ struct PaperField: View {
     var color: Color = .primary
     var alignment: TextAlignment = .leading
     var outlined = false
+    var placeholder: String?
     @State private var hovering = false
     @FocusState private var focused: Bool
 
     init(_ title: String, text: Binding<String>, size: CGFloat = 13, weight: NSFont.Weight = .regular,
-         numeric: Bool = false, color: Color = .primary, alignment: TextAlignment = .leading, outlined: Bool = false) {
+         numeric: Bool = false, color: Color = .primary, alignment: TextAlignment = .leading, outlined: Bool = false,
+         placeholder: String? = nil) {
         self.title = title; self._text = text; self.size = size; self.weight = weight
         self.numeric = numeric; self.color = color; self.alignment = alignment
         self.outlined = outlined
+        self.placeholder = placeholder
     }
 
     var body: some View {
         TextField("", text: $text, axis: .vertical)
             .textFieldStyle(.plain).font(Font(InvoiceTypography.font(size: size, weight: weight, monospaced: numeric || mono)))
+            .lineLimit(1...)
             .multilineTextAlignment(alignment).focused($focused)
             .foregroundStyle(focused ? color : .clear)
             .overlay(alignment: alignment == .trailing ? .topTrailing : .topLeading) {
                 if !focused {
-                    PaperText(text.isEmpty ? title : text, size: size, weight: weight, monospaced: numeric && !text.isEmpty)
+                    PaperText(text.isEmpty ? (placeholder ?? title) : text, size: size, weight: weight, monospaced: numeric)
                         .foregroundStyle(text.isEmpty ? .secondary : color).multilineTextAlignment(alignment)
                         .allowsHitTesting(false).accessibilityHidden(true)
                 }
@@ -452,7 +456,7 @@ struct PaperField: View {
                 if outlined { RoundedRectangle(cornerRadius: 3).stroke(focused ? Color.accent : .gray.opacity(hovering ? 0.5 : 0.25), lineWidth: 1) }
             }
             .overlay(alignment: .bottom) {
-                if !outlined { Rectangle().fill(Color.accent.opacity(focused ? 0.7 : hovering || text.isEmpty ? 0.25 : 0)).frame(height: 1) }
+                if !outlined { Rectangle().fill(Color.accent.opacity(focused ? 0.7 : hovering || (text.isEmpty && placeholder == nil) ? 0.25 : 0)).frame(height: 1) }
             }
             .onHover { hovering = $0 }.help(title).accessibilityLabel(title)
             .background(DismissEditingOnOutsideClick(isEditing: focused) { focused = false })
