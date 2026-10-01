@@ -1,4 +1,4 @@
-# Prevádzka Faktúr
+# Prevádzka INVOY
 
 ## Architektúra a hranice
 
@@ -9,6 +9,14 @@ API získava vlastníka z overenej serverovej session. Nikdy neprijíma vlastní
 Prihlásenie overuje podpis Apple JWT, issuer, audience, expiry a nonce. Jednorazový OAuth state je viazaný na HttpOnly cookie konkrétneho prehliadača. Session je 30-dňová, token je v D1 len ako SHA-256 hash. Apple refresh token je AES-GCM šifrovaný a overuje sa najviac raz denne. Pozastavenie účtu vymaže všetky jeho sessions. API zápisy vyžadujú rovnaký Origin a CSRF token. Cookies sú Secure/HttpOnly; CSP blokuje cudzie skripty, rámce a obrázky zo vzdialených serverov. Obrázky šablón sú obmedzené PNG/JPEG, šablóny neumožňujú vložiť HTML alebo JS.
 
 Mac používa `ASWebAuthenticationSession`, overí jednorazový kód cez dvojminútový handoff viazaný na tajný verifier a session nastaví priamo do WKWebView cookie store. Session sa nevkladá do JavaScriptu. Od verzie 1.1.1 faktúry zobrazuje pôvodné SwiftUI rozhranie. URLSession používa overenú HttpOnly session a rovnakú kontrolu Origin/CSRF; natívne API nemá osobitné oprávnenia. Každý účet má samostatnú lokálnu cache a verzie záznamov. Konflikt sa neprepisuje. Admin sa otvára na webe.
+
+## Doména INVOY
+
+Produkčná adresa je `https://invoy.xyz`, alias `www.invoy.xyz` sa presmeruje so zachovaním cesty a parametrov. Registrar Porkbun používa `olga.ns.cloudflare.com` a `randy.ns.cloudflare.com`; obe domény sú Custom Domains existujúceho Workeru `faktury-app`. Konfigurácia domén aj `APP_ORIGIN` je vo `web/wrangler.jsonc`.
+
+Worker, databáza a súkromný bucket si zachovávajú svoje technické názvy a identifikátory. Pôvodná Workers adresa presmeruje verejné stránky; staršie Mac verzie na nej môžu ďalej používať API a Apple callback so samostatne overovaným pôvodným Origin. Cookies sa medzi doménami nekopírujú. Na novej doméne je potrebné nové Apple prihlásenie do toho istého účtu.
+
+Apple Services ID `sk.faktury.web` musí povoľovať `invoy.xyz` a návratovú adresu `https://invoy.xyz/auth/apple/callback`; pôvodnú doménu a callback ponechať kvôli starším Mac verziám. Názvy Apple identifikátorov možno premenovať na INVOY, samotné identifikátory a kľúče sa nemenia.
 
 ## Nasadenie
 

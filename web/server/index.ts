@@ -7,6 +7,21 @@ import { appleReady, type AppContext, type Bindings } from './security';
 import { scheduledBackup } from './backups';
 
 const app = new Hono<AppContext>();
+const legacyOrigin = 'https://faktury-app.freetransfer-online.workers.dev';
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  if (c.env.APP_ORIGIN === 'https://invoy.xyz') {
+    if (url.hostname === 'www.invoy.xyz')
+      return c.redirect(c.env.APP_ORIGIN + url.pathname + url.search, 308);
+    if (url.origin === legacyOrigin) {
+      // Existing Mac versions keep their host-bound sessions until they update.
+      if (!/^\/(api|auth)(\/|$)/.test(url.pathname) && url.pathname !== '/health')
+        return c.redirect(c.env.APP_ORIGIN + url.pathname + url.search, 308);
+      c.env = { ...c.env, APP_ORIGIN: legacyOrigin };
+    }
+  }
+  await next();
+});
 app.use('*', async (c, next) => {
   await next();
   c.header('X-Content-Type-Options', 'nosniff');
@@ -22,14 +37,14 @@ app.use('*', async (c, next) => {
 });
 app.get('/api/config', (c) =>
   c.json({
-    name: 'Faktúry',
+    name: 'INVOY',
     appleReady: appleReady(c.env),
     registrationOpen: c.env.REGISTRATION_OPEN === 'true',
     macAvailable: Boolean(c.env.MAC_DOWNLOAD_KEY),
   }),
 );
 app.get('/health', (c) =>
-  c.json({ service: 'faktury', status: 'ok', login: appleReady(c.env) ? 'configured' : 'pending' }),
+  c.json({ service: 'invoy', status: 'ok', login: appleReady(c.env) ? 'configured' : 'pending' }),
 );
 app.route('/auth', auth);
 app.route('/api', api);
@@ -40,7 +55,7 @@ app.get('/download/mac', async (c) => {
   return new Response(object.body, {
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': 'attachment; filename="Faktury-Mac.zip"',
+      'Content-Disposition': 'attachment; filename="INVOY-Mac.zip"',
       'Content-Length': String(object.size),
     },
   });

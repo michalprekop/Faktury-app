@@ -96,7 +96,7 @@ function Brand() {
         <FileText size={22} strokeWidth={1.7} />
       </span>
       <strong>
-        Faktúry<span className="brand-dot">.</span>
+        INVOY<span className="brand-dot">.</span>
       </strong>
     </div>
   );
@@ -225,7 +225,7 @@ function Landing({ config, error }: { config: Config | null; error: string }) {
         </div>
       </div>
       <footer>
-        Faktúry · Súkromný pracovný priestor · <a href="/privacy.html">Ochrana údajov</a>
+        INVOY · Súkromný pracovný priestor · <a href="/privacy.html">Ochrana údajov</a>
         <span>Údaje účtu a faktúry sa ukladajú na Cloudflare.</span>
       </footer>
     </div>

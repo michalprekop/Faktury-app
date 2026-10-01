@@ -3,7 +3,7 @@ import AppKit
 import InvoiceCore
 
 @main
-struct FakturyApp: App {
+struct InvoyApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var store = Store()
 
@@ -19,7 +19,7 @@ struct FakturyApp: App {
     }
 
     var body: some Scene {
-        Window("Faktúry", id: "main") {
+        Window("INVOY", id: "main") {
             ProductRootView().environmentObject(store)
                 .tint(Color.accent)
                 .preferredColorScheme(.light)
@@ -90,8 +90,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 extension Notification.Name {
-    static let newInvoice = Notification.Name("Faktury.newInvoice")
-    static let showSettings = Notification.Name("Faktury.showSettings")
+    static let newInvoice = Notification.Name("INVOY.newInvoice")
+    static let showSettings = Notification.Name("INVOY.showSettings")
 }
 
 extension Color {
@@ -118,7 +118,7 @@ struct RootView: View {
                 Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
                     .resizable().interpolation(.high).frame(width: 38, height: 38).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Faktúry").font(.system(size: 22, weight: .semibold))
+                    Text("INVOY").font(.system(size: 22, weight: .semibold))
                     Text.numeric(store.database.settings.supplier.name.isEmpty ? "Moja firma" : store.database.settings.supplier.name, size: 11)
                         .foregroundStyle(.secondary).lineLimit(1)
                 }

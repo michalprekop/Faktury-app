@@ -5,7 +5,7 @@ import CryptoKit
 
 /// Only this application's HTTPS origin may invoke the small native bridge.
 enum CloudEndpoint {
-    static let origin = URL(string: "https://faktury-app.freetransfer-online.workers.dev")!
+    static let origin = URL(string: "https://invoy.xyz")!
     static func trusted(_ url: URL?) -> Bool {
         guard let url else { return false }
         return url.scheme == "https" && url.host == origin.host && (url.port == nil || url.port == 443)
@@ -24,7 +24,7 @@ struct ProductRootView: View {
             else {
                 VStack(spacing: 18) {
                     Image(systemName: "doc.text").font(.system(size: 42)).foregroundStyle(Color.accent)
-                    Text("Faktúry").font(.system(size: 26, weight: .semibold))
+                    Text("INVOY").font(.system(size: 26, weight: .semibold))
                     if cloud.connecting { ProgressView("Načítavam vaše faktúry…") }
                     else {
                         Button("Prihlásiť sa cez Apple") { cloud.signIn() }.buttonStyle(.borderedProminent).controlSize(.large)
@@ -54,8 +54,8 @@ struct CloudWebView: NSViewRepresentable {
         super.init()
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .default()
-        configuration.userContentController.add(self, name: "fakturyPrint")
-        configuration.userContentController.addUserScript(WKUserScript(source: "window.print = function(){ window.webkit.messageHandlers.fakturyPrint.postMessage('print'); };", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        configuration.userContentController.add(self, name: "invoyPrint")
+        configuration.userContentController.addUserScript(WKUserScript(source: "window.print = function(){ window.webkit.messageHandlers.invoyPrint.postMessage('print'); };", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self; webView.uiDelegate = self
         load()
@@ -104,7 +104,7 @@ struct CloudWebView: NSViewRepresentable {
         if (failure as NSError).code != NSURLErrorCancelled { error = "Cloud sa nepodarilo načítať. Skontrolujte internetové pripojenie." }
     }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard message.name == "fakturyPrint", message.frameInfo.isMainFrame, CloudEndpoint.trusted(message.frameInfo.request.url), let window = webView.window else { return }
+        guard message.name == "invoyPrint", message.frameInfo.isMainFrame, CloudEndpoint.trusted(message.frameInfo.request.url), let window = webView.window else { return }
         let info = NSPrintInfo.shared.copy() as! NSPrintInfo
         info.paperSize = NSSize(width: 595.28, height: 841.89)
         info.topMargin = 0; info.bottomMargin = 0; info.leftMargin = 0; info.rightMargin = 0

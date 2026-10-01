@@ -231,7 +231,7 @@ export function LegacyWorkspace({
         <div className="native-brand">
           <img className="native-app-icon" src="/app-icon.png" alt="" />
           <div>
-            <strong>Faktúry</strong>
+            <strong>INVOY</strong>
             <small>{me.profile.supplier.name || 'Moja firma'}</small>
           </div>
         </div>

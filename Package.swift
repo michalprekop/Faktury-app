@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "Faktury",
+    name: "INVOY",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "Faktury", targets: ["Faktury"])],
+    products: [.executable(name: "INVOY", targets: ["INVOY"])],
     targets: [
         .systemLibrary(name: "CLZMA"),
         .target(name: "InvoiceCore", dependencies: ["CLZMA"]),
-        .executableTarget(name: "Faktury", dependencies: ["InvoiceCore"], exclude: ["Resources"]),
+        .executableTarget(name: "INVOY", dependencies: ["InvoiceCore"], exclude: ["Resources"]),
         .testTarget(name: "InvoiceCoreTests", dependencies: ["InvoiceCore"]),
-        .testTarget(name: "FakturyTests", dependencies: ["Faktury", "InvoiceCore"])
+        .testTarget(name: "INVOYTests", dependencies: ["INVOY", "InvoiceCore"])
     ]
 )

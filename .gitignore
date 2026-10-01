@@ -37,5 +37,5 @@ web/worker-configuration.d.ts
 *.zip
 
 # Legacy owner artwork stays only on the original machine
-/Sources/Faktury/Resources/logo.png
-/Sources/Faktury/Resources/signature.png
+/Sources/INVOY/Resources/logo.png
+/Sources/INVOY/Resources/signature.png

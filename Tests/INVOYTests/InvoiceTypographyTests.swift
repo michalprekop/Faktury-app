@@ -3,7 +3,7 @@ import AppKit
 import PDFKit
 import SwiftUI
 import InvoiceCore
-@testable import Faktury
+@testable import INVOY
 
 final class InvoiceTypographyTests: XCTestCase {
     @MainActor func testInvoiceCanvasKeepsNativeTextSizeWhenWindowWidthChanges() async throws {

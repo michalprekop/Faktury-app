@@ -318,7 +318,7 @@ api.get(
     new Response(exportAccount(c.env, c.get('user').id), {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="Faktury-${new Date().toISOString().slice(0, 10)}.json"`,
+        'Content-Disposition': `attachment; filename="INVOY-${new Date().toISOString().slice(0, 10)}.json"`,
       },
     }),
 );
@@ -349,7 +349,7 @@ api.get('/backups/:day', async (c) => {
   return new Response(object.body, {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': `attachment; filename="Faktury-${day}.json"`,
+      'Content-Disposition': `attachment; filename="INVOY-${day}.json"`,
     },
   });
 });

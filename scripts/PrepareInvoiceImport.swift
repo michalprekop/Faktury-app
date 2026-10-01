@@ -130,7 +130,7 @@ private func decimal(_ string: String) throws -> Decimal {
             guard db.invoices.first(where: { $0.id == existing.id }) == existing else { throw DataError.invalid("Existing invoice modified") }
         }
         try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
-        let output = destination.appendingPathComponent("faktury-import.json")
+        let output = destination.appendingPathComponent("INVOY-import.json")
         let encoded = try DatabaseFile.encode(db)
         guard try DatabaseFile.decode(encoded) == db else { throw DataError.invalid("Round-trip failed") }
         try encoded.write(to: output, options: .atomic)

@@ -1,6 +1,6 @@
 import XCTest
 import Foundation
-@testable import Faktury
+@testable import INVOY
 
 final class ProductBoundaryTests: XCTestCase {
     @MainActor func testNewInstallationHasNoPreviousOwnerData() throws {
@@ -15,7 +15,7 @@ final class ProductBoundaryTests: XCTestCase {
     }
     func testNativeBridgeRejectsLookalikeAndInsecureOrigins() {
         XCTAssertTrue(CloudEndpoint.trusted(CloudEndpoint.origin.appendingPathComponent("api/export")))
-        for url in ["http://faktury-app.freetransfer-online.workers.dev", "https://faktury-app.freetransfer-online.workers.dev.attacker.test", "https://faktury-app.freetransfer-online.workers.dev:8443", "file:///tmp/invoice.html", "https://attacker.test"] {
+        for url in ["http://invoy.xyz", "https://invoy.xyz.attacker.test", "https://invoy.xyz:8443", "file:///tmp/invoice.html", "https://attacker.test"] {
             XCTAssertFalse(CloudEndpoint.trusted(URL(string:url)),url)
         }
     }

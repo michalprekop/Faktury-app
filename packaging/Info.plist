@@ -5,24 +5,24 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>sk</string>
 	<key>CFBundleDisplayName</key>
-	<string>Faktúry</string>
+	<string>INVOY</string>
 	<key>CFBundleExecutable</key>
-	<string>Faktury</string>
+	<string>INVOY</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>sk.faktury.desktop</string>
 	<key>CFBundleName</key>
-	<string>Faktúry</string>
+	<string>INVOY</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.3</string>
+	<string>1.2.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>Faktury Login</string>
+			<string>INVOY Login</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>sk.faktury.desktop</string>
@@ -30,7 +30,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSHighResolutionCapable</key>

@@ -1,7 +1,7 @@
 import XCTest
 import SwiftUI
 import InvoiceCore
-@testable import Faktury
+@testable import INVOY
 
 final class InvoiceAutosaveTests: XCTestCase {
     private func folder() -> URL { FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString) }

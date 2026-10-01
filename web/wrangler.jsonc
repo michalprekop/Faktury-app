@@ -7,6 +7,10 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
+  "routes": [
+    { "pattern": "invoy.xyz", "custom_domain": true },
+    { "pattern": "www.invoy.xyz", "custom_domain": true },
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -14,12 +18,12 @@
     "run_worker_first": true,
   },
   "vars": {
-    "APP_ORIGIN": "https://faktury-app.freetransfer-online.workers.dev",
+    "APP_ORIGIN": "https://invoy.xyz",
     "APPLE_CLIENT_ID": "sk.faktury.web",
     "APPLE_TEAM_ID": "2UK483PFM5",
     "APPLE_KEY_ID": "9BCA896N9L",
     "REGISTRATION_OPEN": "true",
-    "MAC_DOWNLOAD_KEY": "releases/Faktury-Mac-1.1.3.zip",
+    "MAC_DOWNLOAD_KEY": "releases/INVOY-Mac-1.2.0.zip",
   },
   "d1_databases": [
     {

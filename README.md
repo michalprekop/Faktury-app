@@ -1,10 +1,16 @@
-# Faktúry — web a Mac
+# INVOY — web a Mac
 
 Webová fakturačná aplikácia s Apple prihlásením, súkromným účtom a správou šablón.
 
-- Web: https://faktury-app.freetransfer-online.workers.dev
-- Mac (macOS 14+, Apple Silicon): https://faktury-app.freetransfer-online.workers.dev/download/mac
-- Nainštalovaná kópia: `~/Applications/Faktúry.app`.
+- Web: https://invoy.xyz
+- Mac (macOS 14+, Apple Silicon): https://invoy.xyz/download/mac
+- Nainštalovaná kópia: `~/Applications/INVOY.app`.
+
+## Názov a doména
+
+Od verzie 1.2.0 sa produkt volá **INVOY**. Hlavná adresa je `https://invoy.xyz`; `www.invoy.xyz` a pôvodné webové odkazy sa presmerujú na hlavnú adresu. Jediná nainštalovaná aplikácia sa pri aktualizácii premenuje z `Faktúry.app` na `INVOY.app`.
+
+Identita aplikácie `sk.faktury.desktop`, Apple Services ID, existujúce D1/R2 úložiská, formát záloh a kľúče lokálnych dát zostávajú kompatibilné s pôvodnou verziou. Ich zmena by odpojila existujúce účty, dáta alebo rozpracované údaje. Slovo „Faktúry“ v navigácii označuje druh dokumentov.
 
 ## Cloudový produkt
 
@@ -14,7 +20,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.1.3 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
+Mac distribúcia 1.2.0 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
 
 ## Pôvodný lokálny režim
 
@@ -55,20 +61,20 @@ Nie je potrebný Homebrew ani externá služba počas behu aplikácie.
 ```sh
 bash scripts/test-native.sh
 env DEVELOPER_DIR=/Library/Developer/CommandLineTools bash scripts/build-app.sh
-.build/release/Faktury --verify output/pdf
+.build/release/INVOY --verify output/pdf
 ```
 
-Testy pokrývajú desatinné výpočty, DPH, čiastočné úhrady, číslovanie, validáciu IBAN-u, údaje zachované vo faktúre a zálohy. Príkaz `--verify` overí PDF predlohy, iba jeden účet, viacstranový export a uloženie dát. Na izolované UI testy možno nastaviť `FAKTURY_DATA_DIR`.
+Testy pokrývajú desatinné výpočty, DPH, čiastočné úhrady, číslovanie, validáciu IBAN-u, údaje zachované vo faktúre a zálohy. Príkaz `--verify` overí PDF predlohy, iba jeden účet, viacstranový export a uloženie dát. Na izolované UI testy možno nastaviť `INVOY_DATA_DIR`.
 
-Skript vytvorí pracovnú kópiu v `.build/distribution.noindex/Faktúry.app`, mimo vyhľadávania Spotlight. Túto kópiu nespúšťajte ani nepripínajte do Docku; pri aktualizácii ňou nahraďte existujúcu aplikáciu v `~/Applications/Faktúry.app` až po jej ukončení. Nevytvárajte ďalšiu nainštalovanú ani QA aplikáciu.
+Skript vytvorí pracovnú kópiu v `.build/distribution.noindex/INVOY.app`, mimo vyhľadávania Spotlight. Túto kópiu nespúšťajte ani nepripínajte do Docku; pri aktualizácii ňou nahraďte existujúcu aplikáciu v `~/Applications/INVOY.app` až po jej ukončení. Nevytvárajte ďalšiu nainštalovanú ani QA aplikáciu.
 
-`build-app.sh` vytvára vývojový ad-hoc podpis. Distribučné zostavenie robí `bash scripts/release-mac.sh`: Developer ID podpis, notarizácia, stapling a kontrola Gatekeeper. Výsledok je `output/release/Faktury-Mac.zip`. Kľúč a notársky profil musia byť dostupné v lokálnej Kľúčenke; nepíšu sa do Gitu.
+`build-app.sh` vytvára vývojový ad-hoc podpis. Distribučné zostavenie robí `bash scripts/release-mac.sh`: Developer ID podpis, notarizácia, stapling a kontrola Gatekeeper. Výsledok je `output/release/INVOY-Mac.zip`. Kľúč a notársky profil musia byť dostupné v lokálnej Kľúčenke; nepíšu sa do Gitu.
 
 Pred vydaním 1.1.1 boli pôvodné lokálne JSON súbory a predchádzajúca aplikácia zálohované do `output/pre-restore-20260928`; kontrolné súčty po inštalácii zostali totožné. Pôvodný lokálny wordmark je uchovaný v `~/Library/Application Support/sk.faktury.desktop/legacy-wordmark.svg` a nešíri sa v novej aplikácii. Pri obnove starej lokálnej inštalácie možno použiť `Faktury-1.1.0-before.zip` v tom istom záložnom priečinku.
 
 ## História a návrat k staršej verzii
 
-Zdrojový kód je v [GitHub repozitári Faktury-app](https://github.com/michalprekop/Faktury-app).
+Zdrojový kód INVOY je v [GitHub repozitári](https://github.com/michalprekop/INVOY).
 Dokončené úpravy sa ukladajú do samostatných commitov a posielajú na GitHub.
 Prvý bod obnovy `baseline-2026-09-27` obsahuje stav aplikácie pri zavedení Gitu;
 staršie priebežné verzie pred týmto bodom v histórii nie sú.

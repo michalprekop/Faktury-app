@@ -13,7 +13,7 @@ for size in [16, 32, 128, 256, 512] {
         let bounds = NSRect(x: p * 0.07, y: p * 0.07, width: p * 0.86, height: p * 0.86)
         NSColor(calibratedRed: 0.07, green: 0.40, blue: 0.34, alpha: 1).setFill()
         NSBezierPath(roundedRect: bounds, xRadius: p * 0.19, yRadius: p * 0.19).fill()
-        let title = NSAttributedString(string: "FA", attributes: [.font: NSFont.systemFont(ofSize: p * 0.53, weight: .black), .foregroundColor: NSColor.white, .kern: 0])
+        let title = NSAttributedString(string: "IN", attributes: [.font: NSFont.systemFont(ofSize: p * 0.53, weight: .black), .foregroundColor: NSColor.white, .kern: 0])
         let line = CTLineCreateWithAttributedString(title)
         let ink = CTLineGetBoundsWithOptions(line, .useGlyphPathBounds)
         let context = NSGraphicsContext.current!.cgContext

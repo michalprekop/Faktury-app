@@ -2,7 +2,7 @@ import XCTest
 import AppKit
 import PDFKit
 import InvoiceCore
-@testable import Faktury
+@testable import INVOY
 
 final class InvoiceAppearanceTests: XCTestCase {
     @MainActor func testPDFGeneratesPaymentQRCodeFromLatestInvoiceEdits() async throws {

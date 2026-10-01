@@ -2,7 +2,7 @@ import XCTest
 import AppKit
 import SwiftUI
 import InvoiceCore
-@testable import Faktury
+@testable import INVOY
 
 final class InvoiceSidebarTests: XCTestCase {
     @MainActor func testSelectingVisibleInvoicesKeepsSidebarScrollPosition() async throws {

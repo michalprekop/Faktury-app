@@ -30,7 +30,7 @@ final class Store: ObservableObject {
 
     init(dataDirectory: URL? = nil, initialDatabase: Database = Database()) {
         let environment = ProcessInfo.processInfo.environment
-        let base = dataDirectory ?? environment["FAKTURY_DATA_DIR"].map { URL(fileURLWithPath: $0) }
+        let base = dataDirectory ?? (environment["INVOY_DATA_DIR"] ?? environment["FAKTURY_DATA_DIR"]).map { URL(fileURLWithPath: $0) }
             ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("sk.faktury.desktop")
         url = base.appendingPathComponent("database.json")
         do {
@@ -196,7 +196,7 @@ final class Store: ObservableObject {
         guard flushSettings() else { error = settingsSaveMessage; return }
         guard flushInvoices() else { error = "Niektoré zmeny faktúr sa nepodarilo uložiť."; return }
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = "Faktury-zaloha-\(ISO8601DateFormatter().string(from: Date()).prefix(10)).json"
+        panel.nameFieldStringValue = "INVOY-zaloha-\(ISO8601DateFormatter().string(from: Date()).prefix(10)).json"
         panel.allowedContentTypes = [.json]
         guard panel.runModal() == .OK, let target = panel.url else { return }
         do { try DatabaseFile.encode(backupDatabase()).write(to: target, options: .atomic); notice = "Záloha je uložená." }

@@ -1,6 +1,6 @@
 import XCTest
 import InvoiceCore
-@testable import Faktury
+@testable import INVOY
 
 final class InvoiceWorkflowTests: XCTestCase {
     @MainActor func testPaperDraftRecalculatesWithoutWritingUntilSave() async throws {
