@@ -267,6 +267,8 @@ final class Store: ObservableObject {
         guard flushSettings() else { error = settingsSaveMessage; return }
         let panel = NSSavePanel()
         let safe = invoice.number.map { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" ? $0 : "_" }
+        panel.title = "Uložiť PDF"
+        panel.canCreateDirectories = true
         panel.nameFieldStringValue = "Faktura-\(String(safe)).pdf"
         panel.allowedContentTypes = [.pdf]
         guard panel.runModal() == .OK, let target = panel.url else { return }

@@ -226,12 +226,14 @@ struct InvoicesView: View {
                     Text.numeric(Format.invoiceCount(store.invoices.count), size: 17, weight: .semibold)
                     Text.numeric("\(store.invoices.filter { $0.status == "Po splatnosti" }.count) po splatnosti", size: 12).foregroundStyle(.secondary)
                 }.fixedSize()
-                Spacer(minLength: 0)
-                BrandSearchField(placeholder: "Hľadať vo faktúrach", text: $search)
-                    .frame(minWidth: 160, idealWidth: 205, maxWidth: 205)
-                Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
-                    .buttonStyle(BrandButtonStyle()).controlSize(.large).fixedSize()
-                Spacer(minLength: 0)
+                HStack(spacing: 14) {
+                    Spacer(minLength: 0)
+                    BrandSearchField(placeholder: "Hľadať vo faktúrach", text: $search)
+                        .frame(minWidth: 160, idealWidth: 205, maxWidth: 205)
+                    Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
+                        .buttonStyle(BrandButtonStyle()).controlSize(.large).fixedSize()
+                    Spacer(minLength: 0)
+                }.frame(maxWidth: .infinity)
                 HStack(spacing: 2) {
                     BrandSegment(title: "Zoznam s náhľadom", symbol: "rectangle.split.2x1", selected: !tableMode) { mode.wrappedValue = false }
                     BrandSegment(title: "Tabuľkový zoznam", symbol: "tablecells", selected: tableMode) { mode.wrappedValue = true }

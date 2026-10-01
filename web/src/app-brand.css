@@ -286,12 +286,21 @@
 .native-invoice-summary {
   flex-shrink: 0;
 }
-.native-invoice-toolbar > .native-search {
+.native-invoice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex: 1;
+  min-width: min-content;
+}
+.native-invoice-actions > .native-search {
+  margin-left: 0;
   width: 205px;
   min-width: 160px;
   flex-shrink: 1;
 }
-.native-invoice-toolbar > .button {
+.native-invoice-actions > .button {
   flex-shrink: 0;
 }
 .native-invoice-toolbar > button:not(.button) {
@@ -324,7 +333,7 @@
   .native-invoice-toolbar {
     overflow-x: auto;
   }
-  .native-invoice-toolbar > .native-search {
+  .native-invoice-actions > .native-search {
     flex-shrink: 0;
     width: 160px;
     margin-left: 0;

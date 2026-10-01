@@ -280,19 +280,20 @@ export function LegacyWorkspace({
             </strong>
             <small>{rows.filter((i) => status(i) === 'Po splatnosti').length} po splatnosti</small>
           </div>
-          <label className="native-search">
-            <Search size={15} />
-            <input
-              aria-label="Hľadať vo faktúrach"
-              placeholder="Hľadať vo faktúrach"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </label>
-          <button className="button" onClick={() => void newInvoice()}>
-            <Plus size={16} /> Nová faktúra
-          </button>
-          <span className="spacer" />
+          <div className="native-invoice-actions">
+            <label className="native-search">
+              <Search size={15} />
+              <input
+                aria-label="Hľadať vo faktúrach"
+                placeholder="Hľadať vo faktúrach"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <button className="button" onClick={() => void newInvoice()}>
+              <Plus size={16} /> Nová faktúra
+            </button>
+          </div>
           <button
             title={trash ? 'Späť na faktúry' : 'Kôš'}
             aria-label={trash ? 'Späť na faktúry' : 'Kôš'}

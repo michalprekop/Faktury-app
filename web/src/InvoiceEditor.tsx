@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Download, History, Printer, Settings2, Trash2 } from 'lucide-react';
+import { Copy, Download, History, Settings2, Trash2 } from 'lucide-react';
 import {
   invoiceSchema,
   invoiceInput,
@@ -12,7 +12,8 @@ import {
 } from '../shared/model';
 import { api } from './api';
 import { Field, ErrorBox, Modal, useUnsaved } from './ui';
-import { InvoicePaper, paymentPayload } from './InvoicePaper';
+import { InvoicePaper } from './InvoicePaper';
+import { choosePDFDestination, pdfFilename, savePDF } from './pdf-download';
 
 export function InvoiceEditor({
   initial,
@@ -50,14 +51,15 @@ export function InvoiceEditor({
   );
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
-    [preview, setPreview] = useState(false),
+    [exporting, setExporting] = useState(false),
     [options, setOptions] = useState(false),
     [history, setHistory] = useState<{ version: number; created_at: string }[] | null>(null);
   const latest = useRef(invoice),
     ack = useRef(saved),
     inflight = useRef<Promise<boolean> | null>(null),
     mounted = useRef(true),
-    blocked = useRef(false);
+    blocked = useRef(false),
+    exportingRef = useRef(false);
   latest.current = invoice;
   const dirty = !saved || JSON.stringify(invoice) !== JSON.stringify(invoiceInput(saved));
   const paid = Number(invoice.paid) >= Number(totals(invoice).total);
@@ -146,15 +148,26 @@ export function InvoiceEditor({
     const timer = setTimeout(() => void flush(), 450);
     return () => clearTimeout(timer);
   }, [invoice, dirty]);
-  async function print() {
+  async function downloadPDF() {
+    if (exportingRef.current) return;
+    exportingRef.current = true;
+    setExporting(true);
     try {
-      const paper = document.querySelector('.preview-dialog .invoice-paper');
-      if (paymentPayload(invoice) && !paper?.querySelector('.qr-code'))
-        throw Error('Platobný QR kód ešte nie je pripravený.');
-      await Promise.all(Array.from(paper?.querySelectorAll('img') ?? []).map((i) => i.decode()));
-      window.print();
+      if (!invoiceSchema.safeParse(latest.current).success) {
+        await flush();
+        return;
+      }
+      const filename = pdfFilename(latest.current.number);
+      const destination = await choosePDFDestination(filename);
+      if (!(await flush()) || !ack.current) return;
+      const snapshot = structuredClone(ack.current);
+      const { renderInvoicePDF } = await import('./InvoicePDF');
+      await savePDF(await renderInvoicePDF(snapshot), filename, destination);
     } catch (e) {
-      setError((e as Error).message);
+      if ((e as Error).name !== 'AbortError') setError((e as Error).message);
+    } finally {
+      exportingRef.current = false;
+      if (mounted.current) setExporting(false);
     }
   }
   return (
@@ -200,11 +213,13 @@ export function InvoiceEditor({
           </button>
           <button
             className="button"
-            onClick={async () => {
-              if (await flush()) setPreview(true);
-            }}
+            title="Uložiť PDF"
+            aria-label="Uložiť PDF"
+            aria-busy={exporting}
+            disabled={exporting}
+            onClick={() => void downloadPDF()}
           >
-            <Download size={15} /> PDF
+            <Download size={15} /> {exporting ? 'PDF…' : 'PDF'}
           </button>
         </div>
       </div>
@@ -303,16 +318,6 @@ export function InvoiceEditor({
             </button>
           ))}
         </Modal>
-      )}
-      {preview && (
-        <div className="preview-dialog">
-          <Modal title={'Faktúra ' + invoice.number} onClose={() => setPreview(false)}>
-            <button className="button" onClick={() => void print()}>
-              <Printer size={16} /> Exportovať PDF
-            </button>
-            <InvoicePaper invoice={invoice} theme={theme} />
-          </Modal>
-        </div>
       )}
     </div>
   );

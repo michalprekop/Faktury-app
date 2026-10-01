@@ -105,6 +105,7 @@ struct InvoiceEditor: View {
                     }
                 Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
                     .buttonStyle(BrandButtonStyle()).disabled(!draft.canExport)
+                    .help("Uložiť PDF")
             }.padding(.horizontal, 16).padding(.vertical, 13)
             Divider()
             InvoicePaperCanvas(draft: draft)
