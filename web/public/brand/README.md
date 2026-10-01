@@ -6,6 +6,7 @@ Schválené používateľom 1. 10. 2026.
 - **Farba loga:** `#191A17` (RGB 25, 26, 23).
 - **Finálne logo:** `INVOY.` vrátane bodky, vždy v jednom riadku. Referenciou je pôvodné logo v pätičke variantu B. Nikdy deliť na `IN` a `VOY.`, zalamovať, meniť rozostupy alebo odstraňovať bodku.
 - **Vektorový originál:** [invoy-wordmark.svg](invoy-wordmark.svg). Obrysy sú odvodené z lokálneho písma Inter, váha 760, optická veľkosť 30, pôvodná veľkosť 30 px a rozostupy −1,8 px. SVG obsahuje krivky a nepotrebuje nainštalované písmo.
+- **Favicon:** `web/public/favicon.svg` je totožná neotočená žltá ikona. Odkaz v `web/index.html` používa verziu pre obnovenie cache prehliadača.
 - **Žltá ikona:** [invoy-icon-yellow.svg](invoy-icon-yellow.svg), rovnaké jednoradové logo vycentrované v žltom štvorci.
 - **Použitie na webe:** `web/src/BrandWordmark.tsx` používa totožný originál v hlavičke, pätičke a žltej ikone variantu B. Farebné tokeny sú v `web/src/brand.css`: `--invoy-brand-yellow` a `--invoy-brand-ink`.
 
