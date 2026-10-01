@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  ArrowLeft,
   Building2,
   ChevronDown,
   FileText,
@@ -234,22 +235,29 @@ export function LegacyWorkspace({
         <div className="native-brand">
           <BrandWordmark />
         </div>
-        <nav className="native-segments">
-          {[
-            ['invoices', 'Faktúry', FileText],
-            ['customers', 'Odberatelia', Building2],
-            ['settings', 'Nastavenia', SettingsIcon],
-          ].map(([id, label, Icon]) => (
-            <button
-              key={String(id)}
-              aria-pressed={page === id}
-              className={page === id ? 'active' : ''}
-              onClick={() => void navigate(String(id))}
-            >
-              {typeof Icon !== 'string' && <Icon size={15} />} {String(label)}
-            </button>
-          ))}
-        </nav>
+        {page === 'admin' ? (
+          <button className="button secondary admin-back" onClick={() => void navigate('invoices')}>
+            <ArrowLeft size={16} />
+            Späť do aplikácie
+          </button>
+        ) : (
+          <nav className="native-segments">
+            {[
+              ['invoices', 'Faktúry', FileText],
+              ['customers', 'Odberatelia', Building2],
+              ['settings', 'Nastavenia', SettingsIcon],
+            ].map(([id, label, Icon]) => (
+              <button
+                key={String(id)}
+                aria-pressed={page === id}
+                className={page === id ? 'active' : ''}
+                onClick={() => void navigate(String(id))}
+              >
+                {typeof Icon !== 'string' && <Icon size={15} />} {String(label)}
+              </button>
+            ))}
+          </nav>
+        )}
       </header>
       <ErrorBox error={error} />
       <div className="native-invoices" style={{ display: page === 'invoices' ? 'flex' : 'none' }}>

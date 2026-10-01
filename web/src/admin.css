@@ -1,0 +1,262 @@
+/* The web admin is also the admin opened by the Mac app. Reuse product controls,
+   table and status styles; keep these layout overrides inside administration. */
+.native-header .admin-back {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+.native-shell > .admin-page {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 24px;
+}
+.admin-page .page-heading p {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.native-shell .admin-tabs {
+  width: 360px;
+  max-width: 100%;
+  margin-bottom: 24px;
+}
+.admin-page .admin-summary {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.admin-summary > strong {
+  color: var(--invoy-brand-ink);
+  font-weight: 600;
+}
+.admin-backup-status {
+  margin-left: auto;
+}
+.native-shell .admin-page .button {
+  flex: 0 0 auto;
+  font-size: 13px;
+  padding: 0 14px;
+}
+.admin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--invoy-brand-line);
+  border-radius: 8px;
+}
+.admin-table {
+  min-width: 720px;
+}
+.admin-table th {
+  height: 44px;
+  background: var(--invoy-brand-surface);
+  border-color: var(--invoy-brand-line);
+  white-space: nowrap;
+}
+.admin-table td {
+  height: 76px;
+  padding-block: 16px;
+  vertical-align: middle;
+}
+.admin-table th:first-child {
+  width: 28%;
+}
+.admin-table th:nth-child(2) {
+  width: 18%;
+}
+.admin-table th:last-child {
+  width: 1%;
+}
+.admin-table td:first-child {
+  overflow-wrap: anywhere;
+}
+.admin-table td > strong {
+  display: block;
+  font-weight: 600;
+}
+.admin-table td > small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-table tr:last-child td {
+  border-bottom: 0;
+}
+.admin-table tbody tr:hover {
+  background: var(--invoy-brand-surface);
+}
+.admin-template-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.admin-page .native-status,
+.admin-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+.admin-tag {
+  gap: 5px;
+  background: var(--invoy-brand-canvas);
+  color: var(--invoy-brand-ink);
+}
+.admin-role {
+  flex-shrink: 0;
+  gap: 7px;
+}
+.admin-table .admin-empty {
+  text-align: center;
+  color: var(--muted);
+  height: 120px;
+}
+.admin-page .small-copy {
+  font-size: 13px;
+  color: var(--muted);
+  margin-block: 16px;
+}
+.admin-page .section-heading {
+  gap: 16px;
+}
+.admin-page .section-heading h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.admin-page .template-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.native-shell .admin-page .template-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--invoy-brand-line);
+  background: var(--invoy-brand-surface);
+  border-radius: 8px;
+  padding: 20px;
+}
+.admin-page .template-card > div:last-child {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.admin-page .template-card p {
+  flex: 1;
+  margin-bottom: 16px;
+}
+.native-shell .admin-page .template-card:hover {
+  border-color: var(--invoy-brand-ink);
+}
+.admin-page .template-card strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.admin-page .template-card p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.admin-page .template-thumbnail {
+  border-color: var(--invoy-brand-line);
+}
+.admin-page .modal {
+  padding: 24px;
+}
+.admin-page .modal p {
+  overflow-wrap: anywhere;
+}
+.admin-page .modal > h3 {
+  margin: 24px 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.admin-page .check input {
+  flex-shrink: 0;
+}
+.admin-page :is(.notice, .error) {
+  font-size: 13px;
+}
+.native-shell .admin-page .field > span,
+.admin-page .check {
+  font-size: 13px;
+  color: var(--invoy-brand-ink);
+}
+.native-shell .admin-page .field :is(input, select, textarea) {
+  min-height: var(--control-height);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-color: var(--invoy-brand-line);
+}
+.native-shell .admin-page .field input[type='color'] {
+  padding: 4px;
+}
+.admin-page .grant small,
+.admin-page .image-input > small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.admin-page .grant:has(input:checked) {
+  background: var(--invoy-brand-surface);
+  border-color: var(--invoy-brand-line);
+}
+.admin-page .image-input .eyebrow {
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--invoy-brand-ink);
+  margin-bottom: 8px;
+}
+.admin-page .image-upload {
+  background: var(--invoy-brand-surface);
+  border-color: var(--invoy-brand-line);
+  color: var(--muted);
+}
+.admin-page .template-editor {
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 1.5fr);
+}
+.admin-page .template-preview {
+  align-self: start;
+  background: var(--invoy-brand-canvas);
+  border-radius: 8px;
+}
+.admin-preview-paper {
+  width: 794px;
+}
+.admin-preview-paper .original-paper {
+  width: 794px;
+  min-width: 794px;
+  min-height: 1123px;
+  padding: 44px 42px 40px;
+  font-size: 13px;
+}
+@media (max-width: 800px) {
+  .native-shell > .admin-page {
+    padding: 20px 16px;
+  }
+  .admin-page .page-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .admin-backup-status {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .admin-page .template-grid,
+  .admin-page .template-editor {
+    grid-template-columns: 1fr;
+  }
+  .admin-page .modal-backdrop {
+    padding: 12px;
+  }
+  .admin-page .modal {
+    padding: 20px;
+  }
+}

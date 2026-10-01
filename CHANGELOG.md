@@ -1,5 +1,11 @@
 # Zmeny
 
+## 2. 10. 2026 — Jednotná a priestranná administrácia
+
+- Administrácia využíva celú šírku okna a rovnaké systémové písmo, tlačidlá, tabuľku a štítky ako hlavná aplikácia. Lepšie čitateľné sú aj šablóny a formuláre na úpravu prístupu.
+- Horné taby Faktúry, Odberatelia a Nastavenia nahrádza tlačidlo Späť do aplikácie. Sekcie Používatelia a Šablóny zostávajú v administrácii.
+- Rovnaká administrácia sa otvára z webu aj Mac aplikácie; na menších obrazovkách sa obsah prispôsobí a tabuľka sa posúva samostatne.
+
 ## 1.2.13 — 2. 10. 2026 — Nová adresa administrácie
 
 - Hlavná administrácia je na `https://invoy.xyz/admin42`. Odkazy na webe aj v Mac aplikácii vedú na novú adresu.

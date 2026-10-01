@@ -1,6 +1,6 @@
 import { manoloBay } from '../shared/manolo-bay';
-import { useEffect, useState } from 'react';
-import { Plus, Save, Users, Palette, ShieldCheck } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Plus, Save, Users, Palette, ShieldCheck, DatabaseBackup } from 'lucide-react';
 import {
   baseConfig,
   emptyProfile,
@@ -63,29 +63,37 @@ export function Admin() {
     }
   }
   return (
-    <div className="page">
+    <main className="page admin-page">
       <div className="page-heading">
         <div>
-          <span className="eyebrow">Správa produktu</span>
           <h1>Administrácia</h1>
           <p>Každému účtu presne tie šablóny, ktoré potrebuje.</p>
         </div>
-        <span className="badge">
+        <span className="admin-tag admin-role">
           <ShieldCheck size={15} />
           Správca
         </span>
       </div>
       <ErrorBox error={error} />
-      {notice && <div className="notice">{notice}</div>}
-      <div className="tabs section-tabs">
+      {notice && (
+        <div className="notice" role="status">
+          {notice}
+        </div>
+      )}
+      <div className="native-segments section-tabs admin-tabs" aria-label="Sekcie administrácie">
         <button
+          aria-pressed={tab === 'Používatelia'}
           className={tab === 'Používatelia' ? 'active' : ''}
           onClick={() => setTab('Používatelia')}
         >
           <Users size={16} />
           Používatelia
         </button>
-        <button className={tab === 'Šablóny' ? 'active' : ''} onClick={() => setTab('Šablóny')}>
+        <button
+          aria-pressed={tab === 'Šablóny'}
+          className={tab === 'Šablóny' ? 'active' : ''}
+          onClick={() => setTab('Šablóny')}
+        >
           <Palette size={16} />
           Šablóny
         </button>
@@ -93,15 +101,26 @@ export function Admin() {
       {tab === 'Používatelia' && (
         <>
           <div className="admin-summary">
-            <span>{data?.users.length ?? '…'} účtov</span>
-            <span>
+            <strong>
+              Počet účtov: <span className="numeric">{data?.users.length ?? '…'}</span>
+            </strong>
+            <span className="admin-backup-status">
               Denná záloha:{' '}
-              {data?.backup
-                ? `${data.backup.day} · ${data.backup.status === 'complete' ? 'dokončená' : data.backup.status === 'failed' ? 'zlyhala' : 'prebieha'}`
-                : 'zatiaľ nevytvorená'}
+              {data?.backup ? (
+                <>
+                  <span className="numeric">{data.backup.day}</span> ·{' '}
+                  {data.backup.status === 'complete'
+                    ? 'dokončená'
+                    : data.backup.status === 'failed'
+                      ? 'zlyhala'
+                      : 'prebieha'}
+                </>
+              ) : (
+                'zatiaľ nevytvorená'
+              )}
             </span>
             <button
-              className="button secondary small"
+              className="button secondary"
               disabled={busy}
               onClick={async () => {
                 setBusy(true);
@@ -117,17 +136,25 @@ export function Admin() {
                 }
               }}
             >
+              <DatabaseBackup size={16} />
               Spustiť zálohu
             </button>
           </div>
-          <div className="panel table-panel">
-            <table className="data-table">
+          <div
+            className="admin-table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="Zoznam používateľov"
+          >
+            <table className="native-invoice-table admin-table" aria-label="Používatelia">
               <thead>
                 <tr>
-                  <th>Používateľ</th>
-                  <th>Stav</th>
-                  <th>Šablóny</th>
-                  <th />
+                  <th scope="col">Používateľ</th>
+                  <th scope="col">Stav</th>
+                  <th scope="col">Šablóny</th>
+                  <th scope="col">
+                    <span className="sr-only">Akcie</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -138,7 +165,16 @@ export function Admin() {
                       <small>{user.email}</small>
                     </td>
                     <td>
-                      <span className={'badge ' + user.status}>
+                      <span
+                        className={
+                          'native-status ' +
+                          (user.status === 'active'
+                            ? 'paid'
+                            : user.status === 'pending'
+                              ? 'unpaid'
+                              : 'overdue')
+                        }
+                      >
                         {user.status === 'active'
                           ? 'Aktívny'
                           : user.status === 'pending'
@@ -147,19 +183,23 @@ export function Admin() {
                       </span>
                     </td>
                     <td>
-                      <div className="pills">
+                      <div className="admin-template-tags">
                         {data.grants
                           .filter((g) => g.user_id === user.id)
                           .map((g) => (
-                            <span key={g.template_id}>
+                            <span className="admin-tag" key={g.template_id}>
                               {templates.find((t) => t.id === g.template_id)?.name ?? g.template_id}
                             </span>
                           ))}
+                        {!data.grants.some((g) => g.user_id === user.id) && (
+                          <span className="muted">Bez šablón</span>
+                        )}
                       </div>
                     </td>
                     <td>
                       <button
-                        className="button secondary small"
+                        className="button secondary"
+                        aria-label={`Upraviť prístup: ${user.name || user.email || 'Apple účet'}`}
                         onClick={() => {
                           setSelected(user);
                           setStatus(user.status);
@@ -179,6 +219,20 @@ export function Admin() {
                     </td>
                   </tr>
                 ))}
+                {!data && !error && (
+                  <tr>
+                    <td colSpan={4} className="admin-empty">
+                      Načítavam používateľov…
+                    </td>
+                  </tr>
+                )}
+                {data?.users.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="admin-empty">
+                      Zatiaľ žiadni používatelia.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -237,7 +291,15 @@ export function Admin() {
                 <div>
                   <strong>{t.name}</strong>
                   <p>{t.description}</p>
-                  <small>{t.archived ? 'Archivovaná' : 'Verzia ' + t.version}</small>
+                  <span className="admin-tag">
+                    {t.archived ? (
+                      'Archivovaná'
+                    ) : (
+                      <>
+                        Verzia <span className="numeric">{t.version}</span>
+                      </>
+                    )}
+                  </span>
                 </div>
               </button>
             ))}
@@ -298,7 +360,7 @@ export function Admin() {
           }}
         />
       )}
-    </div>
+    </main>
   );
 }
 function TemplateEditor({
@@ -312,7 +374,16 @@ function TemplateEditor({
 }) {
   const [value, setValue] = useState(initial),
     [error, setError] = useState(''),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [previewScale, setPreviewScale] = useState(0.6);
+  const preview = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setPreviewScale(Math.min(1, entry.contentRect.width / 794));
+    });
+    if (preview.current) observer.observe(preview.current);
+    return () => observer.disconnect();
+  }, []);
   const dirty = JSON.stringify(value) !== JSON.stringify(initial);
   useUnsaved(dirty);
   const close = () => {
@@ -447,8 +518,10 @@ function TemplateEditor({
             Uložiť šablónu
           </button>
         </div>
-        <div className="template-preview">
-          <InvoicePaper invoice={example} theme={value.config} />
+        <div className="template-preview" ref={preview}>
+          <div className="admin-preview-paper" style={{ zoom: previewScale }}>
+            <InvoicePaper invoice={example} theme={value.config} />
+          </div>
         </div>
       </div>
     </Modal>
