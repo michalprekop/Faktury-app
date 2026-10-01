@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1.2.3 — 1. 10. 2026 — Zarovnanie filtrov na Macu
+
+- Taby stavu faktúr začínajú na rovnakom ľavom okraji ako logo a počet faktúr. Odsadenie horných riadkov je jednotné.
+
 ## 1.2.2 — 1. 10. 2026 — Jednotné rozbaľovacie polia
 
 - Mac aplikácia zobrazuje v hornej lište faktúry rozbaľovacie pole s názvom aktuálnej šablóny namiesto samotnej ikony.

@@ -243,14 +243,14 @@ struct InvoicesView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(.gray.opacity(0.2)))
                 Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
                     .buttonStyle(BrandButtonStyle()).controlSize(.large)
-            }.padding(.horizontal, 25).padding(.vertical, 14)
+            }.padding(.horizontal, 24).padding(.vertical, 14)
             Divider()
             HStack(spacing: 14) {
                 HStack(spacing: 2) {
                     ForEach(["Všetky", "Uhradené", "Neuhradené", "Po splatnosti"], id: \.self) { value in
                         BrandSegment(title: value, selected: filter == value) { filter = value }
                     }
-                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(maxWidth: 475)
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(maxWidth: 475, alignment: .leading)
                 BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year)) {
                     Picker("Rok", selection: $year) {
                         Text("Všetky roky").tag(0)
@@ -262,7 +262,7 @@ struct InvoicesView: View {
                     BrandSegment(title: "Zoznam s náhľadom", symbol: "rectangle.split.2x1", selected: !tableMode) { mode.wrappedValue = false }
                     BrandSegment(title: "Tabuľkový zoznam", symbol: "tablecells", selected: tableMode) { mode.wrappedValue = true }
                 }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(width: 86)
-            }.padding(.horizontal, 20).padding(.vertical, 13)
+            }.padding(.horizontal, 24).padding(.vertical, 13)
             Divider()
             if tableMode {
                 invoiceTable
