@@ -1,0 +1,14 @@
+/* Approved INVOY brand, 2026-10-01. See public/brand/README.md. */
+:root {
+  --invoy-brand-yellow: #f5ff36;
+  --invoy-brand-ink: #191a17;
+}
+
+.invoy-wordmark {
+  display: block;
+  flex-shrink: 0;
+  width: 2.91246em;
+  height: 1em;
+  max-width: 100%;
+  object-fit: contain;
+}

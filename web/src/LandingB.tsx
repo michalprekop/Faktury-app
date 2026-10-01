@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { LandingConfig } from './Landing';
 import { ErrorBox } from './ui';
+import { BrandWordmark } from './BrandWordmark';
 import './landing-b.css';
 
 function AppleMark() {
@@ -181,7 +182,7 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
       </a>
       <header className="lb-header">
         <a className="lb-wordmark" href="#top" aria-label="INVOY — úvod">
-          INVOY.
+          <BrandWordmark />
         </a>
         <nav className="lb-nav" aria-label="Hlavná navigácia">
           <a href="#produkt">Produkt</a>
@@ -366,7 +367,7 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
           <div className="lb-width lb-platform-grid">
             <div className="lb-platform-art" aria-hidden="true">
               <div className="lb-app-icon">
-                IN<span>VOY.</span>
+                <BrandWordmark />
               </div>
               <span>WEB + MAC</span>
             </div>
@@ -404,7 +405,7 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
 
       <footer className="lb-footer lb-width">
         <a className="lb-wordmark" href="#top" aria-label="INVOY — späť hore">
-          INVOY.
+          <BrandWordmark />
         </a>
         <span>Faktúry s vaším rukopisom.</span>
         <a href="/privacy.html">

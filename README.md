@@ -52,6 +52,10 @@ Pôvodné lokálne dáta sú v `~/Library/Application Support/sk.faktury.desktop
 
 Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, nepripája sa do SuperFaktúry a nevytvára ISDOC. Sadzby DPH sú nastaviteľné. Nové profily začínajú prázdne.
 
+## Identita značky
+
+Schválená hlavná farba je **INVOY Yellow `#F5FF36`**. Finálne logo je **INVOY.** v jednom riadku, vrátane bodky, podľa pätičky variantu B. Vektorové originály a pravidlá použitia sú v [web/public/brand/README.md](web/public/brand/README.md).
+
 ## Vývoj a overenie
 
 Úvodná stránka webu má dva zachované varianty. **Variant A** (pôvodný biely dizajn) je v `web/src/LandingA.tsx` a `web/src/landing.css`, dostupný na `https://invoy.xyz/?variant=a`. **Variant B** (teplé sivé pozadie, žlté akcenty a vrstvené ukážky) je v `web/src/LandingB.tsx` a `web/src/landing-b.css`, dostupný na `https://invoy.xyz/?variant=b` a je novým predvoleným úvodom. Výber rieši `web/src/Landing.tsx`; predvolený variant možno vrátiť zmenou `DEFAULT_VARIANT`. Parametre variantov zobrazia verejný úvod aj prihlásenému používateľovi, bežná adresa bez parametra naďalej otvorí jeho pracovný priestor. Používa lokálne uložené písmo Inter s licenciou v `web/public/fonts/Inter-LICENSE.txt`. Produktové obrázky v `web/public/product` zachytávajú iba syntetické údaje z lokálneho náhľadu. Pre overenie úvodnej stránky spustite vo `web/` príkaz `npm run preview -- --landing` a otvorte `http://127.0.0.1:8792/`; prihlasovacie tlačidlá sa zobrazia, skutočné Apple prihlásenie zostáva v tomto náhľade vypnuté.

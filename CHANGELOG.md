@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1. 10. 2026 — Finálne logo a hlavná farba značky
+
+- Žltá `#F5FF36` je uložená ako hlavná farba INVOY. Finálne logo je „INVOY.“ z pätičky vrátane bodky, vždy v jednom riadku.
+- Žltá ikona teraz používa rovnaké jednoradové logo ako hlavička a pätička. Vektorové logo, ikona a pravidlá značky sú uložené pre ďalšie použitie.
+
 ## 1. 10. 2026 — Čitateľnejšie karty vo variante B
 
 - Farebné karty a ich texty už neprekrývajú biele ukážky. Odberatelia a úhrady sú pod farebnými kartami, potvrdenie uloženia pod faktúrou.
