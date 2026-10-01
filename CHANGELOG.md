@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1. 10. 2026 — Čitateľnejšie karty vo variante B
+
+- Farebné karty a ich texty už neprekrývajú biele ukážky. Odberatelia a úhrady sú pod farebnými kartami, potvrdenie uloženia pod faktúrou.
+- Na mobile sú farebné karty vedľa seba nad faktúrou, aby zostali celé viditeľné.
+
 ## 1. 10. 2026 — Varianty úvodnej stránky A a B
 
 - Pôvodná biela úvodná stránka zostáva zachovaná ako variant A na `/?variant=a`.
