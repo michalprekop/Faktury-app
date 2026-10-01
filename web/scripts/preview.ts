@@ -3,7 +3,8 @@
 import { createServer } from 'node:http';
 import { Readable } from 'node:stream';
 import { harness } from '../tests/harness';
-const origin = 'http://127.0.0.1:8791',
+const landingPreview = process.argv.includes('--landing');
+const origin = landingPreview ? 'http://127.0.0.1:8792' : 'http://127.0.0.1:8791',
   h = await harness(origin);
 for (const [index, customer] of [
   'Kreatívne štúdio',
@@ -12,17 +13,38 @@ for (const [index, customer] of [
 ].entries()) {
   const invoice = await h.invoice('owner', `202600${index + 1}`);
   invoice.customer.name = customer;
+  Object.assign(invoice.customer, {
+    street: 'Ateliérová 8',
+    postalCode: '811 01',
+    city: 'Bratislava',
+    companyID: '87654321',
+    taxID: '2020654321',
+  });
+  Object.assign(invoice.supplier, { companyID: '12345678', taxID: '2020123456' });
   invoice.items[0].unitPrice = String([1250, 450, 780][index]);
   invoice.paid = index === 1 ? '450' : '0';
   await h.request('owner', `/api/invoices/${invoice.id}`, 'PUT', invoice);
 }
 const server = createServer(async (req, res) => {
-  if (req.headers.host !== '127.0.0.1:8791') {
+  if (req.headers.host !== new URL(origin).host) {
     res.writeHead(403);
     res.end();
     return;
   }
   const url = new URL(req.url ?? '/', origin);
+  if (landingPreview && url.pathname === '/api/config') {
+    // UI-only fixture. The real authentication endpoints remain unconfigured.
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.end(
+      JSON.stringify({
+        name: 'INVOY',
+        appleReady: true,
+        registrationOpen: true,
+        macAvailable: true,
+      }),
+    );
+    return;
+  }
   if (url.pathname === '/__preview/login') {
     const who = url.searchParams.get('as') ?? 'owner',
       identity = h.identities[who];
@@ -59,8 +81,8 @@ const server = createServer(async (req, res) => {
     res.end('Preview request failed');
   }
 });
-server.listen(8791, '127.0.0.1', () =>
-  console.log('Synthetic local preview: ' + origin + '/__preview/login'),
+server.listen(Number(new URL(origin).port), '127.0.0.1', () =>
+  console.log('Synthetic local preview: ' + origin + (landingPreview ? '/' : '/__preview/login')),
 );
 process.on('SIGINT', async () => {
   server.close();

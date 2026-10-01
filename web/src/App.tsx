@@ -1,27 +1,21 @@
 import { useEffect, useState } from 'react';
-import { FileText, Cloud, Download, Check } from 'lucide-react';
+import { FileText, Cloud } from 'lucide-react';
 import { api, setCSRF } from './api';
 import { type User, type Profile, type Template } from '../shared/model';
 import { LegacyWorkspace } from './LegacyWorkspace';
-import { ErrorBox } from './ui';
+import { Landing, type LandingConfig } from './Landing';
 
 type Me = { user: User; csrf: string; profile: Profile; profileVersion: number };
-type Config = {
-  name: string;
-  appleReady: boolean;
-  registrationOpen: boolean;
-  macAvailable: boolean;
-};
 export default function App() {
   const [me, setMe] = useState<Me | null>(null),
-    [config, setConfig] = useState<Config | null>(null),
+    [config, setConfig] = useState<LandingConfig | null>(null),
     [ready, setReady] = useState(false),
     [templates, setTemplates] = useState<Template[]>([]),
     [error, setError] = useState('');
   useEffect(() => {
     void (async () => {
       try {
-        setConfig(await api<Config>('/config'));
+        setConfig(await api<LandingConfig>('/config'));
         const response = await fetch('/api/me', { cache: 'no-store' });
         if (response.ok) {
           const value = (await response.json()) as Me;
@@ -98,146 +92,6 @@ function Brand() {
       <strong>
         INVOY<span className="brand-dot">.</span>
       </strong>
-    </div>
-  );
-}
-function Landing({ config, error }: { config: Config | null; error: string }) {
-  const auth = new URLSearchParams(location.search).get('auth');
-  const messages: Record<string, string> = {
-    failed: 'Apple prihlásenie sa nepodarilo. Skúste to znova.',
-    closed: 'Registrácia ešte nie je otvorená.',
-    suspended: 'Tento účet je pozastavený.',
-    'not-configured': 'Apple prihlásenie sa ešte pripravuje.',
-  };
-  return (
-    <div className="landing">
-      <header>
-        <Brand />
-        {config?.macAvailable && (
-          <a className="button secondary" href="/download/mac">
-            <Download size={16} />
-            Pre Mac
-          </a>
-        )}
-      </header>
-      <div className="landing-body">
-        <div className="landing-copy">
-          <span className="eyebrow">
-            <span className="tiny-dot" />
-            VÁŠ PRIESTOR NA FAKTÚRY
-          </span>
-          <h1>
-            Dobrá práca.
-            <br />
-            <span>Dobrá faktúra.</span>
-          </h1>
-          <p>
-            Faktúry, ktoré vyzerajú ako vy.
-            <br />
-            Vlastný dizajn, prehľadné účty a dáta dostupné všade, kde pracujete.
-          </p>
-          <div className="login-panel">
-            <ErrorBox error={error || (auth ? (messages[auth] ?? '') : '')} />
-            {config?.appleReady ? (
-              <>
-                <a className="button account-button" href="/auth/apple">
-                  Vytvoriť účet / Prihlásiť sa
-                </a>
-                <a className="apple-sign-in" href="/auth/apple">
-                  <img
-                    src="/brand/sign-in-with-apple-sk.png"
-                    alt="Prihlásiť sa cez Apple"
-                    width="208"
-                    height="36"
-                  />
-                </a>
-              </>
-            ) : (
-              <>
-                <button className="button account-button" disabled>
-                  Prihlásenie pripravujeme
-                </button>
-                <small>Priestor sa dokončuje. Vaše faktúry tu zatiaľ nevkladajte.</small>
-              </>
-            )}
-            <small>Jeden Apple účet. Iba vaše faktúry.</small>
-          </div>
-          <div className="landing-benefits">
-            <span>
-              <Check size={16} />
-              Vaša značka
-            </span>
-            <span>
-              <Check size={16} />
-              Cloudové zálohy
-            </span>
-            <span>
-              <Check size={16} />
-              Web aj Mac
-            </span>
-          </div>
-        </div>
-        <div className="landing-art" aria-hidden="true">
-          <div className="floating-label">
-            <Cloud size={18} />
-            <span>
-              Vaša práca.
-              <br />
-              <b>Na svojom mieste.</b>
-            </span>
-          </div>
-          <div className="sample-paper">
-            <div className="sample-brand">
-              studio<span>®</span>
-            </div>
-            <div className="sample-title">
-              <span>FAKTÚRA</span>
-              <strong>2026001</strong>
-            </div>
-            <div className="sample-columns">
-              <div>
-                <small>DODÁVATEĽ</small>
-                <b>Vaša firma</b>
-                <i />
-                <i />
-              </div>
-              <div>
-                <small>ODBERATEĽ</small>
-                <b>Váš klient</b>
-                <i />
-                <i />
-              </div>
-            </div>
-            <div className="sample-table">
-              <div>
-                <b>Dobrá práca</b>
-                <span>1 ×</span>
-              </div>
-              <div>
-                <i />
-                <i />
-              </div>
-              <div>
-                <i />
-                <i />
-              </div>
-            </div>
-            <div className="sample-total">
-              <small>CELKOM NA ÚHRADU</small>
-              <strong>1 250,00 €</strong>
-            </div>
-            <div className="sample-footer">Ďakujeme za spoluprácu.</div>
-          </div>
-          <div className="sample-tag">
-            <Check size={16} />
-            Vlastný dizajn. Váš podpis.
-          </div>
-        </div>
-      </div>
-      <footer>
-        INVOY · Súkromný pracovný priestor · <a href="/privacy.html">Ochrana údajov</a>
-        <span>Údaje účtu a faktúry sa ukladajú na Cloudflare.</span>
-      </footer>
     </div>
   );
 }

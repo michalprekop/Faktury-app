@@ -54,6 +54,8 @@ Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, ne
 
 ## Vývoj a overenie
 
+Úvodná stránka webu je v `web/src/Landing.tsx` a má samostatné štýly `web/src/landing.css`. Používa lokálne uložené písmo Inter s licenciou v `web/public/fonts/Inter-LICENSE.txt`. Produktové obrázky v `web/public/product` zachytávajú iba syntetické údaje z lokálneho náhľadu. Pre overenie úvodnej stránky spustite vo `web/` príkaz `npm run preview -- --landing` a otvorte `http://127.0.0.1:8792/`; prihlasovacie tlačidlá sa zobrazia, skutočné Apple prihlásenie zostáva v tomto náhľade vypnuté.
+
 SwiftUI, AppKit, PDFKit, Core Image, Vision a Foundation. Kompresiu PAY by square
 zabezpečuje systémová macOS knižnica liblzma; jej API hlavičky sú v `Sources/CLZMA`.
 Nie je potrebný Homebrew ani externá služba počas behu aplikácie.

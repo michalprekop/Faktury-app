@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1. 10. 2026 — Nová úvodná stránka
+
+- Úvodný web má nový čistý vzhľad s bielym pozadím, výraznou typografiou a prehľadným predstavením aplikácie.
+- Medzi ukážkou úpravy faktúry a tabuľkovým prehľadom sa dá prepínať. Náhľady pochádzajú zo skutočnej aplikácie a obsahujú iba ukážkové údaje.
+- Web vysvetľuje vytvorenie a aktiváciu účtu, prácu s faktúrami aj používanie na Macu. Prihlásenie cez Apple a stiahnutie aplikácie sú dostupné priamo z úvodu.
+
 ## 1. 10. 2026 — Registrácia a prihlásenie na webe
 
 - Hlavné tlačidlo na úvodnej stránke sa volá „Vytvoriť účet / Prihlásiť sa“. Pod ním je oficiálne tlačidlo prihlásenia cez Apple v slovenčine.
