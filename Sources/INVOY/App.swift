@@ -246,18 +246,22 @@ struct InvoicesView: View {
             }.padding(.horizontal, 25).padding(.vertical, 14)
             Divider()
             HStack(spacing: 14) {
-                Picker("Stav", selection: $filter) {
-                    ForEach(["Všetky", "Uhradené", "Neuhradené", "Po splatnosti"], id: \.self) { Text($0) }
-                }.pickerStyle(.segmented).labelsHidden().frame(maxWidth: 475)
-                Picker("Rok", selection: $year) {
-                    Text("Všetky roky").tag(0)
-                    ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
-                }.labelsHidden().frame(width: 120)
+                HStack(spacing: 2) {
+                    ForEach(["Všetky", "Uhradené", "Neuhradené", "Po splatnosti"], id: \.self) { value in
+                        BrandSegment(title: value, selected: filter == value) { filter = value }
+                    }
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(maxWidth: 475)
+                BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year)) {
+                    Picker("Rok", selection: $year) {
+                        Text("Všetky roky").tag(0)
+                        ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
+                    }
+                }.frame(width: 132)
                 Spacer(minLength: 0)
-                Picker("Zobrazenie", selection: mode) {
-                    Image(systemName: "rectangle.split.2x1").tag(false).help("Zoznam s náhľadom").accessibilityLabel("Zoznam s náhľadom")
-                    Image(systemName: "tablecells").tag(true).help("Tabuľkový zoznam").accessibilityLabel("Tabuľkový zoznam")
-                }.pickerStyle(.segmented).labelsHidden().frame(width: 80)
+                HStack(spacing: 2) {
+                    BrandSegment(title: "Zoznam s náhľadom", symbol: "rectangle.split.2x1", selected: !tableMode) { mode.wrappedValue = false }
+                    BrandSegment(title: "Tabuľkový zoznam", symbol: "tablecells", selected: tableMode) { mode.wrappedValue = true }
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(width: 86)
             }.padding(.horizontal, 20).padding(.vertical, 13)
             Divider()
             if tableMode {
@@ -330,9 +334,11 @@ struct InvoicesView: View {
     }
 
     private var sortPicker: some View {
-        Picker("Zoradenie", selection: $sortOrder) {
-            ForEach(["Najnovšie", "Splatnosť", "Odberateľ"], id: \.self) { Text($0) }
-        }.labelsHidden().frame(width: 112)
+        BrandDropdown(title: "Zoradenie", value: sortOrder) {
+            Picker("Zoradenie", selection: $sortOrder) {
+                ForEach(["Najnovšie", "Splatnosť", "Odberateľ"], id: \.self) { Text($0) }
+            }
+        }.frame(width: 132)
     }
 
     private var invoiceTable: some View {

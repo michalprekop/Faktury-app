@@ -3,6 +3,7 @@ import AppKit
 
 /// The same approved palette and vector artwork as the public website.
 enum InvoyBrand {
+    static let controlHeight: CGFloat = 34
     static let yellow = Color(red: 245 / 255, green: 1, blue: 54 / 255)
     static let ink = Color(red: 25 / 255, green: 26 / 255, blue: 23 / 255)
     static let canvas = Color(red: 233 / 255, green: 231 / 255, blue: 224 / 255)
@@ -43,9 +44,56 @@ struct BrandButtonStyle: ButtonStyle {
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(InvoyBrand.ink)
             .padding(.horizontal, size == .large ? 17 : 13)
-            .frame(minHeight: size == .large ? 38 : 32)
+            .frame(minHeight: size == .large ? 38 : InvoyBrand.controlHeight)
             .background(InvoyBrand.yellow, in: RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).fill(.black.opacity(configuration.isPressed ? 0.08 : 0)))
             .opacity(enabled ? 1 : 0.45)
+    }
+}
+
+struct BrandDropdown<Content: View>: View {
+    let title: String
+    let value: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        Menu {
+            content.pickerStyle(.inline).labelsHidden()
+        } label: {
+            Text(value).lineLimit(1)
+        }
+        .menuStyle(.borderlessButton).menuIndicator(.hidden)
+        .font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
+        .padding(.leading, 12).padding(.trailing, 30)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: InvoyBrand.controlHeight)
+        .background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(alignment: .trailing) {
+            Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(InvoyBrand.ink).padding(.trailing, 12).allowsHitTesting(false)
+        }
+        .accessibilityLabel(title).accessibilityValue(value).help(value)
+    }
+}
+
+struct BrandSegment: View {
+    let title: String
+    var symbol: String? = nil
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Group {
+                if let symbol { Image(systemName: symbol) }
+                else { Text(title).lineLimit(1) }
+            }
+            .font(.system(size: 13, weight: selected ? .semibold : .regular))
+            .foregroundStyle(InvoyBrand.ink)
+            .padding(.horizontal, symbol == nil ? 12 : 10)
+            .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6)
+            .background(selected ? InvoyBrand.yellow : .clear, in: RoundedRectangle(cornerRadius: 6))
+        }.buttonStyle(.plain).accessibilityLabel(title)
+            .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

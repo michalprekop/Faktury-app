@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.2 — 1. 10. 2026 — Jednotné rozbaľovacie polia
+
+- Mac aplikácia zobrazuje v hornej lište faktúry rozbaľovacie pole s názvom aktuálnej šablóny namiesto samotnej ikony.
+- Výber roka, zoradenia a šablóny má na webe aj Macu jednotnú výšku 34 px, neutrálne pozadie, zaoblenie a šípku. Susedné taby a tlačidlá výškou nadväzujú.
+
 ## 1. 10. 2026 — Farebné karty v pozadí
 
 - Oranžová a modrá karta na úvodnej stránke sú pod faktúrou a ostatnými kartami. Ich poloha, veľkosť aj pootočenie zostávajú rovnaké.

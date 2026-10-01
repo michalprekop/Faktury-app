@@ -88,11 +88,9 @@ struct InvoiceEditor: View {
                     .foregroundStyle(draft.saveState == .failed ? .red : .secondary)
                     .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
                 Spacer(minLength: 8)
-                Menu {
-                    InvoiceTemplatePicker(draft: draft)
-                } label: { Image(systemName: "doc.richtext") }
-                    .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
-                    .help("Šablóna faktúry: " + invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title)
+                InvoiceTemplatePicker(draft: draft)
+                    .frame(width: 160)
+                    .help("Šablóna faktúry: " + (invoice.cloudStyle?.name ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title))
                     .accessibilityLabel("Šablóna faktúry")
                 IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
                 IconButton("Vymazať", "trash", action: onDelete)
@@ -215,17 +213,19 @@ struct InvoiceTemplatePicker: View {
     @EnvironmentObject private var store: Store
     @ObservedObject var draft: InvoiceDraft
     var body: some View {
-        if let templates = store.cloudTemplates {
-            Picker("Šablóna faktúry", selection: Binding(get: { draft.invoice.cloudStyle?.id ?? "" }, set: { id in
-                if let style = templates.first(where: { $0.id == id }) { draft.invoice.cloudStyle = style; draft.invoice.templateOverride = style.layout }
-            })) {
-                if let current = draft.invoice.cloudStyle, !templates.contains(where: { $0.id == current.id }) { Text(current.name).tag(current.id) }
-                ForEach(templates) { Text($0.name).tag($0.id) }
-            }
-        } else {
-            Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
-                Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
-                ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+        BrandDropdown(title: "Šablóna faktúry", value: draft.invoice.cloudStyle?.name ?? draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title) {
+            if let templates = store.cloudTemplates {
+                Picker("Šablóna faktúry", selection: Binding(get: { draft.invoice.cloudStyle?.id ?? "" }, set: { id in
+                    if let style = templates.first(where: { $0.id == id }) { draft.invoice.cloudStyle = style; draft.invoice.templateOverride = style.layout }
+                })) {
+                    if let current = draft.invoice.cloudStyle, !templates.contains(where: { $0.id == current.id }) { Text(current.name).tag(current.id) }
+                    ForEach(templates) { Text($0.name).tag($0.id) }
+                }
+            } else {
+                Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
+                    Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
+                    ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+                }
             }
         }
     }
