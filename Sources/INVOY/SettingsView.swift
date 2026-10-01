@@ -25,7 +25,11 @@ struct SettingsView: View {
                     .foregroundStyle(store.settingsSaveMessage != nil ? Color.red : .secondary).font(.system(size: 12))
             }.padding(25)
             HStack {
-                Picker("Nastavenia", selection: $tab) { ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby", "Zálohy"], id: \.self) { Text($0) } }.pickerStyle(.segmented).labelsHidden().frame(maxWidth: 740)
+                HStack(spacing: 2) {
+                    ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby", "Zálohy"], id: \.self) { value in
+                        BrandSegment(title: value, selected: tab == value) { tab = value }
+                    }
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 10)).frame(maxWidth: 740)
                 Spacer()
             }.padding(.horizontal, 25).padding(.bottom, 20)
             Divider()

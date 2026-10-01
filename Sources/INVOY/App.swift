@@ -119,15 +119,8 @@ struct RootView: View {
                 Spacer(minLength: 24)
                 HStack(spacing: 2) {
                     ForEach(SectionID.allCases) { section in
-                        Button { selection = section } label: {
-                            Label(section.rawValue, systemImage: section.symbol)
-                                .font(.system(size: 13, weight: selection == section ? .semibold : .regular))
-                                .frame(maxWidth: .infinity).padding(.vertical, 8)
-                                .foregroundStyle(InvoyBrand.ink)
-                                .background(selection == section ? InvoyBrand.yellow : .clear,
-                                            in: RoundedRectangle(cornerRadius: 7))
-                        }.buttonStyle(.plain)
-                            .accessibilityAddTraits(selection == section ? .isSelected : [])
+                        BrandSegment(title: section.rawValue, symbol: section.symbol, iconOnly: false,
+                                     selected: selection == section) { selection = section }
                     }
                 }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 10))
                     .frame(width: 420).accessibilityIdentifier("main-navigation")
@@ -219,7 +212,7 @@ struct InvoicesView: View {
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                     TextField("Hľadať vo faktúrach", text: $search).textFieldStyle(.plain)
-                }.padding(8).frame(width: 205).background(Color.white, in: RoundedRectangle(cornerRadius: 6))
+                }.padding(.horizontal, 8).frame(width: 205, height: InvoyBrand.controlHeight).background(Color.white, in: RoundedRectangle(cornerRadius: 8))
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(.gray.opacity(0.2)))
                 Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
                     .buttonStyle(BrandButtonStyle()).controlSize(.large)

@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1.2.5 — 1. 10. 2026 — Čierne ovládacie prvky so žltými detailmi
+
+- Hlavné tlačidlá a vybrané taby majú na webe aj Macu čierne pozadie, žltý text a jemný žltý obrys.
+- Navigácia, filtre, dropdowny a tlačidlá faktúry používajú jednotnú výšku 40 px. Rovnaký štýl tabov je aj v Nastaveniach.
+- Vybraná faktúra na webe má neutrálne pozadie s úzkym žltým pruhom namiesto žltej plochy.
+
 ## 1.2.4 — 1. 10. 2026 — Čistejšia hlavička na Macu
 
 - Pri logu sa už nezobrazuje meno ani ikona obláčika. Hlavička obsahuje len logo a hlavnú navigáciu.

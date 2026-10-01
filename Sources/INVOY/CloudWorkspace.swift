@@ -29,7 +29,7 @@ struct ProductRootView: View {
                         Button { cloud.signIn() } label: {
                             HStack(spacing: 14) {
                                 Text("Vytvoriť účet / Prihlásiť sa")
-                                Rectangle().fill(InvoyBrand.ink.opacity(0.3)).frame(width: 1, height: 26)
+                                Rectangle().fill(InvoyBrand.yellow.opacity(0.4)).frame(width: 1, height: 26)
                                 Image(systemName: "apple.logo").font(.system(size: 18))
                             }
                         }.buttonStyle(BrandButtonStyle()).controlSize(.large)

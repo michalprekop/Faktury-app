@@ -93,8 +93,11 @@ struct InvoiceEditor: View {
                     .help("Šablóna faktúry: " + (invoice.cloudStyle?.name ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title))
                     .accessibilityLabel("Šablóna faktúry")
                 IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
+                    .buttonStyle(BrandIconButtonStyle())
                 IconButton("Vymazať", "trash", action: onDelete)
+                    .buttonStyle(BrandIconButtonStyle())
                 IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
+                    .buttonStyle(BrandIconButtonStyle())
                     .popover(isPresented: $options) {
                         invoiceOptions
                             .background(Color(nsColor: .windowBackgroundColor))

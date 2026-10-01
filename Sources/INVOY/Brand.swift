@@ -3,7 +3,7 @@ import AppKit
 
 /// The same approved palette and vector artwork as the public website.
 enum InvoyBrand {
-    static let controlHeight: CGFloat = 34
+    static let controlHeight: CGFloat = 40
     static let yellow = Color(red: 245 / 255, green: 1, blue: 54 / 255)
     static let ink = Color(red: 25 / 255, green: 26 / 255, blue: 23 / 255)
     static let canvas = Color(red: 233 / 255, green: 231 / 255, blue: 224 / 255)
@@ -42,11 +42,12 @@ struct BrandButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(InvoyBrand.ink)
+            .foregroundStyle(InvoyBrand.yellow)
             .padding(.horizontal, size == .large ? 17 : 13)
-            .frame(minHeight: size == .large ? 38 : InvoyBrand.controlHeight)
-            .background(InvoyBrand.yellow, in: RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).fill(.black.opacity(configuration.isPressed ? 0.08 : 0)))
+            .frame(minHeight: InvoyBrand.controlHeight)
+            .background(InvoyBrand.ink, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.yellow.opacity(0.55), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 8).fill(.white.opacity(configuration.isPressed ? 0.08 : 0)))
             .opacity(enabled ? 1 : 0.45)
     }
 }
@@ -79,21 +80,39 @@ struct BrandDropdown<Content: View>: View {
 struct BrandSegment: View {
     let title: String
     var symbol: String? = nil
+    var iconOnly = true
     let selected: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Group {
-                if let symbol { Image(systemName: symbol) }
+                if let symbol {
+                    if iconOnly { Image(systemName: symbol) }
+                    else { Label(title, systemImage: symbol).lineLimit(1) }
+                }
                 else { Text(title).lineLimit(1) }
             }
             .font(.system(size: 13, weight: selected ? .semibold : .regular))
-            .foregroundStyle(InvoyBrand.ink)
+            .foregroundStyle(selected ? InvoyBrand.yellow : InvoyBrand.ink)
             .padding(.horizontal, symbol == nil ? 12 : 10)
             .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6)
-            .background(selected ? InvoyBrand.yellow : .clear, in: RoundedRectangle(cornerRadius: 6))
+            .background(selected ? InvoyBrand.ink : .clear, in: RoundedRectangle(cornerRadius: 7))
+            .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(selected ? InvoyBrand.yellow.opacity(0.55) : .clear, lineWidth: 1))
         }.buttonStyle(.plain).accessibilityLabel(title)
             .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+}
+
+struct BrandIconButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var enabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(InvoyBrand.ink)
+            .frame(width: InvoyBrand.controlHeight, height: InvoyBrand.controlHeight)
+            .background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).fill(.black.opacity(configuration.isPressed ? 0.06 : 0)))
+            .opacity(enabled ? 1 : 0.45)
     }
 }
