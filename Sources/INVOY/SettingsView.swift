@@ -166,7 +166,7 @@ struct AccountEditor: View {
                     account.swift = account.swift.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
                     account.holderName = account.holderName?.trimmingCharacters(in: .whitespacesAndNewlines)
                     if account.isValid { onSave(account) } else { message = "Doplňte názov a platný IBAN." }
-                }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                }.buttonStyle(BrandButtonStyle()).keyboardShortcut(.defaultAction)
             }
         }.padding(25).frame(width: 470)
     }

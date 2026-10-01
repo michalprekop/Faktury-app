@@ -1,5 +1,13 @@
 # Zmeny
 
+## 1.2.1 — 1. 10. 2026 — Jednotná značka na webe a Macu
+
+- Webová aj Mac aplikácia používajú finálne jednoradové logo „INVOY.“ vrátane bodky.
+- Hlavné tlačidlá a navigácia nadväzujú na žltú farbu landing page. Tmavý text a teplé neutrálne pozadie zjednocujú pracovný priestor.
+- Mac má novú žltú ikonu v Docku a zjednotenú prihlasovaciu obrazovku. Nová verzia je dostupná aj na stiahnutie z webu.
+- Prihlasovacia obrazovka Mac aplikácie už neponúka otvorenie pôvodnej lokálnej zálohy.
+- Fakturačné údaje, vlastné logá a farby uložených šablón zostávajú zachované.
+
 ## 1. 10. 2026 — Jasnejšie stiahnutie pre Mac
 
 - Odkaz v hlavičke úvodnej stránky sa volá „Stiahnuť pre Mac“.

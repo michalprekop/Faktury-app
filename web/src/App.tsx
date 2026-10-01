@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FileText, Cloud } from 'lucide-react';
+import { Cloud } from 'lucide-react';
 import { api, setCSRF } from './api';
 import { type User, type Profile, type Template } from '../shared/model';
 import { LegacyWorkspace } from './LegacyWorkspace';
+import { BrandWordmark } from './BrandWordmark';
 import { Landing, type LandingConfig } from './Landing';
 
 type Me = { user: User; csrf: string; profile: Profile; profileVersion: number };
@@ -88,12 +89,7 @@ export default function App() {
 function Brand() {
   return (
     <div className="brand">
-      <span>
-        <FileText size={22} strokeWidth={1.7} />
-      </span>
-      <strong>
-        INVOY<span className="brand-dot">.</span>
-      </strong>
+      <BrandWordmark />
     </div>
   );
 }

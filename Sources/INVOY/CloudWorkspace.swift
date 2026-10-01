@@ -15,23 +15,27 @@ enum CloudEndpoint {
 struct ProductRootView: View {
     @EnvironmentObject private var store: Store
     @StateObject private var cloud = NativeCloudSync()
-    @State private var localOnly = false
     var body: some View {
         Group {
             if let accountStore = cloud.store, !cloud.connecting {
                 RootView(cloud: cloud).environmentObject(accountStore)
-            } else if localOnly { RootView(cloud: cloud) }
-            else {
+            } else {
                 VStack(spacing: 18) {
-                    Image(systemName: "doc.text").font(.system(size: 42)).foregroundStyle(Color.accent)
-                    Text("INVOY").font(.system(size: 26, weight: .semibold))
+                    BrandIcon(size: 112).padding(.bottom, 12)
+                    Text("Vaše faktúry. Váš pracovný priestor.")
+                        .font(.system(size: 24, weight: .medium)).foregroundStyle(InvoyBrand.ink)
                     if cloud.connecting { ProgressView("Načítavam vaše faktúry…") }
                     else {
-                        Button("Prihlásiť sa cez Apple") { cloud.signIn() }.buttonStyle(.borderedProminent).controlSize(.large)
-                        if !store.database.invoices.isEmpty { Button("Otvoriť pôvodnú lokálnu zálohu") { localOnly = true } }
+                        Button { cloud.signIn() } label: {
+                            HStack(spacing: 14) {
+                                Text("Vytvoriť účet / Prihlásiť sa")
+                                Rectangle().fill(InvoyBrand.ink.opacity(0.3)).frame(width: 1, height: 26)
+                                Image(systemName: "apple.logo").font(.system(size: 18))
+                            }
+                        }.buttonStyle(BrandButtonStyle()).controlSize(.large)
                     }
                     if let failure = cloud.failure ?? cloud.authentication.error { Text(failure).foregroundStyle(.red).frame(maxWidth: 500) }
-                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity).background(InvoyBrand.canvas)
             }
         }
         .task { await cloud.connect() }

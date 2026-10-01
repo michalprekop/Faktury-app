@@ -193,7 +193,7 @@ export function InvoiceEditor({
             <Settings2 size={16} />
           </button>
           <button
-            className="button secondary"
+            className="button"
             onClick={async () => {
               if (await flush()) setPreview(true);
             }}

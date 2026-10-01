@@ -1,0 +1,111 @@
+/* Product chrome shares the landing page's logo, yellow and warm neutrals.
+   Invoice templates keep their own saved colours and customer artwork. */
+.native-shell,
+.pending-page,
+.loading {
+  color: var(--invoy-brand-ink);
+  background: var(--invoy-brand-surface);
+  --green: var(--invoy-brand-ink);
+  --line: var(--invoy-brand-line);
+  --muted: #74756d;
+}
+.native-shell {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+.native-header {
+  background: var(--invoy-brand-surface);
+  border-color: var(--invoy-brand-line);
+}
+.native-brand .invoy-wordmark,
+.loading .invoy-wordmark,
+.pending-page .invoy-wordmark {
+  font-size: 30px;
+}
+.native-brand small {
+  margin-top: 4px;
+}
+.native-shell .button,
+.pending-page .button {
+  background: var(--invoy-brand-yellow);
+  border-color: transparent;
+  color: var(--invoy-brand-ink);
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  min-height: 34px;
+}
+.native-shell .button:hover:not(:disabled),
+.pending-page .button:hover:not(:disabled) {
+  background: #e7f02f;
+}
+.native-shell .button.secondary {
+  background: #fff;
+  border-color: var(--invoy-brand-line);
+  color: var(--invoy-brand-ink);
+}
+.native-shell .button.secondary:hover:not(:disabled) {
+  background: var(--invoy-brand-canvas);
+}
+.native-segments,
+.native-shell .section-tabs {
+  background: var(--invoy-brand-canvas);
+  border-color: var(--invoy-brand-line);
+  padding: 3px;
+  border-radius: 9px;
+}
+.native-segments button.active,
+.native-shell .tabs button.active {
+  background: var(--invoy-brand-yellow);
+  color: var(--invoy-brand-ink);
+  font-weight: 600;
+  box-shadow: none;
+  border-radius: 7px;
+}
+.native-header .native-segments button {
+  padding-block: 8px;
+}
+.native-invoice-row.selected,
+.native-shell .template-option.selected {
+  background: var(--invoy-brand-selection);
+  border-color: transparent;
+  box-shadow: inset 3px 0 0 var(--invoy-brand-yellow);
+}
+.native-invoice-list,
+.original-editor-toolbar,
+.native-shell .page {
+  background: #fff;
+}
+.original-paper-canvas {
+  background: var(--invoy-brand-canvas);
+}
+.account-menu > summary,
+.original-editor-toolbar select,
+.original-bank > select,
+.item-menu summary,
+.original-add button,
+.native-shell .text-button,
+.native-shell .field input,
+.native-shell .field select,
+.native-shell .field textarea,
+.native-shell .check,
+.native-shell .empty-state h2 {
+  color: var(--invoy-brand-ink);
+}
+.native-shell :is(button, a, input, select, textarea, summary):focus-visible,
+.pending-page :is(button, a):focus-visible {
+  outline: 2px solid var(--invoy-brand-ink);
+  outline-offset: 3px;
+}
+.native-search:focus-within {
+  border-color: var(--invoy-brand-ink);
+  box-shadow: 0 0 0 2px var(--invoy-brand-selection);
+}
+.original-paper :is(input, textarea, select):focus {
+  outline: 1px solid var(--invoy-brand-ink);
+  outline-offset: 1px;
+  background: var(--invoy-brand-surface);
+}

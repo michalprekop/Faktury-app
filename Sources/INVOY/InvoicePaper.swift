@@ -17,7 +17,7 @@ struct InvoicePaperCanvas: View {
                     .padding(24)
                     .frame(minWidth: proxy.size.width, minHeight: proxy.size.height, alignment: .top)
             }
-            .background(Color(white: 0.92))
+            .background(InvoyBrand.canvas)
         }
     }
 }

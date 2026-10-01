@@ -95,8 +95,8 @@ extension Notification.Name {
 }
 
 extension Color {
-    static let accent = Color(red: 0.08, green: 0.42, blue: 0.35)
-    static let canvas = Color(nsColor: .windowBackgroundColor)
+    static let accent = InvoyBrand.ink
+    static let canvas = InvoyBrand.canvas
 }
 
 enum SectionID: String, CaseIterable, Identifiable {
@@ -115,10 +115,8 @@ struct RootView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Image(nsImage: NSImage(named: NSImage.applicationIconName) ?? NSImage())
-                    .resizable().interpolation(.high).frame(width: 38, height: 38).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("INVOY").font(.system(size: 22, weight: .semibold))
+                    BrandWordmark(height: 30)
                     Text.numeric(store.database.settings.supplier.name.isEmpty ? "Moja firma" : store.database.settings.supplier.name, size: 11)
                         .foregroundStyle(.secondary).lineLimit(1)
                 }
@@ -139,14 +137,21 @@ struct RootView: View {
                     .help(cloud.failure ?? cloud.message).accessibilityLabel("Cloudový účet")
                 }
                 Spacer(minLength: 24)
-                Picker("Navigácia", selection: $selection) {
+                HStack(spacing: 2) {
                     ForEach(SectionID.allCases) { section in
-                        Label(section.rawValue, systemImage: section.symbol)
-                            .labelStyle(.titleAndIcon).tag(section)
+                        Button { selection = section } label: {
+                            Label(section.rawValue, systemImage: section.symbol)
+                                .font(.system(size: 13, weight: selection == section ? .semibold : .regular))
+                                .frame(maxWidth: .infinity).padding(.vertical, 8)
+                                .foregroundStyle(InvoyBrand.ink)
+                                .background(selection == section ? InvoyBrand.yellow : .clear,
+                                            in: RoundedRectangle(cornerRadius: 7))
+                        }.buttonStyle(.plain)
+                            .accessibilityAddTraits(selection == section ? .isSelected : [])
                     }
-                }.pickerStyle(.segmented).labelsHidden().controlSize(.large)
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 10))
                     .frame(width: 420).accessibilityIdentifier("main-navigation")
-            }.padding(.horizontal, 24).padding(.vertical, 14)
+            }.padding(.horizontal, 24).padding(.vertical, 14).background(InvoyBrand.surface)
             Divider()
             ZStack {
                 // Keep the invoice workspace mounted so navigation preserves drafts and list filters.
@@ -237,7 +242,7 @@ struct InvoicesView: View {
                 }.padding(8).frame(width: 205).background(Color.white, in: RoundedRectangle(cornerRadius: 6))
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(.gray.opacity(0.2)))
                 Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
-                    .buttonStyle(.borderedProminent).controlSize(.large)
+                    .buttonStyle(BrandButtonStyle()).controlSize(.large)
             }.padding(.horizontal, 25).padding(.vertical, 14)
             Divider()
             HStack(spacing: 14) {
@@ -441,7 +446,7 @@ struct StatusBadge: View {
     let invoice: Invoice
     var isSelected = false
     var color: Color {
-        if invoice.remaining == 0 { return .accent }
+        if invoice.remaining == 0 { return Color(red: 0.16, green: 0.47, blue: 0.40) }
         return invoice.status == "Po splatnosti" ? .red : Color(red: 0.6, green: 0.38, blue: 0.05)
     }
     var body: some View {

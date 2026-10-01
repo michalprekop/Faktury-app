@@ -10,6 +10,8 @@ Schválené používateľom 1. 10. 2026.
 - **Žltá ikona:** [invoy-icon-yellow.svg](invoy-icon-yellow.svg), rovnaké jednoradové logo vycentrované v žltom štvorci.
 - **Použitie na webe:** `web/src/BrandWordmark.tsx` používa totožný originál v hlavičke, pätičke a žltej ikone variantu B. Farebné tokeny sú v `web/src/brand.css`: `--invoy-brand-yellow` a `--invoy-brand-ink`.
 
+Mac aplikácia používa tie isté SVG: `scripts/build-app.sh` ich skopíruje do Resources a `scripts/create-icon.swift` z originálu vytvorí ikonu Docku. Paleta natívneho rozhrania je v `Sources/INVOY/Brand.swift`, webového rozhrania v `web/src/app-brand.css`.
+
 Pri ďalších zmenách používať uložený originál, neprekresľovať logo iným písmom. Variant A zostáva archivovaným návrhom.
 
 ## Sign in with Apple

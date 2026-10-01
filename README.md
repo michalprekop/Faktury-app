@@ -20,11 +20,11 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.2.0 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
+Mac distribúcia 1.2.1 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa.
 
 ## Pôvodný lokálny režim
 
-Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudového účtu ich nemení. Na prihlasovacej obrazovke možno otvoriť pôvodnú lokálnu zálohu. Import do prázdneho cloudového účtu sa spúšťa vo webových **Nastaveniach → Zálohy → Importovať pôvodné faktúry**. Súbor musí byť pôvodný `database.json`; import zachová faktúry, odberateľov, nastavenia, obrázky a identifikátory. Opakovaný rovnaký import nevytvorí duplicity, obsadený účet sa neprepisuje.
+Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudového účtu ich nemení. Od verzie 1.2.1 sa na prihlasovacej obrazovke už nezobrazuje vstup do pôvodnej lokálnej zálohy. Import do prázdneho cloudového účtu sa spúšťa vo webových **Nastaveniach → Zálohy → Importovať pôvodné faktúry**. Súbor musí byť pôvodný `database.json`; import zachová faktúry, odberateľov, nastavenia, obrázky a identifikátory. Opakovaný rovnaký import nevytvorí duplicity, obsadený účet sa neprepisuje.
 
 ## Funkcie
 
@@ -54,7 +54,7 @@ Lokálny režim neposiela faktúry e-mailom, nesynchronizuje banku ani cloud, ne
 
 ## Identita značky
 
-Schválená hlavná farba je **INVOY Yellow `#F5FF36`**. Finálne logo je **INVOY.** v jednom riadku, vrátane bodky, podľa pätičky variantu B. Vektorové originály a pravidlá použitia sú v [web/public/brand/README.md](web/public/brand/README.md).
+Schválená hlavná farba je **INVOY Yellow `#F5FF36`**. Finálne logo je **INVOY.** v jednom riadku, vrátane bodky, podľa pätičky variantu B. Web aj Mac používajú spoločné vektorové logo, žlté hlavné akcie a teplé neutrálne pozadie. Farby a logá používateľských faktúr určuje ich uložená šablóna. Natívna aplikácia načítava rovnaké SVG, ktoré build kopíruje do Resources; ikona Docku sa tiež vykresľuje z originálu. Vektorové originály a pravidlá použitia sú v [web/public/brand/README.md](web/public/brand/README.md).
 
 ## Vývoj a overenie
 

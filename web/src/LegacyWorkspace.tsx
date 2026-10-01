@@ -33,6 +33,7 @@ import { Settings } from './Settings';
 import { Admin } from './Admin';
 import { ErrorBox, Modal, CompanyFields } from './ui';
 import './legacy.css';
+import { BrandWordmark } from './BrandWordmark';
 
 type Me = { user: User; profile: Profile; profileVersion: number };
 export function LegacyWorkspace({
@@ -229,9 +230,8 @@ export function LegacyWorkspace({
     <div className="native-shell">
       <header className="native-header">
         <div className="native-brand">
-          <img className="native-app-icon" src="/app-icon.png" alt="" />
           <div>
-            <strong>INVOY</strong>
+            <BrandWordmark />
             <small>{me.profile.supplier.name || 'Moja firma'}</small>
           </div>
         </div>

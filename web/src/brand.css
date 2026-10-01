@@ -2,6 +2,10 @@
 :root {
   --invoy-brand-yellow: #f5ff36;
   --invoy-brand-ink: #191a17;
+  --invoy-brand-canvas: #e9e7e0;
+  --invoy-brand-surface: #f8f7f2;
+  --invoy-brand-selection: #f5ff3660;
+  --invoy-brand-line: #dcdad2;
 }
 
 .invoy-wordmark {

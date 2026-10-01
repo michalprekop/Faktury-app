@@ -103,7 +103,7 @@ struct InvoiceEditor: View {
                             .presentationBackground(Color(nsColor: .windowBackgroundColor))
                     }
                 Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
-                    .buttonStyle(.borderedProminent).disabled(!draft.canExport)
+                    .buttonStyle(BrandButtonStyle()).disabled(!draft.canExport)
             }.padding(.horizontal, 16).padding(.vertical, 13)
             Divider()
             InvoicePaperCanvas(draft: draft)
@@ -163,7 +163,7 @@ struct CustomerEditor: View {
             HStack { Spacer(); Button("Zrušiť") { dismiss() }.keyboardShortcut(.cancelAction); Button("Uložiť odberateľa") {
                 company.name = company.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 if company.name.isEmpty { message = "Doplňte názov odberateľa." } else { onSave(company) }
-            }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction) }.padding(18)
+            }.buttonStyle(BrandButtonStyle()).keyboardShortcut(.defaultAction) }.padding(18)
         }.frame(width: 500, height: 640)
     }
 }
@@ -180,7 +180,7 @@ struct CustomersView: View {
                 VStack(alignment: .leading, spacing: 4) { Text("Odberatelia").font(.system(size: 26, weight: .semibold)); Text.numeric("\(store.database.customers.count) kontaktov", size: 12).foregroundStyle(.secondary) }
                 Spacer()
                 TextField("Hľadať firmu, IČO, mesto", text: $search).textFieldStyle(.roundedBorder).frame(width: 230)
-                Button { editing = Company() } label: { Label("Nový odberateľ", systemImage: "plus") }.buttonStyle(.borderedProminent).controlSize(.large)
+                Button { editing = Company() } label: { Label("Nový odberateľ", systemImage: "plus") }.buttonStyle(BrandButtonStyle()).controlSize(.large)
             }.padding(25)
             Divider()
             if customers.isEmpty { ContentUnavailableView("Žiadni odberatelia", systemImage: "building.2").frame(maxHeight: .infinity) }
