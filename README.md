@@ -16,7 +16,7 @@ Identita aplikácie `sk.faktury.desktop`, Apple Services ID, existujúce D1/R2 �
 
 Administrácia je na **https://invoy.xyz/admin42** a vyžaduje prihlásený účet s rolou správcu. Starý odkaz `/?page=admin` presmeruje na novú adresu.
 
-Prihlásenie cez Apple vytvorí účet čakajúci na aktiváciu. Správca v **Administrácia → Používatelia → Upraviť prístup** aktivuje účet a zaškrtne dostupné šablóny. Prvý prihlásený používateľ sa automaticky nestáva správcom. Šablóny sa vytvárajú v **Administrácia → Šablóny**, výberom rozloženia, farby, loga, textovej značky a pätičky. Šablóna sa používateľovi zobrazí až po pridelení.
+Prihlásenie cez Apple vytvorí účet čakajúci na aktiváciu. Správca v **Administrácia → Používatelia** klikne na riadok používateľa, aktivuje účet a zaškrtne dostupné šablóny vo veľkom formulári. Zoznam zobrazuje aj počet faktúr, uložených odberateľov a poslednú online aktivitu. Prvý prihlásený používateľ sa automaticky nestáva správcom. Šablóny sa vytvárajú v **Administrácia → Šablóny**, výberom rozloženia, farby, loga, textovej značky a pätičky. Šablóna sa používateľovi zobrazí až po pridelení.
 
 Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné natívne rozhranie, web rovnaké rozloženie: zoznam vľavo, úpravy priamo na faktúre vpravo. Faktúry a nastavenia sa ukladajú automaticky. Pri súbežnej úprave na inom zariadení server odmietne prepísanie novšej verzie; rozpracované zmeny zostávajú v zariadení. PDF je dostupné po platnom uložení. Čísla sú jedinečné v rámci účtu, vrátane koša. Kôš a história umožňujú obnovu. Šablóna na vystavenej faktúre je uložená spolu s dokumentom a neskoršia úprava alebo odobratie šablóny nemení jej vzhľad.
 
