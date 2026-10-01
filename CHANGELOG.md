@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Registrácia a prihlásenie na webe
+
+- Hlavné tlačidlo na úvodnej stránke sa volá „Vytvoriť účet / Prihlásiť sa“. Pod ním je oficiálne tlačidlo prihlásenia cez Apple v slovenčine.
+
 ## 1.2.0 — 1. 10. 2026
 
 - Aplikácia sa volá INVOY. Nový názov používa web, Mac aplikácia, ikona, stiahnuté súbory aj GitHub projekt.

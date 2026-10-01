@@ -139,13 +139,23 @@ function Landing({ config, error }: { config: Config | null; error: string }) {
           <div className="login-panel">
             <ErrorBox error={error || (auth ? (messages[auth] ?? '') : '')} />
             {config?.appleReady ? (
-              <a className="button apple-button" href="/auth/apple">
-                <span aria-hidden="true"></span>Pokračovať s Apple
-              </a>
+              <>
+                <a className="button account-button" href="/auth/apple">
+                  Vytvoriť účet / Prihlásiť sa
+                </a>
+                <a className="apple-sign-in" href="/auth/apple">
+                  <img
+                    src="/brand/sign-in-with-apple-sk.png"
+                    alt="Prihlásiť sa cez Apple"
+                    width="208"
+                    height="36"
+                  />
+                </a>
+              </>
             ) : (
               <>
-                <button className="button apple-button" disabled>
-                  <span aria-hidden="true"></span>Prihlásenie pripravujeme
+                <button className="button account-button" disabled>
+                  Prihlásenie pripravujeme
                 </button>
                 <small>Priestor sa dokončuje. Vaše faktúry tu zatiaľ nevkladajte.</small>
               </>
