@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Farebné karty v pozadí
+
+- Oranžová a modrá karta na úvodnej stránke sú pod faktúrou a ostatnými kartami. Ich poloha, veľkosť aj pootočenie zostávajú rovnaké.
+
 ## 1.2.1 — 1. 10. 2026 — Jednotná značka na webe a Macu
 
 - Webová aj Mac aplikácia používajú finálne jednoradové logo „INVOY.“ vrátane bodky.

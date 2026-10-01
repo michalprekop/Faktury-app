@@ -215,7 +215,7 @@
 }
 .lb-brand-tile {
   position: relative;
-  z-index: 2;
+  z-index: 0;
   width: 100%;
   height: 365px;
   border-radius: 18px;
@@ -409,7 +409,7 @@
 }
 .lb-blue-tile {
   position: relative;
-  z-index: 2;
+  z-index: 0;
   width: 100%;
   height: 357px;
   border-radius: 18px;
