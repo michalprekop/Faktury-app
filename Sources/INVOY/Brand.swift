@@ -82,18 +82,21 @@ struct BrandDropdown<Content: View>: View {
         Menu {
             content.pickerStyle(.inline).labelsHidden()
         } label: {
-            Text(value).lineLimit(1)
+            // The full visible control must belong to the menu label's hit region.
+            HStack(spacing: 8) {
+                Text(value).lineLimit(1)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: InvoyBrand.controlHeight)
+            .background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
+            .contentShape(Rectangle())
         }
-        .menuStyle(.borderlessButton).menuIndicator(.hidden)
+        .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
         .font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
-        .padding(.leading, 12).padding(.trailing, 30)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: InvoyBrand.controlHeight)
-        .background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
-        .overlay(alignment: .trailing) {
-            Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(InvoyBrand.ink).padding(.trailing, 12).allowsHitTesting(false)
-        }
         .accessibilityLabel(title).accessibilityValue(value).help(value)
     }
 }

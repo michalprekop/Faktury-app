@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.11 — 1. 10. 2026 — Klikanie na celú plochu dropdownov
+
+- Dropdowny na Macu sa otvoria aj kliknutím na voľnú plochu a šípku, nielen na text. Oprava platí pre výber šablóny, roka, zoradenia aj ponuku účtu.
+- Rovnaké správanie celej plochy výberových polí je overené aj na webe.
+
 ## 1.2.10 — 1. 10. 2026 — Šablóna Manolo & Bay
 
 - Nová šablóna na webe aj Macu vychádza z rozloženia Mono 01 a zachováva všetky fakturačné údaje aj platobný QR kód.
