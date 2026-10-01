@@ -160,7 +160,7 @@ private struct CloudAccountMenu: View {
             if let failure = cloud.failure { Text(failure) }
             Button("Synchronizovať teraz") { Task { await cloud.synchronize() } }
             if cloud.user?.role == "admin" {
-                Button("Administrácia") { NSWorkspace.shared.open(CloudEndpoint.origin.appending(queryItems: [URLQueryItem(name: "page", value: "admin")])) }
+                Button("Administrácia") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("admin42")) }
             }
             Button("Otvoriť web") { NSWorkspace.shared.open(CloudEndpoint.origin) }
             Divider()

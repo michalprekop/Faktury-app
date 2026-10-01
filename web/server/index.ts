@@ -5,6 +5,7 @@ import { auth } from './auth';
 import { api } from './api';
 import { appleReady, type AppContext, type Bindings } from './security';
 import { scheduledBackup } from './backups';
+import { ADMIN_PATH } from '../shared/navigation';
 
 const app = new Hono<AppContext>();
 const legacyOrigin = 'https://faktury-app.freetransfer-online.workers.dev';
@@ -33,6 +34,10 @@ app.use('*', async (c, next) => {
   );
   c.header('Cache-Control', 'no-store');
 });
+app.get('/', async (c) =>
+  c.req.query('page') === 'admin' ? c.redirect(ADMIN_PATH, 308) : c.env.ASSETS.fetch(c.req.raw),
+);
+app.get(`${ADMIN_PATH}/`, (c) => c.redirect(ADMIN_PATH, 308));
 app.get('/api/config', (c) =>
   c.json({
     name: 'INVOY',

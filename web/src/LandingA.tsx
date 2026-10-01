@@ -1,3 +1,4 @@
+import { appleLoginPath } from '../shared/navigation';
 import { useState } from 'react';
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, FileText, List, Monitor } from 'lucide-react';
 import { ErrorBox } from './ui';
@@ -11,7 +12,7 @@ function AccountAction({ ready }: { ready: boolean }) {
       {ready ? (
         <a
           className="home-button home-button-primary"
-          href="/auth/apple"
+          href={appleLoginPath(location.pathname)}
           aria-label="Vytvoriť účet / Prihlásiť sa cez Apple"
         >
           Vytvoriť účet / Prihlásiť sa
@@ -54,7 +55,7 @@ export function LandingA({ config, error }: { config: LandingConfig | null; erro
         </nav>
         <div className="home-header-actions">
           {ready && (
-            <a className="home-login" href="/auth/apple">
+            <a className="home-login" href={appleLoginPath(location.pathname)}>
               Prihlásiť sa <ArrowUpRight size={15} aria-hidden="true" />
             </a>
           )}

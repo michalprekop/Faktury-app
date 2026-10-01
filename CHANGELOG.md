@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.13 — 2. 10. 2026 — Nová adresa administrácie
+
+- Hlavná administrácia je na `https://invoy.xyz/admin42`. Odkazy na webe aj v Mac aplikácii vedú na novú adresu.
+- Starý odkaz sa automaticky presmeruje. Pri prihlásení z administrácie sa používateľ po overení cez Apple vráti na `/admin42`.
+
 ## 1.2.12 — 1. 10. 2026 — Aktuálna ikona v Docku
 
 - Mac aplikácia pri štarte obnoví žltú ikonu s jednoradovým logom INVOY., aby v Docku nezostávala stará tyrkysová ikona IN.

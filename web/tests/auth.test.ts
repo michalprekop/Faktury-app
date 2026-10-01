@@ -2,7 +2,45 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { harness } from './harness';
 import { hash, seal } from '../server/security';
+import { appleLoginPath, loginDestination } from '../shared/navigation';
 const encryption = 'a1'.repeat(32);
+test('admin sign-in keeps its local destination and rejects external return URLs', async () => {
+  const h = await harness('https://invoy.example.test', {
+    APPLE_CLIENT_ID: 'test.web',
+    APPLE_KEY_ID: 'TEST',
+    APPLE_TEAM_ID: 'TEST',
+    APPLE_PRIVATE_KEY: 'not-a-real-key',
+    TOKEN_ENCRYPTION_KEY: encryption,
+  });
+  try {
+    assert.equal(appleLoginPath('/admin42'), '/auth/apple?return_to=/admin42');
+    assert.equal(appleLoginPath('/'), '/auth/apple');
+    for (const destination of [
+      '/admin42',
+      'https://evil.example',
+      '//evil.example',
+      '/api/admin/users',
+    ]) {
+      const expected = destination === '/admin42' ? '/admin42' : '/';
+      assert.equal(loginDestination(destination), expected);
+      const response = await h.request(
+        null,
+        '/auth/apple?return_to=' + encodeURIComponent(destination),
+      );
+      assert.equal(response.status, 302);
+      const cookie = response.headers
+        .getSetCookie()
+        .find((value) => value.startsWith('__Host-faktury_oauth_return='));
+      assert.ok(cookie);
+      assert.equal(decodeURIComponent(cookie.split(';')[0].split('=')[1]), expected);
+      assert.match(cookie, /HttpOnly/);
+      assert.match(cookie, /Secure/);
+      assert.match(cookie, /SameSite=None/);
+    }
+  } finally {
+    await h.mf.dispose();
+  }
+});
 test('Apple OAuth is browser-bound, expires and never grants admin to a caller', async () => {
   const h = await harness('https://faktury.example.test', {
     APPLE_CLIENT_ID: 'test.web',
@@ -38,6 +76,10 @@ test('Apple OAuth is browser-bound, expires and never grants admin to a caller',
       body: new URLSearchParams({ state, code: 'forged' }).toString(),
     });
     assert.equal(res.headers.get('Location'), '/?auth=failed');
+    assert.match(
+      res.headers.getSetCookie().find((value) => value.startsWith('__Host-faktury_oauth_return='))!,
+      /Max-Age=0/,
+    );
     assert.ok(!res.headers.get('Set-Cookie')?.includes('faktury_session'));
     assert.equal((await h.db.prepare('SELECT count(*) n FROM users').first<{ n: number }>())!.n, 4);
     const row = await h.db

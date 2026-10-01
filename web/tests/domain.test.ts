@@ -9,6 +9,16 @@ test('INVOY canonical domain preserves paths and legacy web and Mac boundaries',
     const config = await request('https://invoy.xyz/api/config');
     assert.equal(config.status, 200);
     assert.equal(((await config.json()) as { name: string }).name, 'INVOY');
+    for (const path of ['/?page=admin', '/admin42/']) {
+      const redirect = await request('https://invoy.xyz' + path);
+      assert.equal(redirect.status, 308);
+      assert.equal(redirect.headers.get('Location'), '/admin42');
+    }
+    const admin = await request('https://invoy.xyz/admin42');
+    assert.equal(admin.status, 200);
+    assert.match(admin.headers.get('Content-Type')!, /text\/html/);
+    assert.match(await admin.text(), /<div id="root"><\/div>/);
+    assert.equal((await request('https://invoy.xyz/api/admin/users')).status, 401);
     const response = await request('https://www.invoy.xyz/privacy.html?from=old');
     assert.equal(response.status, 308);
     assert.equal(response.headers.get('Location'), 'https://invoy.xyz/privacy.html?from=old');

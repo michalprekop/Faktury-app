@@ -35,6 +35,7 @@ import { ErrorBox, Modal, CompanyFields } from './ui';
 import './legacy.css';
 import { BrandWordmark } from './BrandWordmark';
 import { AppUpdateNotice } from './AppUpdateNotice';
+import { ADMIN_PATH } from '../shared/navigation';
 
 type Me = { user: User; profile: Profile; profileVersion: number };
 export function LegacyWorkspace({
@@ -49,9 +50,7 @@ export function LegacyWorkspace({
   onLogout: () => Promise<void>;
 }) {
   const [page, setPage] = useState(
-    new URLSearchParams(location.search).get('page') === 'admin' && me.user.role === 'admin'
-      ? 'admin'
-      : 'invoices',
+    location.pathname === ADMIN_PATH && me.user.role === 'admin' ? 'admin' : 'invoices',
   );
   const [rows, setRows] = useState<InvoiceSummary[]>([]),
     [editor, setEditor] = useState<Invoice | SavedInvoice | null>(null),
@@ -223,6 +222,8 @@ export function LegacyWorkspace({
   }
   async function navigate(next: string) {
     if (await ready()) {
+      const path = next === 'admin' ? ADMIN_PATH : '/';
+      if (location.pathname !== path) history.replaceState(null, '', path);
       setPage(next);
       setError('');
     }

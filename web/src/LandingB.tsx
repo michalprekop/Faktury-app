@@ -1,3 +1,4 @@
+import { appleLoginPath } from '../shared/navigation';
 import { useState } from 'react';
 import {
   ArrowDown,
@@ -26,7 +27,7 @@ function AccountAction({ ready }: { ready: boolean }) {
   return ready ? (
     <a
       className="lb-button lb-button-apple"
-      href="/auth/apple"
+      href={appleLoginPath(location.pathname)}
       aria-label="Vytvoriť účet / Prihlásiť sa cez Apple"
     >
       <span className="lb-button-label">Vytvoriť účet / Prihlásiť sa</span>
@@ -203,7 +204,7 @@ export function LandingB({ config, error }: { config: LandingConfig | null; erro
           {ready && (
             <a
               className="lb-button lb-button-apple lb-login"
-              href="/auth/apple"
+              href={appleLoginPath(location.pathname)}
               aria-label="Prihlásiť sa cez Apple"
             >
               <span className="lb-button-label">Prihlásiť sa</span>

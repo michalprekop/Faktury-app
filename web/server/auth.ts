@@ -16,6 +16,7 @@ import {
   type AppContext,
 } from './security';
 import { z } from 'zod';
+import { loginDestination } from '../shared/navigation';
 
 export const auth = new Hono<AppContext>();
 auth.get('/apple', async (c) => {
@@ -36,6 +37,7 @@ auth.get('/apple', async (c) => {
     .bind(await hash(state), await hash(binding), nonce, now() + 600, challenge)
     .run();
   cookie(c, 'oauth', binding, 600, 'None');
+  cookie(c, 'oauth_return', loginDestination(c.req.query('return_to')), 600, 'None');
   const url = new URL('https://appleid.apple.com/auth/authorize');
   url.search = new URLSearchParams({
     client_id: c.env.APPLE_CLIENT_ID,
@@ -49,6 +51,8 @@ auth.get('/apple', async (c) => {
   return c.redirect(url.toString());
 });
 auth.post('/apple/callback', async (c) => {
+  const destination = loginDestination(getCookie(c, cookieName(c.env, 'oauth_return')));
+  cookie(c, 'oauth_return', '', 0, 'None');
   try {
     if (!appleReady(c.env)) return c.redirect('/?auth=not-configured');
     // Callback is cross-site by design. Bound one-time state replaces the normal API CSRF check.
@@ -144,7 +148,7 @@ auth.post('/apple/callback', async (c) => {
       return c.redirect('sk.faktury.desktop://auth?code=' + code);
     }
     cookie(c, 'session', session, 30 * 86_400);
-    return c.redirect('/');
+    return c.redirect(destination);
   } catch {
     // Never log the auth code, identity token, refresh token, or callback form.
     console.warn(JSON.stringify({ event: 'apple_login_failed' }));
