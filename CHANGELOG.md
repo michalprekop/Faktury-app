@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1.2.7 — 1. 10. 2026 — Čierna horná lišta na Macu
+
+- Horná systémová lišta okna má čierne pozadie a svetlý názov aplikácie. Pracovný priestor zostáva svetlý.
+
 ## 1. 10. 2026 — Čistejší výber faktúry vo webovom zozname
 
 - Vybranú faktúru označuje iba jemné pozadie, bez farebného pásika vľavo. Deliaca čiara tesne nad vybranou faktúrou sa skryje a po zmene výberu sa obnoví.

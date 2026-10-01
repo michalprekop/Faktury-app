@@ -21,8 +21,9 @@ struct InvoyApp: App {
     var body: some Scene {
         Window("INVOY", id: "main") {
             ProductRootView().environmentObject(store)
+                .background(Color(nsColor: .windowBackgroundColor))
                 .tint(Color.accent)
-                .preferredColorScheme(.light)
+                .environment(\.colorScheme, .light)
                 .environment(\.locale, Locale(identifier: "sk_SK"))
                 .frame(minWidth: 1060, minHeight: 700)
                 .alert("Nepodarilo sa uložiť", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) {
@@ -46,7 +47,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var flushInvoiceChanges: (() -> Bool)?
     var confirmCloudTermination: ((@escaping (Bool) -> Void) -> Void)?
     static let launchWidth: CGFloat = 1185
-    private var didApplyLaunchWidth = false
+    private var didConfigureMainWindow = false
     override init() { super.init(); Self.shared = self }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -69,15 +70,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(mainWindowBecameKey), name: NSWindow.didBecomeKeyNotification, object: nil)
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        DispatchQueue.main.async { self.applyLaunchWidth() }
+        DispatchQueue.main.async { self.configureMainWindow() }
     }
     @objc private func mainWindowBecameKey(_ notification: Notification) {
-        DispatchQueue.main.async { self.applyLaunchWidth() }
+        DispatchQueue.main.async { self.configureMainWindow() }
     }
-    private func applyLaunchWidth() {
-        guard !didApplyLaunchWidth, let window = NSApp.windows.first(where: { $0.identifier?.rawValue == "main" }) else { return }
-        didApplyLaunchWidth = true
+    private func configureMainWindow() {
+        guard !didConfigureMainWindow, let window = NSApp.windows.first(where: { $0.identifier?.rawValue == "main" }) else { return }
+        didConfigureMainWindow = true
         NotificationCenter.default.removeObserver(self, name: NSWindow.didBecomeKeyNotification, object: nil)
+        // Keep native title-bar controls readable on black while the workspace stays light.
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.titlebarAppearsTransparent = true
+        window.backgroundColor = .black
+        window.contentView?.appearance = NSAppearance(named: .aqua)
         // Apply after restoration so a previously saved width does not override the launch size.
         var frame = window.frame
         frame.size.width = Self.launchWidth
