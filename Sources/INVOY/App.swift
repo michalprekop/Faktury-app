@@ -69,6 +69,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NotificationCenter.default.addObserver(self, selector: #selector(mainWindowBecameKey), name: NSWindow.didBecomeKeyNotification, object: nil)
         NSApp.setActivationPolicy(.regular)
+        // Refresh the running Dock tile after upgrades from the original app icon.
+        if let iconName = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconFile") as? String,
+           let iconURL = Bundle.main.url(forResource: iconName, withExtension: "icns"),
+           let icon = NSImage(contentsOf: iconURL) {
+            NSApp.applicationIconImage = icon
+        }
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async { self.configureMainWindow() }
     }

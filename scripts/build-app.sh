@@ -12,6 +12,8 @@ mkdir -p "$APP/Contents/Resources/manolo-bay-v1"
 cp web/public/templates/manolo-bay-v1/logo.svg web/public/templates/manolo-bay-v1/background.png "$APP/Contents/Resources/manolo-bay-v1/"
 cp packaging/Info.plist "$APP/Contents/Info.plist"
 swift scripts/create-icon.swift .build/AppIcon.iconset
-iconutil -c icns .build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
+ICON_NAME=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconFile' "$APP/Contents/Info.plist")
+iconutil -c icns .build/AppIcon.iconset -o "$APP/Contents/Resources/$ICON_NAME.icns"
+rm -f "$APP/Contents/Resources/AppIcon.icns"
 codesign --force --deep --sign - "$APP"
 printf '%s\n' "$APP"

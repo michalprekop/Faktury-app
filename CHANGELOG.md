@@ -1,5 +1,10 @@
 # Zmeny
 
+## 1.2.12 — 1. 10. 2026 — Aktuálna ikona v Docku
+
+- Mac aplikácia pri štarte obnoví žltú ikonu s jednoradovým logom INVOY., aby v Docku nezostávala stará tyrkysová ikona IN.
+- Inštalačný balík používa nový názov súboru ikony. Ikona je z rovnakého schváleného originálu ako na webe.
+
 ## 1.2.11 — 1. 10. 2026 — Klikanie na celú plochu dropdownov
 
 - Dropdowny na Macu sa otvoria aj kliknutím na voľnú plochu a šípku, nielen na text. Oprava platí pre výber šablóny, roka, zoradenia aj ponuku účtu.
