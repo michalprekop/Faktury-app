@@ -4,14 +4,28 @@ import { createServer } from 'node:http';
 import { Readable } from 'node:stream';
 import { harness } from '../tests/harness';
 const landingPreview = process.argv.includes('--landing');
-const origin = landingPreview ? 'http://127.0.0.1:8792' : 'http://127.0.0.1:8791',
+const previewPort = process.argv.find((arg) => arg.startsWith('--port='))?.split('=')[1];
+const origin = `http://127.0.0.1:${previewPort ?? (landingPreview ? '8792' : '8791')}`,
   h = await harness(origin);
+const previewTemplate = process.argv.find((arg) => arg.startsWith('--template='))?.split('=')[1];
+if (previewTemplate) {
+  const template = await h.db
+    .prepare('SELECT id FROM templates WHERE id=?')
+    .bind(previewTemplate)
+    .first();
+  if (!template) throw new Error('Unknown preview template');
+  await h.db
+    .prepare('INSERT OR IGNORE INTO template_grants VALUES(?,?)')
+    .bind(h.identities.owner.id, previewTemplate)
+    .run();
+}
 for (const [index, customer] of [
   'Kreatívne štúdio',
   'Architektúra & priestor',
   'Ateliér Sever',
 ].entries()) {
   const invoice = await h.invoice('owner', `202600${index + 1}`);
+  if (previewTemplate) invoice.templateID = previewTemplate;
   invoice.customer.name = customer;
   Object.assign(invoice.customer, {
     street: 'Ateliérová 8',

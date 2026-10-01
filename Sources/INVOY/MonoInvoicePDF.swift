@@ -3,7 +3,9 @@ import InvoiceCore
 
 /// Independent layout keeps the original template unchanged.
 enum MonoInvoicePDF {
-    static func render(_ invoice: Invoice, pageCount: Int? = nil) -> Data {
+    static func render(_ invoice: Invoice, template: InvoiceTemplate = .mono01, pageCount: Int? = nil) -> Data {
+        let manolo = template == .manoloBay
+        let compact = invoice.items.count > 1
         let output = NSMutableData()
         let pageWidth: CGFloat = 595.28, pageHeight: CGFloat = 841.89
         let left: CGFloat = 32, width: CGFloat = 531.28, bottom: CGFloat = 752
@@ -27,7 +29,7 @@ enum MonoInvoicePDF {
             paragraph.alignment = alignment
             paragraph.lineSpacing = 2
             paragraph.lineBreakMode = .byWordWrapping
-            return InvoiceTypography.attributed(value, size: size, weight: weight, monospaced: true,
+            return InvoiceTypography.attributed(value, size: size, weight: weight, monospaced: !manolo,
                 attributes: [.foregroundColor: color ?? ink, .paragraphStyle: paragraph])
         }
         func height(_ value: String, _ w: CGFloat, size: CGFloat = 8.5, weight: NSFont.Weight = .regular) -> CGFloat {
@@ -46,12 +48,12 @@ enum MonoInvoicePDF {
         func rule(_ top: CGFloat, heavy: Bool = false) {
             if heavy {
                 ink.setFill()
-                NSRect(x: left, y: top, width: width, height: 8).fill()
+                NSRect(x: left, y: top, width: width, height: manolo ? 1.5 : 8).fill()
             } else {
                 context.saveGState()
-                context.setStrokeColor(NSColor.black.cgColor)
+                context.setStrokeColor((manolo ? NSColor(calibratedWhite: 0.82, alpha: 1) : .black).cgColor)
                 context.setLineWidth(0.5)
-                context.setLineDash(phase: 0, lengths: [3, 2])
+                context.setLineDash(phase: 0, lengths: manolo ? [] : [3, 2])
                 context.move(to: CGPoint(x: left, y: top + 0.25))
                 context.addLine(to: CGPoint(x: left + width, y: top + 0.25))
                 context.strokePath()
@@ -78,7 +80,7 @@ enum MonoInvoicePDF {
         }
         func endPage() {
             rule(774)
-            let contacts = [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
+            let contacts = manolo ? ManoloInvoiceBrand.contacts : [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
                             invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
             let gap: CGFloat = 12
             let columnWidth = (width - CGFloat(max(0, contacts.count - 1)) * gap) / CGFloat(max(1, contacts.count))
@@ -96,7 +98,7 @@ enum MonoInvoicePDF {
         }
         func ensure(_ h: CGFloat) { if y + h > bottom { continued() } }
         func tableHeader() {
-            rule(y, heavy: true); y += 17
+            rule(y, heavy: true); y += manolo ? 11 : 17
             text("POLOŽKA", left, y, 240, size: 7, color: muted)
             text("MNOŽSTVO", 290, y, 62, size: 7, color: muted, alignment: .right)
             text("CENA / MJ", 361, y, 92, size: 7, color: muted, alignment: .right)
@@ -106,9 +108,9 @@ enum MonoInvoicePDF {
         func company(_ title: String, _ company: Company, x: CGFloat, top: CGFloat) -> CGFloat {
             let w: CGFloat = 253
             var cursor = top
-            cursor += text(title, x, cursor, w, size: 7.5, color: muted) + 7
+            cursor += text(title, x, cursor, w, size: 7.5, color: muted) + (manolo && compact ? 4 : 7)
             cursor += text(company.name, x, cursor, w, size: 10, weight: .bold) + 6
-            cursor += text(company.address, x, cursor, w) + 7
+            cursor += text(company.address, x, cursor, w) + (manolo && compact ? 4 : 7)
             let ids = [("IČO", company.companyID), ("DIČ", company.taxID), ("IČ DPH", company.vatID)]
             for (label, value) in ids where !value.isEmpty {
                 cursor += text(label + ": " + value, x, cursor, w, size: 8) + 2
@@ -120,7 +122,7 @@ enum MonoInvoicePDF {
             for (label, value) in rows where !value.isEmpty {
                 let labelHeight = text(label, x, cursor, 96, size: 7.5, color: muted)
                 let valueHeight = text(value, x + 102, cursor, 151, size: 8)
-                cursor += max(labelHeight, valueHeight) + 5
+                cursor += max(labelHeight, valueHeight) + (manolo && compact ? 3 : 5)
             }
             return cursor
         }
@@ -146,17 +148,27 @@ enum MonoInvoicePDF {
         }
 
         beginPage()
-        let compact = invoice.items.count > 1
-        let logoTop: CGFloat = compact ? 22 : 32
-        let logoSize = MonoInvoiceBrand.image(for: invoice)?.size ?? NSSize(width: 1559, height: 158)
-        let logoHeight = width * logoSize.height / logoSize.width
-        picture(MonoInvoiceBrand.data(for: invoice), NSRect(x: left, y: logoTop, width: width, height: logoHeight))
-        let metadataTop = logoTop + logoHeight + (compact ? 14 : 30)
+        let metadataTop: CGFloat
+        if manolo {
+            // The pale supplied mark sits behind the original SVG, clipped to the header.
+            context.saveGState()
+            context.clip(to: CGRect(x: left, y: 0, width: width, height: 104))
+            picture(ManoloInvoiceBrand.data("background.png"), NSRect(x: (pageWidth - 334) / 2, y: -94, width: 334, height: 268))
+            picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 304) / 2, y: compact ? 20 : 32, width: 304, height: 60))
+            context.restoreGState()
+            metadataTop = compact ? 90 : 108
+        } else {
+            let logoTop: CGFloat = compact ? 22 : 32
+            let logoSize = MonoInvoiceBrand.image(for: invoice)?.size ?? NSSize(width: 1559, height: 158)
+            let logoHeight = width * logoSize.height / logoSize.width
+            picture(MonoInvoiceBrand.data(for: invoice), NSRect(x: left, y: logoTop, width: width, height: logoHeight))
+            metadataTop = logoTop + logoHeight + (compact ? 14 : 30)
+        }
         text("Číslo faktúry", left, metadataTop, 245, size: 7.5, color: muted)
         let numberHeight = text(invoice.number, left, metadataTop + 14, 245, size: 12, weight: .bold)
         text("FAKTÚRA", 310, metadataTop + 16, 253, size: 10, weight: .semibold, alignment: .right)
         y = metadataTop + max(45, 23 + numberHeight)
-        rule(y, heavy: true); y += 21
+        rule(y, heavy: true); y += manolo ? 14 : 21
         y = max(company("DODÁVATEĽ", invoice.supplier, x: left, top: y),
                 company("ODBERATEĽ", invoice.customer, x: 310, top: y)) + 10
         if !invoice.supplier.registration.isEmpty {
@@ -172,7 +184,7 @@ enum MonoInvoicePDF {
                      ("Dátum splatnosti", Format.date(invoice.dueDate)),
                      ("Dátum dodania", invoice.deliveryDate.map(Format.date) ?? ""),
                      ("Forma úhrady", invoice.paymentMethod), ("Objednávka", invoice.orderNumber)]
-        y = max(detailRows(bank, x: left, top: y), detailRows(dates, x: 310, top: y)) + 17
+        y = max(detailRows(bank, x: left, top: y), detailRows(dates, x: 310, top: y)) + (manolo && compact ? 9 : 17)
         ensure(75); tableHeader()
         for item in invoice.items {
             let description = [item.name, item.detail, item.discount > 0 ? "Zľava \(Format.number(item.discount)) %" : "",
@@ -185,7 +197,7 @@ enum MonoInvoicePDF {
                           Format.money(item.total(vatEnabled: invoice.supplier.vatPayer), currency: invoice.currency)]
             for (index, chunk) in chunks(description, w: 246, maxHeight: 270).enumerated() {
                 let valueHeight = index == 0 ? zip(values, [CGFloat(62), 92, 101]).map { height($0.0, $0.1) }.max() ?? 0 : 0
-                let rowHeight = max(32, max(height(chunk, 246), valueHeight) + 18)
+                let rowHeight = max(32, max(height(chunk, 246), valueHeight) + (manolo && compact ? 14 : 18))
                 if y + rowHeight > bottom { continued(); tableHeader() }
                 // Locate each page fragment in order so only the item's detail stays muted,
                 // including continuations and descriptions repeating the item's name.
@@ -209,7 +221,7 @@ enum MonoInvoicePDF {
                 y += rowHeight; rule(y)
             }
         }
-        y += 8
+        y += manolo && compact ? 6 : 8
         var totals: [(String, Decimal, Bool)] = []
         if invoice.supplier.vatPayer {
             totals.append(("Základ dane", invoice.net, false))
@@ -223,8 +235,8 @@ enum MonoInvoicePDF {
         let closingHeight = max(qr == nil ? 0 : PaymentQRImage.blockHeight, invoice.signature == nil ? 0 : 85)
         let noteHeight = height(note, width, size: 8)
         let summaryHeight = totals.reduce(CGFloat.zero) { result, row in
-            result + max(25, height(Format.money(row.1, currency: invoice.currency), 193,
-                                    size: row.2 ? 12 : 9, weight: row.2 ? .bold : .regular) + 12)
+            result + max(manolo && row.2 ? 48 : 25, height(Format.money(row.1, currency: invoice.currency), manolo ? 179 : 193,
+                                    size: row.2 ? 12 : 9, weight: row.2 ? .bold : .regular) + (manolo && row.2 ? 28 : 12))
         }
         // Keep a short closing section together instead of exporting a page containing only a QR/signature.
         let closingBlock = summaryHeight + 15 + (note.isEmpty ? 0 : noteHeight + 12) + closingHeight
@@ -232,10 +244,20 @@ enum MonoInvoicePDF {
         for (label, amount, strong) in totals {
             ensure(max(25, height(Format.money(amount, currency: invoice.currency), 193,
                                   size: strong ? 12 : 9, weight: strong ? .bold : .regular) + 12))
-            text(label, left, y + 6, 320, size: 9, weight: strong ? .bold : .regular)
-            let h = text(Format.money(amount, currency: invoice.currency), 370, y + 6, 193, size: strong ? 12 : 9,
-                         weight: strong ? .bold : .regular, alignment: .right)
-            y += max(25, h + 12); rule(y)
+            let highlighted = manolo && strong
+            let rowHeight = max(highlighted ? 48 : 25, height(Format.money(amount, currency: invoice.currency), manolo ? 179 : 193,
+                                size: strong ? 12 : 9, weight: strong ? .bold : .regular) + (highlighted ? 28 : 12))
+            ensure(rowHeight)
+            if highlighted {
+                ManoloInvoiceBrand.highlight.setFill()
+                NSRect(x: left, y: y, width: width, height: rowHeight).fill()
+            }
+            let inset: CGFloat = highlighted ? 14 : 0
+            text(label, left + inset, y + (highlighted ? 17 : 6), highlighted ? 300 : 320, size: 9, weight: strong ? .bold : .regular)
+            text(Format.money(amount, currency: invoice.currency), 370, y + (highlighted ? 15 : 6), 193 - inset, size: strong ? 12 : 9,
+                 weight: strong ? .bold : .regular, alignment: .right)
+            y += rowHeight
+            if !highlighted { rule(y) }
         }
         y += 15
         for chunk in chunks(note, w: width, maxHeight: 250, size: 8) where !chunk.isEmpty {
@@ -256,6 +278,6 @@ enum MonoInvoicePDF {
             }
         }
         endPage(); context.closePDF()
-        return pageCount == nil ? render(invoice, pageCount: page) : output as Data
+        return pageCount == nil ? render(invoice, template: template, pageCount: page) : output as Data
     }
 }

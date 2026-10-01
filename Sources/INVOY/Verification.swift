@@ -130,6 +130,22 @@ enum Verification {
                 precondition(scanned == expected.map { [$0.payload] } ?? [])
                 try data.write(to: destination.appendingPathComponent("Mono-01-\(name).pdf"))
             }
+            for (name, sample) in [("jedna-polozka", invoice), ("tri-polozky-QR", threeItems), ("viac-stran", long)] {
+                var branded = sample
+                branded.templateOverride = .manoloBay
+                branded.supplier.name = "Manolo & Bay"
+                branded.paid = 0
+                let data = InvoicePDF.render(branded)
+                try data.write(to: destination.appendingPathComponent("Manolo-Bay-\(name).pdf"))
+                let document = PDFDocument(data: data)!
+                for contact in ManoloInvoiceBrand.contacts {
+                    precondition((document.string ?? "").contains(contact), "Missing Manolo & Bay contact")
+                }
+                let scanned = try scanQR(document)
+                let expected = try PaymentQR.make(for: branded)
+                precondition(scanned == expected.map { [$0.payload] } ?? [])
+                if name != "viac-stran" { precondition(document.pageCount == 1, "Short Manolo & Bay invoice must fit one page") }
+            }
             let databaseURL = destination.appendingPathComponent("test-database.json")
             try DatabaseFile.save(db, to: databaseURL)
             let read = try DatabaseFile.decode(Data(contentsOf: databaseURL))

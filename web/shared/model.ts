@@ -58,13 +58,16 @@ export const accountSchema = z
   .strict();
 export const templateConfigSchema = z
   .object({
-    layout: z.enum(['classic', 'mono']),
+    layout: z.enum(['classic', 'mono', 'manoloBay']),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     wordmark: text(80),
     logo: imageSchema,
     footer: text(500),
   })
   .strict();
+export const nativeTemplateLayout = (layout: TemplateConfig['layout']) =>
+  layout === 'manoloBay' ? 'manoloBay' : layout === 'mono' ? 'mono01' : 'boringDefault01';
+
 export const templateSchema = z
   .object({
     name: text(80).min(1),
@@ -84,7 +87,7 @@ export const profileSchema = z
     appearance: z
       .object({
         accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-        template: z.enum(['boringDefault01', 'mono01']),
+        template: z.enum(['boringDefault01', 'mono01', 'manoloBay']),
       })
       .strict()
       .optional(),
@@ -141,7 +144,10 @@ const invoiceBase = z
       })
       .strict()
       .optional(),
-    nativeTemplateOverride: z.enum(['boringDefault01', 'mono01']).nullable().optional(),
+    nativeTemplateOverride: z
+      .enum(['boringDefault01', 'mono01', 'manoloBay'])
+      .nullable()
+      .optional(),
     issueDate: date,
     dueDate: date,
     deliveryDate: date.nullable(),

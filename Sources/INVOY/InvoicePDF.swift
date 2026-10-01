@@ -11,8 +11,9 @@ enum InvoicePDF {
 
     static func render(_ invoice: Invoice, accentColor: InvoiceAccent = .standard,
                        defaultTemplate: InvoiceTemplate = .boringDefault01, pageCount: Int? = nil) -> Data {
-        if invoice.resolvedTemplate(default: defaultTemplate) == .mono01 {
-            return MonoInvoicePDF.render(invoice)
+        let template = invoice.resolvedTemplate(default: defaultTemplate)
+        if template == .mono01 || template == .manoloBay {
+            return MonoInvoicePDF.render(invoice, template: template)
         }
         let accent = accentColor.textOnWhite.nsColor
         let bandText: NSColor = accentColor.usesDarkBandText ? .black : .white

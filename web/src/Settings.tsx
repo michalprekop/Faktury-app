@@ -1,3 +1,4 @@
+import { nativeTemplateLayout } from '../shared/model';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { Save, Plus, Trash2, Download, Cloud } from 'lucide-react';
 import { profileSchema, type Profile, type Template } from '../shared/model';
@@ -323,7 +324,7 @@ export function Settings({
                     defaultTemplateID: t.id,
                     appearance: {
                       accent: profile.appearance?.accent ?? t.config.accent,
-                      template: t.config.layout === 'mono' ? 'mono01' : 'boringDefault01',
+                      template: nativeTemplateLayout(t.config.layout),
                     },
                   })
                 }

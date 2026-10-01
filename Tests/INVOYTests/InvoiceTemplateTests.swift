@@ -1,10 +1,76 @@
 import XCTest
 import AppKit
 import PDFKit
+import SwiftUI
 import InvoiceCore
 @testable import INVOY
 
 final class InvoiceTemplateTests: XCTestCase {
+    @MainActor func testManoloBayEditorRendersRequestedHighlight() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = Store(dataDirectory: directory, initialDatabase: Store.seed())
+        var invoice = store.database.invoices[0]
+        invoice.templateOverride = .manoloBay
+        invoice.paid = 0
+        let draft = InvoiceDraft(invoice, store: store)
+        let host = NSHostingView(rootView: InvoicePaper(draft: draft)
+            .environmentObject(store).environment(\.colorScheme, .light)
+            .environment(\.locale, Locale(identifier: "sk_SK")).frame(width: 800).background(.white))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 800, height: 1300),
+                              styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = host
+        defer { window.contentView = nil }
+        host.layoutSubtreeIfNeeded()
+        try await Task.sleep(for: .milliseconds(180))
+        host.layoutSubtreeIfNeeded()
+        let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        var matching = 0
+        for y in stride(from: 0, to: bitmap.pixelsHigh, by: 4) {
+            for x in stride(from: 0, to: bitmap.pixelsWide, by: 4) {
+                guard let color = bitmap.colorAt(x: x, y: y) else { continue }
+                if abs(color.redComponent - 242 / 255.0) < 0.01,
+                   abs(color.greenComponent - 238 / 255.0) < 0.01,
+                   abs(color.blueComponent - 234 / 255.0) < 0.01 { matching += 1 }
+            }
+        }
+        XCTAssertGreaterThan(matching, 1500, "The amount band must visibly use #F2EEEA")
+        if let output = ProcessInfo.processInfo.environment["INVOY_QA_OUTPUT"] {
+            try bitmap.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: output))
+        }
+    }
+
+    @MainActor func testManoloBayExportsContactsAssetsAndReadableQRWithoutChangingInvoice() async throws {
+        var invoice = Store.seed().invoices[0]
+        invoice.templateOverride = .manoloBay
+        invoice.paid = 0
+        invoice.items[0].detail = "Popis so slovenskou diakritikou ľščťžýáíéôäň."
+        let original = invoice
+        XCTAssertNotNil(ManoloInvoiceBrand.image("logo.svg"))
+        XCTAssertNotNil(ManoloInvoiceBrand.image("background.png"))
+        for format in [PaymentQRFormat.payBySquare, .qrPlatba] {
+            invoice.paymentQRFormat = format
+            let document = try XCTUnwrap(PDFDocument(data: InvoicePDF.render(invoice)))
+            XCTAssertEqual(document.pageCount, 1)
+            let content = normalized(document.string ?? "")
+            for value in ManoloInvoiceBrand.contacts + [invoice.number, invoice.supplier.name, invoice.customer.name,
+                invoice.items[0].detail, Format.iban(invoice.account!.iban), "Suma na úhradu"] {
+                XCTAssertTrue(content.contains(normalized(value)), "Missing: \(value)")
+            }
+            XCTAssertEqual(try Verification.scanQR(document), [try XCTUnwrap(PaymentQR.make(for: invoice)).payload])
+        }
+        invoice.paymentQRFormat = original.paymentQRFormat
+        XCTAssertEqual(invoice, original)
+        XCTAssertEqual(try JSONDecoder().decode(Invoice.self, from: JSONEncoder().encode(invoice)), invoice)
+        let style = try JSONDecoder().decode(CloudInvoiceStyle.self, from: Data("""
+            {"id":"manolo-bay","name":"Manolo & Bay","config":{"layout":"manoloBay","accent":"#F2EEEA","wordmark":"Manolo & Bay","logo":"","footer":""}}
+            """.utf8))
+        invoice.templateOverride = .mono01
+        invoice.cloudStyle = style
+        XCTAssertEqual(invoice.resolvedTemplate(default: .boringDefault01), .manoloBay)
+    }
+
     @MainActor func testLegacyDatabaseAndBackupKeepOriginalTemplate() async throws {
         let original = Store.seed()
         var json = try XCTUnwrap(JSONSerialization.jsonObject(with: DatabaseFile.encode(original)) as? [String: Any])

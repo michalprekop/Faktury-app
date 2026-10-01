@@ -1,3 +1,4 @@
+import { manoloBay } from '../shared/manolo-bay';
 import { useEffect, useState, type CSSProperties } from 'react';
 import QRCode from 'qrcode';
 import { encode, CurrencyCode, PaymentOptions } from 'bysquare/pay';
@@ -201,7 +202,8 @@ export function InvoicePaper({
   edit?: Edit;
 }) {
   const sum = totals(invoice),
-    mono = theme.layout === 'mono';
+    manolo = theme.layout === 'manoloBay',
+    mono = theme.layout === 'mono' || manolo;
   const [qr, setQR] = useState(''),
     [qrError, setQRError] = useState('');
   useEffect(() => {
@@ -250,18 +252,25 @@ export function InvoicePaper({
   );
   return (
     <article
-      className={'invoice-paper original-paper ' + theme.layout}
-      style={{ '--invoice-accent': theme.accent } as CSSProperties}
+      className={'invoice-paper original-paper ' + (manolo ? 'mono manoloBay' : theme.layout)}
+      style={{ '--invoice-accent': manolo ? manoloBay.accent : theme.accent } as CSSProperties}
       aria-label={edit ? 'Upraviteľná faktúra' : 'Náhľad faktúry'}
     >
-      {mono && (
-        <div className="original-wordmark">
-          {theme.logo ? (
-            <img src={theme.logo} alt={theme.wordmark || 'Logo dodávateľa'} />
-          ) : (
-            theme.wordmark && <strong>{theme.wordmark}</strong>
-          )}
+      {manolo ? (
+        <div className="manolo-header">
+          <img className="manolo-background" src={manoloBay.background} alt="" />
+          <img className="manolo-logo" src={manoloBay.logo} alt="Manolo & Bay" />
         </div>
+      ) : (
+        mono && (
+          <div className="original-wordmark">
+            {theme.logo ? (
+              <img src={theme.logo} alt={theme.wordmark || 'Logo dodávateľa'} />
+            ) : (
+              theme.wordmark && <strong>{theme.wordmark}</strong>
+            )}
+          </div>
+        )
       )}
       <header className="original-title">
         {mono ? (
@@ -602,15 +611,23 @@ export function InvoicePaper({
         </div>
       )}
       <footer className="original-footer">
-        {theme.footer && <p>{theme.footer}</p>}
-        <div>
-          <span>Vystavil: {field('issuedBy', 'Vystavil')}</span>
-          {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
-            .filter(Boolean)
-            .map((c, i) => (
-              <span key={i}>{c}</span>
+        {!manolo && theme.footer && <p>{theme.footer}</p>}
+        {manolo ? (
+          <div>
+            {manoloBay.contacts.map((contact) => (
+              <span key={contact}>{contact}</span>
             ))}
-        </div>
+          </div>
+        ) : (
+          <div>
+            <span>Vystavil: {field('issuedBy', 'Vystavil')}</span>
+            {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
+              .filter(Boolean)
+              .map((c, i) => (
+                <span key={i}>{c}</span>
+              ))}
+          </div>
+        )}
         {!mono && (theme.logo || invoice.logo) && (
           <img src={theme.logo || invoice.logo} alt="Logo dodávateľa" />
         )}

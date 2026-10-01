@@ -27,13 +27,15 @@ struct InvoicePaper: View {
     @EnvironmentObject private var store: Store
     @ObservedObject var draft: InvoiceDraft
     @State private var newCustomer: Company?
-    private var accent: Color { mono ? .black : Color(nsColor: store.database.settings.invoiceAccent.textOnWhite.nsColor) }
+    private var manolo: Bool { invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate) == .manoloBay }
+    private var monoLayout: Bool { mono || manolo }
+    private var accent: Color { monoLayout ? .black : Color(nsColor: store.database.settings.invoiceAccent.textOnWhite.nsColor) }
     private var invoice: Invoice { draft.invoice }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            Rectangle().fill(mono ? .black : .gray.opacity(0.25)).frame(height: mono ? 10 : 1).padding(.top, 18).padding(.bottom, 24)
+            Rectangle().fill(monoLayout ? .black : .gray.opacity(0.25)).frame(height: mono ? 10 : manolo ? 2 : 1).padding(.top, 18).padding(.bottom, 24)
             HStack(alignment: .top, spacing: 48) {
                 PaperCompany(company: $draft.invoice.supplier, title: "DODÁVATEĽ", accent: accent, supplier: true)
                 PaperCompany(company: $draft.invoice.customer, title: "ODBERATEĽ", accent: accent)
@@ -56,7 +58,7 @@ struct InvoicePaper: View {
             paymentDetails.padding(.bottom, 20)
             items
             closing.padding(.top, 24)
-            if !mono { paymentBand.padding(.top, 20) }
+            if !monoLayout { paymentBand.padding(.top, 20) }
             Spacer(minLength: 50)
             rule
             footer.padding(.top, 14)
@@ -85,7 +87,20 @@ struct InvoicePaper: View {
         }
     }
 
-    private var footer: some View {
+    @ViewBuilder private var footer: some View {
+        if manolo {
+            HStack(alignment: .top, spacing: 16) {
+                ForEach(Array(ManoloInvoiceBrand.contacts.enumerated()), id: \.offset) { index, value in
+                    Text(value).font(.system(size: 10))
+                        .frame(maxWidth: .infinity, alignment: index == 0 ? .leading : index == 2 ? .trailing : .center)
+                }
+            }.foregroundStyle(.secondary)
+        } else {
+            standardFooter
+        }
+    }
+
+    private var standardFooter: some View {
         let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
         return VStack(spacing: 16) {
             HStack(alignment: .top, spacing: 16) {
@@ -109,20 +124,22 @@ struct InvoicePaper: View {
     }
 
     @ViewBuilder private var header: some View {
-        if mono {
-            VStack(alignment: .leading, spacing: 42) {
-                if let logo = MonoInvoiceBrand.image(for: invoice) {
+        if monoLayout {
+            VStack(alignment: .leading, spacing: manolo ? 24 : 42) {
+                if manolo {
+                    ManoloInvoiceHeader()
+                } else if let logo = MonoInvoiceBrand.image(for: invoice) {
                     Image(nsImage: logo).resizable().scaledToFit()
                         .frame(maxWidth: .infinity)
                         .accessibilityLabel(invoice.cloudStyle?.config.wordmark ?? "Uncut Corners")
                 }
                 HStack(alignment: .bottom, spacing: 24) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Číslo faktúry").font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary)
+                        Text("Číslo faktúry").font(.system(size: 11, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
                         PaperField("Číslo faktúry", text: $draft.invoice.number, size: 18, weight: .bold, numeric: true)
                     }
                     Spacer(minLength: 0)
-                    Text("FAKTÚRA").font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    Text("FAKTÚRA").font(.system(size: 14, weight: .semibold, design: mono ? .monospaced : .default))
                         .fixedSize().padding(.bottom, 3)
                 }
             }
@@ -197,14 +214,14 @@ struct InvoicePaper: View {
 
     private var items: some View {
         VStack(spacing: 0) {
-            if mono { Rectangle().fill(.black).frame(height: 10) }
+            if monoLayout { Rectangle().fill(.black).frame(height: manolo ? 2 : 10) }
             HStack(spacing: 10) {
                 Text("POLOŽKA").frame(maxWidth: .infinity, alignment: .leading)
                 Text("POČET").frame(width: 52, alignment: .trailing)
                 Text("JEDNOTKA").frame(width: 56, alignment: .trailing)
                 Text("CENA / MJ").frame(width: 90, alignment: .trailing)
                 Text(invoice.supplier.vatPayer ? "SPOLU S DPH" : "SPOLU").frame(width: 110, alignment: .trailing)
-            }.font(.system(size: 10, weight: .semibold, design: mono ? .monospaced : .default)).foregroundStyle(.secondary).padding(12).background(Color(white: mono ? 1 : 0.96))
+            }.font(.system(size: 10, weight: .semibold, design: mono ? .monospaced : .default)).foregroundStyle(.secondary).padding(12).background(Color(white: monoLayout ? 1 : 0.96))
             ForEach($draft.invoice.items) { $item in
                 PaperItem(item: $item, currency: invoice.currency, vatPayer: invoice.supplier.vatPayer,
                           canRemove: invoice.items.count > 1, remove: { draft.removeItem(item.id) })
@@ -225,7 +242,7 @@ struct InvoicePaper: View {
     }
 
     @ViewBuilder private var closing: some View {
-        if mono {
+        if monoLayout {
             totals
             PaperField("Poznámka", text: $draft.invoice.note, size: 12, color: .secondary).padding(.top, 18)
         } else {
@@ -238,7 +255,7 @@ struct InvoicePaper: View {
     }
 
     private var totals: some View {
-        VStack(spacing: mono ? 12 : 14) {
+        VStack(spacing: monoLayout ? 12 : 14) {
             if invoice.supplier.vatPayer {
                 totalLine("Základ dane", invoice.net)
                 ForEach(Array(Set(invoice.items.map(\.vatRate))).sorted(), id: \.self) { rate in
@@ -252,7 +269,7 @@ struct InvoicePaper: View {
                 PaperNumber(title: "Uhradené", value: $draft.invoice.paid, key: "paid").frame(width: 120)
                 Text(invoice.currency).font(.system(size: 12, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
             }
-            totalLine("Suma na úhradu", invoice.remaining, strong: true, color: accent)
+            totalLine("Suma na úhradu", invoice.remaining, strong: true, color: accent, highlighted: manolo)
             if invoice.overpayment > 0 { totalLine("Preplatok", invoice.overpayment) }
             if let data = invoice.signature, let signature = NSImage(data: data) {
                 VStack(alignment: .trailing, spacing: 7) {
@@ -263,14 +280,17 @@ struct InvoicePaper: View {
         }
     }
 
-    private func totalLine(_ title: String, _ value: Decimal, strong: Bool = false, color: Color = .primary) -> some View {
+    private func totalLine(_ title: String, _ value: Decimal, strong: Bool = false, color: Color = .primary, highlighted: Bool = false) -> some View {
         HStack {
             PaperText(title, size: strong ? 14 : 13, weight: strong ? .semibold : .regular)
             Spacer(minLength: 4)
             PaperText(Format.money(value, currency: invoice.currency), size: strong ? 17 : 13, weight: strong ? .semibold : .regular, monospaced: true)
                 .foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.6)
-        }.padding(.bottom, mono ? 10 : 0)
-            .overlay(alignment: .bottom) { if mono { rule } }
+        }.padding(.horizontal, highlighted ? 18 : 0)
+            .padding(.vertical, highlighted ? 22 : 0)
+            .padding(.bottom, monoLayout && !highlighted ? 10 : 0)
+            .background(highlighted ? Color(nsColor: ManoloInvoiceBrand.highlight) : .clear)
+            .overlay(alignment: .bottom) { if monoLayout && !highlighted { rule } }
     }
 
     private var paymentBand: some View {

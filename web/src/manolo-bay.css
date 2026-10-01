@@ -1,0 +1,69 @@
+/* Manolo & Bay keeps Mono 01's document grid with the supplied layered branding. */
+.original-paper.manoloBay {
+  background: #fff;
+  color: #141414;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.manolo-header {
+  position: relative;
+  height: 150px;
+  flex: 0 0 150px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.manolo-header img {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  object-fit: contain;
+}
+.manolo-header .manolo-background {
+  width: 450px;
+  max-width: none;
+  top: -130px;
+}
+.manolo-header .manolo-logo {
+  width: 410px;
+  max-width: 72%;
+  height: 81px;
+  top: 45px;
+}
+.manoloBay .original-title {
+  border-bottom: 2px solid #141414;
+}
+.manoloBay .original-items {
+  border-top: 2px solid #141414;
+}
+.manoloBay .original-registration,
+.manoloBay .original-items td,
+.manoloBay .original-totals p:not(:nth-child(2)),
+.manoloBay .original-footer > div {
+  border-color: #d1d1d1;
+  border-style: solid;
+  border-width: 0 0 1px;
+}
+.manoloBay .original-footer > div {
+  border-width: 1px 0 0;
+}
+.manoloBay .original-totals .original-remaining {
+  background: #f2eeea;
+  color: #141414;
+  border: 0 !important;
+  padding: 22px 18px !important;
+}
+.manoloBay .original-footer > div > span:first-child {
+  display: block;
+  white-space: normal;
+}
+.manoloBay .original-footer > div > span:nth-child(2) {
+  text-align: center;
+}
+.template-thumbnail.manoloBay {
+  border-top-color: #f2eeea !important;
+  background: #fff;
+}
+.template-thumbnail.manoloBay > img {
+  width: 70%;
+  max-width: 180px;
+  margin: 0 auto 12px;
+}

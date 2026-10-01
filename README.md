@@ -20,7 +20,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.2.9 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
+Mac distribúcia 1.2.10 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
 
 ## Pôvodný lokálny režim
 
@@ -37,6 +37,7 @@ Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudo
 - Kliknutie na pozadie webovej aplikácie zatvorí otvorený PDF náhľad faktúry rovnako ako X.
 - A4 PDF s viacstranovými položkami, diakritikou, logom a podpisom.
 - Šablóny faktúr: pôvodný vzhľad **Boring default 01** a čiernobiela **Mono 01** s vektorovým logom Uncut Corners cez celú šírku gridu, malým nápisom FAKTÚRA vpravo pri čísle, hrubými plnými a tenkými čiernymi prerušovanými čiarami a písmom SF Mono vo všetkých textoch. Obe zachovávajú fakturačné údaje, podpis a platobný QR kód. Mono 01 používa v hlavičke dodané logo zo zdrojov aplikácie; uložené logá faktúr sa nemenia a Boring default 01 ich naďalej zobrazuje.
+- **Manolo & Bay** zachováva rozloženie Mono 01 na bielom papieri, dopĺňa dodané SVG logo nad jemným znakom v hlavičke, svetlobéžové zvýraznenie `#F2EEEA` a pätičku „Vystavil: Dominika Vašek“, „Web: manolobay.com“, „dominika@manolobay.com“. Je dostupná na webe aj Macu vrátane PDF. Cloudový katalóg ju obsahuje samostatne; správca ju prideľuje účtom v Administrácii. Existujúce faktúry ani predvolená šablóna sa automaticky nemenia.
 - Globálny výber je v **Nastavenia → Vzhľad → Šablóna faktúry**. Platí pre nové aj existujúce faktúry s voľbou **Podľa globálnych nastavení**. Ikona šablóny v hornej lište faktúry alebo **Možnosti faktúry → Šablóna faktúry** umožňuje pevne zvoliť vzhľad iba pre danú faktúru. Zmena sa ukladá automaticky; duplikovanie zachová individuálnu voľbu. Staršie dáta a zálohy používajú pôvodný vzhľad, kým šablónu nezmeníte. Farba zvýraznení sa používa v Boring default 01.
 - Písmo SF Mono v aplikácii aj PDF pre samostatné sumy, dátumy, množstvá a identifikátory. Čísla vo vetách, názvoch, adresách a popisoch používajú rovnaké písmo ako okolitý text.
 - Platobný QR kód na neuhradených faktúrach: PAY by square (SK) alebo QR Platba (CZ).

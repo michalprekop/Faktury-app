@@ -3,11 +3,13 @@ import Foundation
 public enum InvoiceTemplate: String, Codable, CaseIterable {
     case boringDefault01
     case mono01
+    case manoloBay
 
     public var title: String {
         switch self {
         case .boringDefault01: return "Boring default 01"
         case .mono01: return "Mono 01"
+        case .manoloBay: return "Manolo & Bay"
         }
     }
 }
@@ -29,6 +31,12 @@ public struct CloudInvoiceStyle: Codable, Equatable, Identifiable {
         public var logo: String
         public var footer: String
     }
-    public var layout: InvoiceTemplate { config.layout == "mono" ? .mono01 : .boringDefault01 }
+    public var layout: InvoiceTemplate {
+        switch config.layout {
+        case "mono": return .mono01
+        case "manoloBay": return .manoloBay
+        default: return .boringDefault01
+        }
+    }
     public var logoData: Data? { config.logo.split(separator: ",", maxSplits: 1).last.flatMap { Data(base64Encoded: String($0)) } }
 }

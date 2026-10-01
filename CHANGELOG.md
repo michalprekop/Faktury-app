@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1.2.10 — 1. 10. 2026 — Šablóna Manolo & Bay
+
+- Nová šablóna na webe aj Macu vychádza z rozloženia Mono 01 a zachováva všetky fakturačné údaje aj platobný QR kód.
+- Biele pozadie, jemný znak za vycentrovaným logom Manolo & Bay a svetlobéžové zvýraznenie sumy `#F2EEEA`.
+- Pätička obsahuje Dominiku Vašek, manolobay.com a dominika@manolobay.com. Nový dizajn nemení vzhľad existujúcich faktúr ani priradenia šablón.
+
 ## 1.2.9 — 1. 10. 2026 — Neutrálne označenie faktúry
 
 - Vybraná faktúra má na Macu aj webe teplé sivé pozadie s tmavým textom, bez modrého systémového zvýraznenia.

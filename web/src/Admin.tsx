@@ -1,3 +1,4 @@
+import { manoloBay } from '../shared/manolo-bay';
 import { useEffect, useState } from 'react';
 import { Plus, Save, Users, Palette, ShieldCheck } from 'lucide-react';
 import {
@@ -219,7 +220,9 @@ export function Admin() {
                   className={'template-thumbnail ' + t.config.layout}
                   style={{ borderTopColor: t.config.accent }}
                 >
-                  {t.config.logo ? (
+                  {t.config.layout === 'manoloBay' ? (
+                    <img src={manoloBay.logo} alt="" />
+                  ) : t.config.logo ? (
                     <img src={t.config.logo} alt="" />
                   ) : (
                     <b>{t.config.wordmark || 'FAKTÚRA'}</b>
@@ -348,47 +351,62 @@ function TemplateEditor({
                 onChange={(e) =>
                   setValue({
                     ...value,
-                    config: { ...value.config, layout: e.target.value as 'classic' | 'mono' },
+                    config: {
+                      ...value.config,
+                      layout: e.target.value as Template['config']['layout'],
+                    },
                   })
                 }
               >
                 <option value="classic">Boring default 01</option>
                 <option value="mono">Mono 01</option>
+                <option value="manoloBay">Manolo &amp; Bay</option>
               </select>
             </Field>
-            <Field label="Farba">
-              <input
-                type="color"
-                value={value.config.accent}
-                onChange={(e) =>
-                  setValue({ ...value, config: { ...value.config, accent: e.target.value } })
-                }
-              />
-            </Field>
-            <Field label="Textová značka" wide>
-              <input
-                value={value.config.wordmark}
-                onChange={(e) =>
-                  setValue({ ...value, config: { ...value.config, wordmark: e.target.value } })
-                }
-              />
-            </Field>
-            <Field label="Pätička faktúry" wide>
-              <textarea
-                rows={3}
-                value={value.config.footer}
-                onChange={(e) =>
-                  setValue({ ...value, config: { ...value.config, footer: e.target.value } })
-                }
-              />
-            </Field>
+            {value.config.layout === 'manoloBay' ? (
+              <p className="muted small-copy">
+                Logo, znak v pozadí, zvýraznenie #F2EEEA a kontakty Dominiky Vašek sú súčasťou
+                šablóny Manolo &amp; Bay.
+              </p>
+            ) : (
+              <>
+                <Field label="Farba">
+                  <input
+                    type="color"
+                    value={value.config.accent}
+                    onChange={(e) =>
+                      setValue({ ...value, config: { ...value.config, accent: e.target.value } })
+                    }
+                  />
+                </Field>
+                <Field label="Textová značka" wide>
+                  <input
+                    value={value.config.wordmark}
+                    onChange={(e) =>
+                      setValue({ ...value, config: { ...value.config, wordmark: e.target.value } })
+                    }
+                  />
+                </Field>
+                <Field label="Pätička faktúry" wide>
+                  <textarea
+                    rows={3}
+                    value={value.config.footer}
+                    onChange={(e) =>
+                      setValue({ ...value, config: { ...value.config, footer: e.target.value } })
+                    }
+                  />
+                </Field>
+              </>
+            )}
           </div>
-          <ImageInput
-            label="Logo v šablóne"
-            value={value.config.logo}
-            onChange={(logo) => setValue({ ...value, config: { ...value.config, logo } })}
-            onError={setError}
-          />
+          {value.config.layout !== 'manoloBay' && (
+            <ImageInput
+              label="Logo v šablóne"
+              value={value.config.logo}
+              onChange={(logo) => setValue({ ...value, config: { ...value.config, logo } })}
+              onError={setError}
+            />
+          )}
           <label className="check">
             <input
               type="checkbox"

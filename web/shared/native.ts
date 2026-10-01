@@ -10,6 +10,7 @@ import {
   type SavedInvoice,
   type Template,
   templateConfigSchema,
+  nativeTemplateLayout,
 } from './model';
 
 const number = z.number().finite();
@@ -20,7 +21,7 @@ const data = z
   .max(180000)
   .regex(/^[A-Za-z0-9+/=]*$/)
   .optional();
-const layout = z.enum(['boringDefault01', 'mono01']);
+const layout = z.enum(['boringDefault01', 'mono01', 'manoloBay']);
 const cloudStyle = z
   .object({ id: z.string().max(64), name: z.string().max(80), config: templateConfigSchema })
   .strict();
@@ -119,8 +120,7 @@ const nativeDate = (day: string, prior?: number) =>
 const image = (s?: string) =>
   !s ? '' : `data:image/${s.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${s}`;
 const bytes = (s: string) => (s ? s.split(',')[1] : undefined);
-export const templateLayout = (template: Template) =>
-  template.config.layout === 'mono' ? 'mono01' : 'boringDefault01';
+export const templateLayout = (template: Template) => nativeTemplateLayout(template.config.layout);
 export function chooseTemplate(
   templates: Template[],
   desired: string | undefined,
@@ -229,7 +229,7 @@ export function toNativeInvoice(i: SavedInvoice): NativeInvoice {
     paymentMethod: i.paymentMethod === 'Karta' ? 'Platobná karta' : i.paymentMethod,
     paymentQRFormat: i.qrFormat,
     cloudStyle: { id: i.templateID, name: i.templateName, config: i.templateSnapshot },
-    templateOverride: i.templateSnapshot.layout === 'mono' ? 'mono01' : 'boringDefault01',
+    templateOverride: nativeTemplateLayout(i.templateSnapshot.layout),
     note: i.note,
     issuedBy: i.issuedBy,
     logo: bytes(i.logo),

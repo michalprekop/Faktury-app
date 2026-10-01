@@ -64,8 +64,8 @@ struct InvoiceAppearanceSettings: View {
                         IconButton("Obnoviť pôvodnú farbu", "arrow.counterclockwise") { settings.invoiceAccentHex = nil }
                             .disabled(settings.invoiceAccent == .standard)
                     }
-                }.disabled(settings.defaultInvoiceTemplate == .mono01)
-                    .help("Farba zvýraznení patrí k šablóne Boring default 01. Mono 01 je čiernobiela.")
+                }.disabled(settings.defaultInvoiceTemplate != .boringDefault01)
+                    .help("Farba zvýraznení patrí k šablóne Boring default 01. Ostatné šablóny majú vlastné farby.")
             }.frame(width: 250)
             LivePreview(invoice: invoice, showsZoomControls: true, accentOverride: settings.invoiceAccent,
                         templateOverride: settings.defaultInvoiceTemplate)
