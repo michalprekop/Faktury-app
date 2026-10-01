@@ -1,5 +1,10 @@
 import { z } from 'zod';
 import Decimal from 'decimal.js';
+import {
+  MAX_PROFILE_IMAGE_BYTES,
+  MAX_PROFILE_IMAGE_BASE64,
+  base64ByteLength,
+} from './image-limits';
 
 const text = (max = 250) => z.string().trim().max(max);
 const decimal = (max: number, min = 0) =>
@@ -14,10 +19,19 @@ const date = z
     (v) => !isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v,
     'Neplatný dátum.',
   );
-export const imageSchema = z
+const templateImageSchema = z
   .string()
   .max(180_000)
   .regex(/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/)
+  .or(z.literal(''));
+export const imageSchema = z
+  .string()
+  .max(MAX_PROFILE_IMAGE_BASE64 + 'data:image/jpeg;base64,'.length)
+  .regex(/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/)
+  .refine(
+    (value) => base64ByteLength(value.slice(value.indexOf(',') + 1)) <= MAX_PROFILE_IMAGE_BYTES,
+    'Obrázok môže mať najviac 0,5 MB.',
+  )
   .or(z.literal(''));
 export const companySchema = z
   .object({
@@ -61,7 +75,7 @@ export const templateConfigSchema = z
     layout: z.enum(['classic', 'mono', 'manoloBay']),
     accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     wordmark: text(80),
-    logo: imageSchema,
+    logo: templateImageSchema,
     footer: text(500),
   })
   .strict();

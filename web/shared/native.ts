@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import {
+  MAX_PROFILE_IMAGE_BYTES,
+  MAX_PROFILE_IMAGE_BASE64,
+  base64ByteLength,
+} from './image-limits';
+import {
   companySchema,
   accountSchema,
   invoiceSchema,
@@ -18,8 +23,12 @@ const nativeCompany = companySchema.extend({ id: z.string().uuid() });
 const nativeAccount = accountSchema.extend({ holderName: z.string().optional() });
 const data = z
   .string()
-  .max(180000)
+  .max(MAX_PROFILE_IMAGE_BASE64)
   .regex(/^[A-Za-z0-9+/=]*$/)
+  .refine(
+    (value) => base64ByteLength(value) <= MAX_PROFILE_IMAGE_BYTES,
+    'Obrázok môže mať najviac 0,5 MB.',
+  )
   .optional();
 const layout = z.enum(['boringDefault01', 'mono01', 'manoloBay']);
 const cloudStyle = z

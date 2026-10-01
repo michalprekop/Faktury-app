@@ -1,4 +1,5 @@
 import { importNative } from './native-import';
+import { IMAGE_REQUEST_BYTES } from '../shared/image-limits';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
@@ -103,7 +104,7 @@ api.put('/native/profile', async (c) => {
       templateID: z.string().nullable(),
     })
     .strict()
-    .parse(await body(c, 1500000));
+    .parse(await body(c, IMAGE_REQUEST_BYTES));
   return saveProfile(c, {
     profile: fromNativeSettings(input.settings, input.customers, input.templateID),
     version: input.version,
@@ -131,14 +132,14 @@ api.put('/native/invoices/:id', async (c) => {
       templateID: z.string().min(1).max(64),
     })
     .strict()
-    .parse(await body(c));
+    .parse(await body(c, IMAGE_REQUEST_BYTES));
   return saveInvoice(c, fromNativeInvoice(input.invoice, input.version, input.templateID));
 });
 api.put('/profile', async (c) => {
   const input = z
     .object({ profile: profileSchema, version: z.number().int().nonnegative() })
     .strict()
-    .parse(await body(c));
+    .parse(await body(c, IMAGE_REQUEST_BYTES));
   return saveProfile(c, input);
 });
 async function saveProfile(c: C, input: { profile: Profile; version: number }) {
@@ -203,7 +204,9 @@ api.get('/invoices/:id', async (c) => {
   if (!row) fail(404, 'Faktúra sa nenašla.');
   return c.json({ ...JSON.parse(row.document), deletedAt: row.deleted_at });
 });
-api.put('/invoices/:id', async (c) => saveInvoice(c, invoiceSchema.parse(await body(c))));
+api.put('/invoices/:id', async (c) =>
+  saveInvoice(c, invoiceSchema.parse(await body(c, IMAGE_REQUEST_BYTES))),
+);
 async function saveInvoice(c: C, input: Invoice) {
   if (input.id !== (c.req.param('id') ?? '').toLowerCase())
     fail(400, 'Nesúhlasí identifikátor faktúry.');

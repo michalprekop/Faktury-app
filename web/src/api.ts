@@ -1,3 +1,5 @@
+import { imageSizeLabel } from '../shared/image-limits';
+
 export let csrf = '';
 export function setCSRF(value: string) {
   csrf = value;
@@ -17,9 +19,10 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   }
   return response.json();
 }
-export async function imageFile(file: File): Promise<string> {
+export async function imageFile(file: File, maxBytes = 130_000): Promise<string> {
   if (!['image/png', 'image/jpeg'].includes(file.type)) throw new Error('Vyberte PNG alebo JPEG.');
-  if (file.size > 130_000) throw new Error('Obrázok môže mať najviac 130 kB.');
+  if (file.size > maxBytes)
+    throw new Error(`Obrázok môže mať najviac ${imageSizeLabel(maxBytes)}.`);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));

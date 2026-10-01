@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { X, Upload, Trash2 } from 'lucide-react';
 import type { Company } from '../shared/model';
 import { imageFile } from './api';
+import { imageSizeLabel } from '../shared/image-limits';
 
 export function Field({
   label,
@@ -141,11 +142,13 @@ export function ImageInput({
   value,
   onChange,
   onError,
+  maxBytes = 130_000,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   onError: (s: string) => void;
+  maxBytes?: number;
 }) {
   return (
     <div className="image-input">
@@ -162,7 +165,7 @@ export function ImageInput({
               const f = e.target.files?.[0];
               if (f)
                 try {
-                  onChange(await imageFile(f));
+                  onChange(await imageFile(f, maxBytes));
                 } catch (error) {
                   onError((error as Error).message);
                 }
@@ -180,7 +183,7 @@ export function ImageInput({
           </button>
         )}
       </div>
-      <small>PNG alebo JPEG · do 130 kB</small>
+      <small>PNG alebo JPEG · do {imageSizeLabel(maxBytes)}</small>
     </div>
   );
 }

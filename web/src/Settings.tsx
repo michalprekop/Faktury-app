@@ -1,4 +1,5 @@
 import { nativeTemplateLayout } from '../shared/model';
+import { MAX_PROFILE_IMAGE_BYTES } from '../shared/image-limits';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { Save, Plus, Trash2, Download, Cloud } from 'lucide-react';
 import { profileSchema, type Profile, type Template } from '../shared/model';
@@ -169,12 +170,14 @@ export function Settings({
           <div className="image-grid">
             <ImageInput
               label="Logo firmy"
+              maxBytes={MAX_PROFILE_IMAGE_BYTES}
               value={profile.logo}
               onChange={(logo) => update({ logo })}
               onError={setError}
             />
             <ImageInput
               label="Podpis"
+              maxBytes={MAX_PROFILE_IMAGE_BYTES}
               value={profile.signature}
               onChange={(signature) => update({ signature })}
               onError={setError}

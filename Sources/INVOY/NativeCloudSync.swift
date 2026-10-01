@@ -159,7 +159,7 @@ import InvoiceCore
                 let input = Profile(settings: local.settings, customers: local.customers, version: base.profileVersion, defaultTemplateID: selected)
                 var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(input)) as! [String: Any]
                 object.removeValue(forKey: "defaultTemplateID"); object["templateID"] = selected ?? NSNull() as Any
-                let ack: Acknowledgement = try await request("native/profile", method: "PUT", data: JSONSerialization.data(withJSONObject: object))
+                let ack: Acknowledgement = try await request("native/profile", method: "PUT", data: JSONSerialization.data(withJSONObject: object, options: [.withoutEscapingSlashes]))
                 base.profileVersion = ack.version; base.database.settings = local.settings; base.database.customers = local.customers
                 state = base; try persistState()
             }
@@ -167,7 +167,9 @@ import InvoiceCore
                 let selected = invoice.cloudStyle?.id ?? local.settings.cloudTemplateID ?? templates.first(where: { $0.layout == invoice.resolvedTemplate(default: local.settings.defaultInvoiceTemplate) })?.id
                 guard let selected else { throw DataError.invalid("Správca musí priradiť šablónu faktúry.") }
                 struct Input: Encodable { var invoice: Invoice; var version: Int; var templateID: String }
-                let ack: Acknowledgement = try await request("native/invoices/\(invoice.id.uuidString)", method: "PUT", data: JSONEncoder().encode(Input(invoice: invoice, version: base.versions[invoice.id] ?? 0, templateID: selected)))
+                let encoder = JSONEncoder()
+                encoder.outputFormatting = [.withoutEscapingSlashes]
+                let ack: Acknowledgement = try await request("native/invoices/\(invoice.id.uuidString)", method: "PUT", data: encoder.encode(Input(invoice: invoice, version: base.versions[invoice.id] ?? 0, templateID: selected)))
                 base.database.invoices.removeAll { $0.id == invoice.id }; base.database.invoices.append(invoice)
                 base.versions[invoice.id] = ack.version; remote[invoice.id] = ack.version
                 state = base; try persistState()

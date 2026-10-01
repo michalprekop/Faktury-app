@@ -213,17 +213,18 @@ struct ImageSetting: View {
                 Button("Vybrať obrázok") { choose() }
                 if data != nil { IconButton("Odstrániť obrázok", "trash") { data = nil } }
             }
+            Text(ProfileImageUpload.help).font(.system(size: 11)).foregroundStyle(.secondary)
             if let error { Text(error).font(.system(size: 11)).foregroundStyle(.red) }
         }
     }
     private func choose() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, .jpeg, .tiff]
+        panel.allowedContentTypes = [.png, .jpeg]
         panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let bytes = try Data(contentsOf: url)
-            guard bytes.count <= 10_000_000, NSImage(data: bytes) != nil else { error = "Vyberte obrázok do 10 MB."; return }
+            try ProfileImageUpload.validate(bytes)
             data = bytes; error = nil
         } catch { self.error = error.localizedDescription }
     }
