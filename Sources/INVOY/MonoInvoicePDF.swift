@@ -155,8 +155,8 @@ enum MonoInvoicePDF {
                 picture(ManoloInvoiceBrand.data("background.png"), NSRect(x: (pageWidth - 334) / 2, y: 0,
                     width: 334, height: 334 * background.size.height / background.size.width))
             }
-            picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 304) / 2, y: compact ? 20 : 32, width: 304, height: 60))
-            metadataTop = compact ? 90 : 108
+            picture(ManoloInvoiceBrand.data("logo.svg"), NSRect(x: (pageWidth - 182.4) / 2, y: 12, width: 182.4, height: 36))
+            metadataTop = 60
         } else {
             let logoTop: CGFloat = compact ? 22 : 32
             let logoSize = MonoInvoiceBrand.image(for: invoice)?.size ?? NSSize(width: 1559, height: 158)
@@ -252,10 +252,18 @@ enum MonoInvoicePDF {
                 ManoloInvoiceBrand.highlight.setFill()
                 NSRect(x: left, y: y, width: width, height: rowHeight).fill()
             }
-            let inset: CGFloat = highlighted ? 14 : 0
-            text(label, left + inset, y + (highlighted ? 17 : 6), highlighted ? 300 : 320, size: 9, weight: strong ? .bold : .regular)
-            text(Format.money(amount, currency: invoice.currency), 370, y + (highlighted ? 15 : 6), 193 - inset, size: strong ? 12 : 9,
-                 weight: strong ? .bold : .regular, alignment: .right)
+            if highlighted {
+                text("Variabilný symbol", left + 14, y + 9, 155, size: 7)
+                text(invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol, left + 14, y + 23, 155, size: 9, weight: .semibold)
+                text("Dátum splatnosti", left + 185, y + 9, 145, size: 7)
+                text(Format.date(invoice.dueDate), left + 185, y + 23, 145, size: 9, weight: .semibold)
+                text(label, 370, y + 9, 179, size: 7, alignment: .right)
+                text(Format.money(amount, currency: invoice.currency), 370, y + 22, 179, size: 12, weight: .bold, alignment: .right)
+            } else {
+                text(label, left, y + 6, 320, size: 9, weight: strong ? .bold : .regular)
+                text(Format.money(amount, currency: invoice.currency), 370, y + 6, 193, size: strong ? 12 : 9,
+                     weight: strong ? .bold : .regular, alignment: .right)
+            }
             y += rowHeight
             if !highlighted { rule(y) }
         }

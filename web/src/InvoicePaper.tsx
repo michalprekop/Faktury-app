@@ -585,10 +585,27 @@ export function InvoicePaper({
               {edit && invoice.currency}
             </span>
           </p>
-          <p className="original-remaining">
-            <span>Suma na úhradu</span>
-            <b className="numeric">{money(sum.remaining, invoice.currency)}</b>
-          </p>
+          {manolo ? (
+            <div className="original-remaining manolo-payment-summary">
+              <div>
+                <small>Variabilný symbol</small>
+                <strong className="numeric">{invoice.variableSymbol || '—'}</strong>
+              </div>
+              <div>
+                <small>Dátum splatnosti</small>
+                <strong className="numeric">{displayDate(invoice.dueDate)}</strong>
+              </div>
+              <div>
+                <small>Suma na úhradu</small>
+                <strong className="numeric">{money(sum.remaining, invoice.currency)}</strong>
+              </div>
+            </div>
+          ) : (
+            <p className="original-remaining">
+              <span>Suma na úhradu</span>
+              <b className="numeric">{money(sum.remaining, invoice.currency)}</b>
+            </p>
+          )}
           {Number(sum.overpaid) > 0 && (
             <p>
               <span>Preplatok</span>

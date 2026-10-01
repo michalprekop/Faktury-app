@@ -35,10 +35,10 @@ struct InvoicePaper: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            Rectangle().fill(monoLayout ? .black : .gray.opacity(0.25)).frame(height: mono ? 10 : manolo ? 2 : 1).padding(.top, 18).padding(.bottom, 24)
+            Rectangle().fill(monoLayout ? .black : .gray.opacity(0.25)).frame(height: mono ? 10 : manolo ? 2 : 1).padding(.top, manolo ? 12 : 18).padding(.bottom, manolo ? 16 : 24)
             HStack(alignment: .top, spacing: 48) {
-                PaperCompany(company: $draft.invoice.supplier, title: "DODÁVATEĽ", accent: accent, supplier: true)
-                PaperCompany(company: $draft.invoice.customer, title: "ODBERATEĽ", accent: accent)
+                PaperCompany(company: $draft.invoice.supplier, title: "DODÁVATEĽ", accent: accent, supplier: true, compact: manolo)
+                PaperCompany(company: $draft.invoice.customer, title: "ODBERATEĽ", accent: accent, compact: manolo)
                     .overlay(alignment: .topTrailing) {
                         Menu {
                             ForEach(store.database.customers.sorted { $0.name < $1.name }) { customer in
@@ -52,18 +52,18 @@ struct InvoicePaper: View {
                     }
             }
             PaperField("Zápis v registri", text: $draft.invoice.supplier.registration, size: 10, color: .secondary)
-                .padding(.top, 16).padding(.bottom, 14)
+                .padding(.top, manolo ? 8 : 16).padding(.bottom, manolo ? 8 : 14)
             rule
-            dates.padding(.vertical, 18)
-            paymentDetails.padding(.bottom, 20)
+            dates.padding(.vertical, manolo ? 12 : 18)
+            paymentDetails.padding(.bottom, manolo ? 12 : 20)
             items
-            closing.padding(.top, 24)
+            closing.padding(.top, manolo ? 16 : 24)
             if !monoLayout { paymentBand.padding(.top, 20) }
-            Spacer(minLength: 50)
+            Spacer(minLength: manolo ? 32 : 50)
             rule
             footer.padding(.top, 14)
         }
-        .padding(.horizontal, 42).padding(.top, 44).padding(.bottom, 40)
+        .padding(.horizontal, 42).padding(.top, manolo ? 16 : 44).padding(.bottom, 40)
         .frame(minHeight: 1080, alignment: .top)
         .background(alignment: .top) {
             if manolo { ManoloInvoiceBackground() }
@@ -128,7 +128,7 @@ struct InvoicePaper: View {
 
     @ViewBuilder private var header: some View {
         if monoLayout {
-            VStack(alignment: .leading, spacing: manolo ? 24 : 42) {
+            VStack(alignment: .leading, spacing: manolo ? 16 : 42) {
                 if manolo {
                     ManoloInvoiceHeader()
                 } else if let logo = MonoInvoiceBrand.image(for: invoice) {
@@ -247,7 +247,7 @@ struct InvoicePaper: View {
     @ViewBuilder private var closing: some View {
         if monoLayout {
             totals
-            PaperField("Poznámka", text: $draft.invoice.note, size: 12, color: .secondary).padding(.top, 18)
+            PaperField("Poznámka", text: $draft.invoice.note, size: 12, color: .secondary).padding(.top, manolo ? 12 : 18)
         } else {
             HStack(alignment: .top, spacing: 36) {
                 PaperField("Poznámka", text: $draft.invoice.note, size: 12, color: .secondary)
@@ -258,7 +258,7 @@ struct InvoicePaper: View {
     }
 
     private var totals: some View {
-        VStack(spacing: monoLayout ? 12 : 14) {
+        VStack(spacing: manolo ? 8 : monoLayout ? 12 : 14) {
             if invoice.supplier.vatPayer {
                 totalLine("Základ dane", invoice.net)
                 ForEach(Array(Set(invoice.items.map(\.vatRate))).sorted(), id: \.self) { rate in
@@ -272,7 +272,21 @@ struct InvoicePaper: View {
                 PaperNumber(title: "Uhradené", value: $draft.invoice.paid, key: "paid").frame(width: 120)
                 Text(invoice.currency).font(.system(size: 12, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
             }
-            totalLine("Suma na úhradu", invoice.remaining, strong: true, color: accent, highlighted: manolo)
+            if manolo {
+                HStack(alignment: .center, spacing: 24) {
+                    bandValue("Variabilný symbol", invoice.variableSymbol.isEmpty ? "—" : invoice.variableSymbol)
+                    bandValue("Dátum splatnosti", Format.date(invoice.dueDate))
+                    VStack(alignment: .trailing, spacing: 7) {
+                        Text("Suma na úhradu").font(.system(size: 10))
+                        PaperText(Format.money(invoice.remaining, currency: invoice.currency), size: 17,
+                                  weight: .semibold, monospaced: true)
+                            .lineLimit(1).minimumScaleFactor(0.6)
+                    }.frame(maxWidth: .infinity, alignment: .trailing)
+                }.padding(.horizontal, 18).padding(.vertical, 14)
+                    .background(Color(nsColor: ManoloInvoiceBrand.highlight))
+            } else {
+                totalLine("Suma na úhradu", invoice.remaining, strong: true, color: accent)
+            }
             if invoice.overpayment > 0 { totalLine("Preplatok", invoice.overpayment) }
             if let data = invoice.signature, let signature = NSImage(data: data) {
                 VStack(alignment: .trailing, spacing: 7) {
@@ -331,9 +345,10 @@ private struct PaperCompany: View {
     let title: String?
     let accent: Color
     var supplier = false
+    var compact = false
     @State private var details = false
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: compact ? 5 : 7) {
             HStack(spacing: 6) {
                 if let title {
                     Text(title).font(.system(size: 11, weight: .semibold, design: mono ? .monospaced : .default))

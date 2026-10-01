@@ -34,10 +34,10 @@ struct ManoloInvoiceHeader: View {
             ZStack(alignment: .top) {
                 if let logo = ManoloInvoiceBrand.image("logo.svg") {
                     Image(nsImage: logo).resizable().scaledToFit()
-                        .frame(width: min(410, proxy.size.width * 0.72), height: 81)
-                        .offset(y: 45).accessibilityLabel("Manolo & Bay")
+                        .frame(width: min(246, proxy.size.width * 0.432), height: 49)
+                        .accessibilityLabel("Manolo & Bay")
                 }
-            }.frame(width: proxy.size.width, height: 150, alignment: .top)
-        }.frame(height: 150)
+            }.frame(width: proxy.size.width, height: 49, alignment: .top)
+        }.frame(height: 49)
     }
 }

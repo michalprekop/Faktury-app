@@ -1,5 +1,11 @@
 # Zmeny
 
+## 1.2.15 — 2. 10. 2026 — Viac miesta na faktúre Manolo & Bay
+
+- Logo je o 40 % menšie s rovnakou medzerou nad ním aj pod ním. Obsah začína vyššie a menšie medzery uvoľňujú miesto pre položky aj platobný QR kód na webe, Macu aj v PDF.
+- Béžový blok sumy obsahuje aj variabilný symbol a dátum splatnosti.
+- Celý znak v pozadí zostáva bez orezania a bez medzery od horného okraja.
+
 ## 1.2.14 — 2. 10. 2026 — Celý znak Manolo & Bay
 
 - Znak v pozadí šablóny Manolo & Bay sa zobrazuje celý, bez orezania a bez medzery od horného okraja papiera. Úprava platí pre web, Mac aj PDF export.
