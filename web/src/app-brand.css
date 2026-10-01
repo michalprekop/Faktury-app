@@ -273,3 +273,60 @@
   flex-basis: 100%;
   margin: 0;
 }
+
+/* A single invoice toolbar leaves one more row for the document. */
+.native-invoice-toolbar {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.native-invoice-toolbar > .native-segments:first-child {
+  flex: 0 1 475px;
+  min-width: 320px;
+}
+.native-invoice-summary {
+  flex-shrink: 0;
+}
+.native-invoice-toolbar > .native-search {
+  width: 205px;
+  min-width: 160px;
+  flex-shrink: 1;
+}
+.native-invoice-toolbar > .button {
+  flex-shrink: 0;
+}
+.native-invoice-toolbar > button:not(.button) {
+  width: 32px;
+  height: var(--control-height);
+  flex-shrink: 0;
+}
+.native-invoice-toolbar > .native-segments:last-child {
+  width: 86px;
+  flex-shrink: 0;
+}
+.native-invoice-toolbar > .native-segments:last-child button {
+  padding-inline: 10px;
+}
+.native-list-heading {
+  gap: 8px;
+}
+.native-invoice-list {
+  min-width: 296px;
+}
+.native-list-heading select {
+  flex-shrink: 0;
+}
+@media (max-width: 1199px) {
+  .native-invoice-toolbar {
+    gap: 10px;
+  }
+}
+@media (max-width: 1059px) {
+  .native-invoice-toolbar {
+    overflow-x: auto;
+  }
+  .native-invoice-toolbar > .native-search {
+    flex-shrink: 0;
+    width: 160px;
+    margin-left: 0;
+  }
+}

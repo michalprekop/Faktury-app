@@ -215,41 +215,34 @@ struct InvoicesView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text.numeric(Format.invoiceCount(store.invoices.count), size: 17, weight: .semibold)
-                    Text.numeric("\(store.invoices.filter { $0.status == "Po splatnosti" }.count) po splatnosti", size: 12).foregroundStyle(.secondary)
-                }
-                Spacer()
-                BrandSearchField(placeholder: "Hľadať vo faktúrach", text: $search).frame(width: 205)
-                Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
-                    .buttonStyle(BrandButtonStyle()).controlSize(.large)
-            }.padding(.horizontal, 24).padding(.vertical, 14)
-            Divider()
             HStack(spacing: 14) {
                 HStack(spacing: 2) {
                     ForEach(["Všetky", "Uhradené", "Neuhradené", "Po splatnosti"], id: \.self) { value in
                         BrandSegment(title: value, selected: filter == value) { filter = value }
                     }
-                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(maxWidth: 475, alignment: .leading)
-                BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year)) {
-                    Picker("Rok", selection: $year) {
-                        Text("Všetky roky").tag(0)
-                        ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
-                    }
-                }.frame(width: 132)
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9))
+                    .frame(minWidth: 340, idealWidth: 475, maxWidth: 475)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text.numeric(Format.invoiceCount(store.invoices.count), size: 17, weight: .semibold)
+                    Text.numeric("\(store.invoices.filter { $0.status == "Po splatnosti" }.count) po splatnosti", size: 12).foregroundStyle(.secondary)
+                }.fixedSize()
+                Spacer(minLength: 0)
+                BrandSearchField(placeholder: "Hľadať vo faktúrach", text: $search)
+                    .frame(minWidth: 160, idealWidth: 205, maxWidth: 205)
+                Button { createInvoice() } label: { Label("Nová faktúra", systemImage: "plus") }
+                    .buttonStyle(BrandButtonStyle()).controlSize(.large).fixedSize()
                 Spacer(minLength: 0)
                 HStack(spacing: 2) {
                     BrandSegment(title: "Zoznam s náhľadom", symbol: "rectangle.split.2x1", selected: !tableMode) { mode.wrappedValue = false }
                     BrandSegment(title: "Tabuľkový zoznam", symbol: "tablecells", selected: tableMode) { mode.wrappedValue = true }
                 }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9)).frame(width: 86)
-            }.padding(.horizontal, 24).padding(.vertical, 13)
+            }.padding(.horizontal, 24).padding(.vertical, 14)
             Divider()
             if tableMode {
                 invoiceTable
             } else {
                 HSplitView {
-                    invoiceList.frame(minWidth: 245, idealWidth: 280, maxWidth: 325)
+                    invoiceList.frame(minWidth: 296, idealWidth: 325, maxWidth: 325)
                     if let draft {
                         InvoiceEditor(draft: draft, onDuplicate: { duplicateInvoice(draft.invoice) },
                                       onDelete: { request { deleting = draft.invoice } })
@@ -290,8 +283,8 @@ struct InvoicesView: View {
     private var invoiceList: some View {
         VStack(spacing: 0) {
             HStack {
-                Text.numeric(Format.invoiceCount(filtered.count), size: 11).foregroundStyle(.secondary)
-                Spacer(); sortPicker
+                yearPicker
+                Spacer(minLength: 8); sortPicker
             }.padding(12)
             Divider()
             List(selection: listSelection) {
@@ -317,6 +310,15 @@ struct InvoicesView: View {
         }
     }
 
+    private var yearPicker: some View {
+        BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year)) {
+            Picker("Rok", selection: $year) {
+                Text("Všetky roky").tag(0)
+                ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
+            }
+        }.frame(width: 132)
+    }
+
     private var sortPicker: some View {
         BrandDropdown(title: "Zoradenie", value: sortOrder) {
             Picker("Zoradenie", selection: $sortOrder) {
@@ -328,7 +330,7 @@ struct InvoicesView: View {
     private var invoiceTable: some View {
         VStack(spacing: 0) {
             HStack {
-                Text.numeric(Format.invoiceCount(filtered.count), size: 12).foregroundStyle(.secondary)
+                yearPicker
                 Spacer(); sortPicker
                 if let invoice = selected {
                     IconButton("Duplikovať", "doc.on.doc") { duplicateInvoice(invoice) }

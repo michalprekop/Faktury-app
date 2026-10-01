@@ -1,5 +1,10 @@
 # Zmeny
 
+## 2. 10. 2026 — Viac miesta na faktúry
+
+- Filtre stavu, počet faktúr, vyhľadávanie, nová faktúra a prepínanie zoznamu sú v jednom riadku na webe aj Macu. Pre faktúru tak zostáva viac miesta.
+- Výber roka je pri zoradení nad zoznamom a funguje aj v tabuľkovom zobrazení.
+
 ## 1.2.16 — 2. 10. 2026 — Vlastné logo a podpis pre každý účet
 
 - Nový používateľ začína s prázdnym logom aj podpisom. Obrázky sa doplnia až po nahraní do jeho vlastného účtu.

@@ -261,8 +261,20 @@ export function LegacyWorkspace({
       </header>
       <ErrorBox error={error} />
       <div className="native-invoices" style={{ display: page === 'invoices' ? 'flex' : 'none' }}>
-        <div className="native-overview">
-          <div>
+        <div className="native-overview native-invoice-toolbar">
+          <div className="native-segments">
+            {['Všetky', 'Uhradené', 'Neuhradené', 'Po splatnosti'].map((f) => (
+              <button
+                key={f}
+                aria-pressed={filter === f}
+                className={filter === f ? 'active' : ''}
+                onClick={() => setFilter(f)}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+          <div className="native-invoice-summary">
             <strong>
               {rows.length} faktúr{trash ? ' v koši' : ''}
             </strong>
@@ -280,29 +292,6 @@ export function LegacyWorkspace({
           <button className="button" onClick={() => void newInvoice()}>
             <Plus size={16} /> Nová faktúra
           </button>
-        </div>
-        <div className="native-filters">
-          <div className="native-segments">
-            {['Všetky', 'Uhradené', 'Neuhradené', 'Po splatnosti'].map((f) => (
-              <button
-                key={f}
-                aria-pressed={filter === f}
-                className={filter === f ? 'active' : ''}
-                onClick={() => setFilter(f)}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          <select aria-label="Rok" value={year} onChange={(e) => setYear(e.target.value)}>
-            <option value="">Všetky roky</option>
-            {[...new Set(rows.map((i) => (i.issueDate ?? i.updated_at).slice(0, 4)))]
-              .sort()
-              .reverse()
-              .map((y) => (
-                <option key={y}>{y}</option>
-              ))}
-          </select>
           <span className="spacer" />
           <button
             title={trash ? 'Späť na faktúry' : 'Kôš'}
@@ -342,7 +331,15 @@ export function LegacyWorkspace({
         <div className="native-split">
           <aside className={'native-invoice-list' + (table ? ' table-mode' : '')}>
             <div className="native-list-heading">
-              <span>{visible.length} faktúr</span>
+              <select aria-label="Rok" value={year} onChange={(e) => setYear(e.target.value)}>
+                <option value="">Všetky roky</option>
+                {[...new Set(rows.map((i) => (i.issueDate ?? i.updated_at).slice(0, 4)))]
+                  .sort()
+                  .reverse()
+                  .map((y) => (
+                    <option key={y}>{y}</option>
+                  ))}
+              </select>
               <select aria-label="Zoradenie" value={sort} onChange={(e) => setSort(e.target.value)}>
                 {['Najnovšie', 'Splatnosť', 'Odberateľ'].map((s) => (
                   <option key={s}>{s}</option>
