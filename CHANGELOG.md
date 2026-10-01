@@ -1,5 +1,9 @@
 # Zmeny
 
+## 1. 10. 2026 — Čistejší výber faktúry vo webovom zozname
+
+- Vybranú faktúru označuje iba jemné pozadie, bez farebného pásika vľavo. Deliaca čiara tesne nad vybranou faktúrou sa skryje a po zmene výberu sa obnoví.
+
 ## 1.2.6 — 1. 10. 2026 — Žlté ovládacie prvky a oprava DIČ
 
 - Vybrané taby a hlavné tlačidlá majú na webe aj Macu opäť žlté pozadie s tmavým textom, bez orámovania.
