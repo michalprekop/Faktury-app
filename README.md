@@ -85,6 +85,8 @@ Testy pokrývajú desatinné výpočty, DPH, čiastočné úhrady, číslovanie,
 
 Skript vytvorí pracovnú kópiu v `.build/distribution.noindex/INVOY.app`, mimo vyhľadávania Spotlight. Túto kópiu nespúšťajte ani nepripínajte do Docku; pri aktualizácii ňou nahraďte existujúcu aplikáciu v `~/Applications/INVOY.app` až po jej ukončení. Nevytvárajte ďalšiu nainštalovanú ani QA aplikáciu.
 
+Po výmene nainštalovanej aplikácie spustite `python3 scripts/refresh-app-registration.py`. Obnoví jej registráciu v macOS a odregistruje staré pracovné kópie s rovnakým identifikátorom, ktoré môžu systému ponúkať pôvodnú ikonu Faktúr. Súbory aplikácií, zálohy ani fakturačné dáta nemaže. Ak už bol systémový prihlasovací dialóg otvorený, zatvorte ho a otvorte znova; samotná kontrola registrácie nepotvrdzuje aktualizáciu ikony v otvorenom dialógu.
+
 `build-app.sh` vytvára vývojový ad-hoc podpis. Distribučné zostavenie robí `bash scripts/release-mac.sh`: Developer ID podpis, notarizácia, stapling a kontrola Gatekeeper. Výsledok je `output/release/INVOY-Mac.zip`. Kľúč a notársky profil musia byť dostupné v lokálnej Kľúčenke; nepíšu sa do Gitu.
 
 Pred vydaním 1.1.1 boli pôvodné lokálne JSON súbory a predchádzajúca aplikácia zálohované do `output/pre-restore-20260928`; kontrolné súčty po inštalácii zostali totožné. Pôvodný lokálny wordmark je uchovaný v `~/Library/Application Support/sk.faktury.desktop/legacy-wordmark.svg` a nešíri sa v novej aplikácii. Pri obnove starej lokálnej inštalácie možno použiť `Faktury-1.1.0-before.zip` v tom istom záložnom priečinku.
