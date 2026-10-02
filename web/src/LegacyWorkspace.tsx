@@ -62,7 +62,8 @@ export function LegacyWorkspace({
     [year, setYear] = useState(''),
     [sort, setSort] = useState('Najnovšie'),
     [table, setTable] = useState(false),
-    [trash, setTrash] = useState(false);
+    [trash, setTrash] = useState(false),
+    [compactDetail, setCompactDetail] = useState(false);
   const invoiceFlush = useRef<(() => Promise<boolean>) | null>(null),
     settingsFlush = useRef<(() => Promise<boolean>) | null>(null),
     openSequence = useRef(0);
@@ -130,6 +131,7 @@ export function LegacyWorkspace({
   }
   async function open(id: string) {
     if (editor?.id === id) {
+      setCompactDetail(true);
       setTable(false);
       return;
     }
@@ -139,6 +141,7 @@ export function LegacyWorkspace({
       const invoice = await api<SavedInvoice>(`/invoices/${id}`);
       if (seq === openSequence.current) {
         setEditor(invoice);
+        setCompactDetail(true);
         setTable(false);
         setError('');
       }
@@ -155,6 +158,7 @@ export function LegacyWorkspace({
       if (!t) throw Error('Správca musí najprv priradiť šablónu.');
       const { number } = await api<{ number: string }>('/next-number');
       const fresh = freshInvoice(me.profile, number, t.id);
+      setCompactDetail(true);
       setEditor(
         source
           ? {
@@ -329,7 +333,11 @@ export function LegacyWorkspace({
             </button>
           </div>
         </div>
-        <div className="native-split">
+        <div
+          className={
+            'native-split' + (compactDetail && !table && !trash && editor ? ' compact-detail' : '')
+          }
+        >
           <aside className={'native-invoice-list' + (table ? ' table-mode' : '')}>
             <div className="native-list-heading">
               <select aria-label="Rok" value={year} onChange={(e) => setYear(e.target.value)}>
@@ -462,6 +470,9 @@ export function LegacyWorkspace({
           </aside>
           {!table && !trash && (
             <div className="native-detail">
+              <button className="compact-list-back" onClick={() => setCompactDetail(false)}>
+                <ArrowLeft size={16} /> Späť na zoznam
+              </button>
               {editor ? (
                 <InvoiceEditor
                   key={editor.id}

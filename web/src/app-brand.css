@@ -441,3 +441,124 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Responsive workspace: controls wrap before the invoice loses usable space. */
+.original-editor-toolbar {
+  flex-wrap: wrap;
+}
+.original-editor-toolbar .toolbar-actions {
+  flex-shrink: 0;
+}
+.compact-list-back {
+  display: none;
+}
+@media (max-width: 1199px) {
+  .native-invoice-toolbar {
+    flex-wrap: wrap;
+  }
+  .native-invoice-toolbar > .native-segments:first-child {
+    flex: 1 1 55%;
+    max-width: none;
+  }
+  .native-invoice-actions {
+    order: 1;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+  .native-invoice-actions > .native-search {
+    flex: 1;
+    width: auto;
+    max-width: 360px;
+  }
+  .original-editor-toolbar .toolbar-actions {
+    margin-left: auto;
+  }
+}
+@media (max-width: 760px) {
+  .native-invoice-toolbar {
+    padding: 10px 14px;
+    gap: 8px;
+    overflow: visible;
+  }
+  .native-invoice-toolbar > .native-segments:first-child {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+  .native-invoice-summary {
+    margin-right: auto;
+  }
+  .native-invoice-actions {
+    gap: 8px;
+  }
+  .native-invoice-actions > .native-search {
+    min-width: 0;
+  }
+  .native-split > .native-invoice-list {
+    width: 100%;
+    min-width: 0;
+  }
+  .native-split > .native-detail {
+    display: none;
+  }
+  .native-split.compact-detail > .native-invoice-list {
+    display: none;
+  }
+  .native-split.compact-detail > .native-detail {
+    display: flex;
+    flex-direction: column;
+  }
+  .native-detail > .original-editor {
+    flex: 1;
+    height: auto;
+  }
+  .native-shell .compact-list-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    flex-shrink: 0;
+  }
+  .original-editor-toolbar {
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .original-editor-toolbar .toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .original-editor-toolbar .toolbar-actions > select {
+    flex: 1;
+    max-width: none;
+    width: auto;
+    min-width: 0;
+  }
+  .original-paper-canvas {
+    padding: 12px;
+  }
+  .native-customers .page-heading {
+    flex-wrap: wrap;
+  }
+  .native-customers .customer-search {
+    width: 100%;
+  }
+}
+@media (max-width: 420px) {
+  .native-header {
+    flex-wrap: wrap;
+  }
+  .native-header > nav {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .native-invoice-toolbar > .native-segments:first-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: auto;
+  }
+  .native-header .native-segments button {
+    padding-inline: 6px;
+    font-size: 12px;
+  }
+}

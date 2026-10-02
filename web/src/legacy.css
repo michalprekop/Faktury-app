@@ -405,7 +405,7 @@
   margin: auto;
 }
 .original-paper-canvas > .invoice-a4-frame {
-  min-width: 720px;
+  min-width: 0;
 }
 .invoice-a4-frame > .original-paper.invoice-paper {
   width: 800px;
@@ -421,7 +421,7 @@
   min-width: 720px;
   max-width: 1000px;
   min-height: auto;
-  aspect-ratio: 210 / 297;
+  aspect-ratio: auto;
   margin: auto;
   padding: 44px 42px 40px;
   box-shadow: 0 1px 5px #0003;
@@ -435,6 +435,10 @@
   display: flex;
   flex-direction: column;
   text-align: left;
+}
+/* Content may exceed one A4 page; keep the white surface around the footer. */
+.original-paper.invoice-paper > * {
+  flex-shrink: 0;
 }
 .original-paper.mono {
   font-family: 'SFMono-Regular', Menlo, monospace !important;

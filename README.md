@@ -22,7 +22,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.2.26 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nový účet má v Nastaveniach prázdne logo aj podpis, kým si používateľ nenahrá vlastné. Pridelenie šablóny ani prepnutie účtu obrázky z iného profilu neprenesie. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
+Mac distribúcia 1.2.27 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nový účet má v Nastaveniach prázdne logo aj podpis, kým si používateľ nenahrá vlastné. Pridelenie šablóny ani prepnutie účtu obrázky z iného profilu neprenesie. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Ponuka účtu, synchronizácie a odhlásenia je v **Nastavenia → Účet**.
 
 ## Pôvodný lokálny režim
 
@@ -30,6 +30,7 @@ Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudo
 
 ## Funkcie
 
+- Pri zúžení okna sa faktúra prispôsobí dostupnej šírke a biely papier rastie podľa obsahu vrátane poznámky a pätičky. Ovládacie lišty sa zalomia; na webe do 760 px sa zoznam a detail zobrazujú samostatne s tlačidlom Späť na zoznam.
 - Zoznam s veľkým náhľadom alebo tabuľka, hľadanie, filtre stavu a roka, zoradenie. Hľadanie a tlačidlo Nová faktúra tvoria skupinu vycentrovanú vo voľnom priestore hornej lišty na webe aj Macu. Výber faktúry ani stav automatického ukladania neposúvajú bočný zoznam.
 - Nová faktúra, úprava a duplikovanie priamo na faktúre v hlavnom okne. Vľavo zostáva zoznam, vpravo upraviteľný papier s natívnymi textovými poľami a živými súčtami. QR kód sa počas úprav nepočíta ani nezobrazuje; vytvorí sa z aktuálnych platobných údajov až pri generovaní PDF. Editor nemá zoom ani zväčšovanie vykreslenej plochy; veľkosť písma zostáva rovnaká pri zmene šírky okna. Všetky zmeny sa ukladajú automaticky vrátane neúplných faktúr a rozpísaných čísel. Tlačidlo PDF priamo uloží súbor bez náhľadu a tlačového okna. Na Macu vždy otvorí systémové okno na výber miesta uloženia; na webe ho použije v podporovaných prehliadačoch, inak stiahne súbor podľa nastavení prehliadača.
 - Faktúry sú rovno vystavené; stav sa určuje podľa úhrady a splatnosti. Vymazanie s potvrdením.

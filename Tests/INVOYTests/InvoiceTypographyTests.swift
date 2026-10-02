@@ -36,7 +36,7 @@ final class InvoiceTypographyTests: XCTestCase {
         func datePickers(in view: NSView) -> [NSDatePicker] {
             (view as? NSDatePicker).map { [$0] } ?? view.subviews.flatMap { datePickers(in: $0) }
         }
-        for width: CGFloat in [640, 860, 1450] {
+        for width: CGFloat in [480, 640, 860, 1450] {
             window.setContentSize(NSSize(width: width, height: 900))
             host.layoutSubtreeIfNeeded()
             try await Task.sleep(for: .milliseconds(80))
@@ -45,7 +45,10 @@ final class InvoiceTypographyTests: XCTestCase {
             XCTAssertEqual(pickers.count, 2)
             for picker in pickers {
                 XCTAssertEqual(picker.font?.pointSize, 13)
-                let scale = max(720, min(1000, width - 48)) / 800
+                let scale = min(1000, width - 48) / 800
+                let bounds = picker.convert(picker.bounds, to: host)
+                XCTAssertGreaterThanOrEqual(bounds.minX, 0)
+                XCTAssertLessThanOrEqual(bounds.maxX, width)
                 XCTAssertEqual(picker.convert(picker.bounds, to: host).width, picker.bounds.width * scale, accuracy: 0.01)
                 XCTAssertEqual(picker.convert(picker.bounds, to: host).height, picker.bounds.height * scale, accuracy: 0.01)
             }

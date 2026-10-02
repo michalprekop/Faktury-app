@@ -8,7 +8,7 @@ struct InvoicePaperCanvas: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let width = max(720, min(1000, proxy.size.width - 48))
+            let width = max(1, min(1000, proxy.size.width - 48))
             ScrollView([.horizontal, .vertical]) {
                 InvoicePaperSurface(draft: draft, width: width)
                     .environment(\.invoiceMonospaced, draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate) == .mono01)

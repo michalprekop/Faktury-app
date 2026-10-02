@@ -97,31 +97,12 @@ struct InvoiceEditor: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                Text.numeric(invoice.number, size: 16, weight: .semibold, monospaced: true)
-                StatusBadge(invoice: invoice)
-                Text(draft.saveLabel).font(.system(size: 10))
-                    .foregroundStyle(draft.saveState == .failed ? .red : .secondary)
-                    .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
-                Spacer(minLength: 8)
-                InvoiceTemplatePicker(draft: draft)
-                    .frame(width: 160)
-                    .help("Šablóna faktúry: " + (invoice.cloudStyle?.name ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title))
-                    .accessibilityLabel("Šablóna faktúry")
-                IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
-                    .buttonStyle(BrandIconButtonStyle())
-                IconButton("Vymazať", "trash", action: onDelete)
-                    .buttonStyle(BrandIconButtonStyle())
-                IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
-                    .buttonStyle(BrandIconButtonStyle())
-                    .popover(isPresented: $options) {
-                        invoiceOptions
-                            .background(Color(nsColor: .windowBackgroundColor))
-                            .presentationBackground(Color(nsColor: .windowBackgroundColor))
-                    }
-                Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
-                    .buttonStyle(BrandButtonStyle()).disabled(!draft.canExport)
-                    .help("Uložiť PDF")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { editorHeading; editorActions }
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) { editorHeading }
+                    HStack(spacing: 8) { Spacer(minLength: 0); editorActions }
+                }
             }.padding(.horizontal, 16).padding(.vertical, 13)
             Divider()
             InvoicePaperCanvas(draft: draft)
@@ -137,6 +118,36 @@ struct InvoiceEditor: View {
                 }.padding(12)
             }
         }
+    }
+
+    @ViewBuilder private var editorHeading: some View {
+        Text.numeric(invoice.number, size: 16, weight: .semibold, monospaced: true)
+        StatusBadge(invoice: invoice)
+        Text(draft.saveLabel).font(.system(size: 10))
+            .foregroundStyle(draft.saveState == .failed ? .red : .secondary)
+            .lineLimit(2).frame(maxWidth: 110, alignment: .leading)
+        Spacer(minLength: 8)
+    }
+
+    @ViewBuilder private var editorActions: some View {
+        InvoiceTemplatePicker(draft: draft)
+            .frame(width: 160)
+            .help("Šablóna faktúry: " + (invoice.cloudStyle?.name ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title))
+            .accessibilityLabel("Šablóna faktúry")
+        IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
+            .buttonStyle(BrandIconButtonStyle())
+        IconButton("Vymazať", "trash", action: onDelete)
+            .buttonStyle(BrandIconButtonStyle())
+        IconButton("Možnosti faktúry", "slider.horizontal.3") { options.toggle() }
+            .buttonStyle(BrandIconButtonStyle())
+            .popover(isPresented: $options) {
+                invoiceOptions
+                    .background(Color(nsColor: .windowBackgroundColor))
+                    .presentationBackground(Color(nsColor: .windowBackgroundColor))
+            }
+        Button { if draft.flush() { store.exportPDF(draft.invoice) } } label: { Label("PDF", systemImage: "square.and.arrow.down") }
+            .buttonStyle(BrandButtonStyle()).disabled(!draft.canExport)
+            .help("Uložiť PDF")
     }
 
     private var invoiceOptions: some View {
