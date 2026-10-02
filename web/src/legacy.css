@@ -956,10 +956,36 @@
   gap: 18px;
   align-items: center;
   border-bottom: 1px solid #ddd;
-  padding: 20px 0;
+  padding: 0;
+  position: relative;
 }
-.customer-row > div {
+.native-shell .customer-row:hover,
+.native-shell .customer-row:focus-within {
+  background: #e9e7e0;
+}
+.native-shell .customer-row .customer-open {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   flex: 1;
+  min-width: 0;
+  padding: 20px 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.customer-open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.customer-row > button:not(.customer-open) {
+  position: relative;
+  z-index: 1;
+}
+.customer-open > svg {
+  flex-shrink: 0;
 }
 .customer-row small {
   display: block;

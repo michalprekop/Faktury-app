@@ -595,13 +595,19 @@ function Customers({
       {customers.length === 0 && <div className="native-empty">Žiadni odberatelia</div>}
       {customers.map((c) => (
         <div className="customer-row" key={c.id}>
-          <Building2 size={22} />
-          <div>
-            <strong>{c.name}</strong>
-            <small>
-              {c.street}, {c.city} · {c.companyID}
-            </small>
-          </div>
+          <button
+            className="customer-open"
+            aria-label={`Upraviť odberateľa ${c.name}`}
+            onClick={() => setEditing(c)}
+          >
+            <Building2 size={22} />
+            <span>
+              <strong>{c.name}</strong>
+              <small>
+                {c.street}, {c.city} · {c.companyID}
+              </small>
+            </span>
+          </button>
           <button title="Upraviť odberateľa" onClick={() => setEditing(c)}>
             <MoreHorizontal size={18} />
           </button>

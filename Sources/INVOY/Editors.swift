@@ -187,14 +187,13 @@ struct CustomersView: View {
             Divider()
             if customers.isEmpty { ContentUnavailableView("Žiadni odberatelia", systemImage: "building.2").frame(maxHeight: .infinity) }
             else {
-                Table(customers) {
-                    TableColumn("Odberateľ") { company in
-                        VStack(alignment: .leading, spacing: 4) { Text.numeric(company.name, weight: .medium); Text.numeric(company.email, size: 11).foregroundStyle(.secondary) }.padding(.vertical, 9)
-                    }.width(min: 200, ideal: 290)
-                    TableColumn("IČO") { company in Text.numeric(company.companyID, monospaced: true) }.width(min: 85, ideal: 110)
-                    TableColumn("Mesto") { company in Text.numeric(company.city) }
-                    TableColumn("Faktúry") { company in Text.numeric("\(store.database.invoices.filter { $0.customer.id == company.id }.count)", monospaced: true) }.width(65)
-                    TableColumn("") { company in HStack { IconButton("Upraviť odberateľa", "pencil") { editing = company }; IconButton("Vymazať odberateľa", "trash") { deleting = company } } }.width(83)
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(customers) { company in
+                            CustomerListRow(company: company, edit: { editing = company }, delete: { deleting = company })
+                            Divider()
+                        }
+                    }.padding(.horizontal, 25)
                 }
             }
         }
@@ -210,6 +209,38 @@ struct CustomersView: View {
             Button("Zrušiť", role: .cancel) { deleting = nil }
             Button("Vymazať", role: .destructive) { if let id = deleting?.id { _ = store.update { $0.customers.removeAll { $0.id == id } } }; deleting = nil }
         } message: { Text("\(deleting?.name ?? "") bude odstránený z kontaktov. Údaje na existujúcich faktúrach zostanú zachované.") }
+    }
+}
+
+private struct CustomerListRow: View {
+    let company: Company
+    let edit: () -> Void
+    let delete: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: edit) {
+                HStack(spacing: 18) {
+                    Image(systemName: "building.2").font(.system(size: 22))
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text.numeric(company.name, weight: .semibold)
+                        Text.numeric("\(company.street), \(company.city) · \(company.companyID)", size: 12)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.vertical, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Upraviť odberateľa \(company.name)")
+            IconButton("Upraviť odberateľa", "ellipsis", action: edit)
+            IconButton("Odstrániť odberateľa", "trash", action: delete)
+        }
+        .background(hovering ? InvoyBrand.canvas : Color.clear)
+        .onHover { hovering = $0 }
     }
 }
 
