@@ -1,5 +1,5 @@
 import { BrandSelect } from './BrandSelect';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Building2,
@@ -70,7 +70,8 @@ export function LegacyWorkspace({
     [compactDetail, setCompactDetail] = useState(false);
   const invoiceFlush = useRef<(() => Promise<boolean>) | null>(null),
     settingsFlush = useRef<(() => Promise<boolean>) | null>(null),
-    openSequence = useRef(0);
+    openSequence = useRef(0),
+    navigationSequence = useRef(0);
   const accountMenu = useRef<HTMLDetailsElement>(null);
   const accountName = me.user.name.trim() || me.user.email;
   useEffect(() => {
@@ -92,29 +93,42 @@ export function LegacyWorkspace({
       document.removeEventListener('keydown', escape);
     };
   }, []);
+  const today = new Date().toLocaleDateString('sv-SE');
   const status = (i: InvoiceSummary) =>
     Number(i.paid) >= Number(i.total)
       ? 'Uhradené'
-      : i.dueDate < new Date().toLocaleDateString('sv-SE')
+      : i.dueDate < today
         ? 'Po splatnosti'
         : 'Neuhradené';
-  const sorted = [...rows].sort((a, b) =>
-    sort === 'Odberateľ'
-      ? a.customer.localeCompare(b.customer)
-      : sort === 'Splatnosť'
-        ? a.dueDate.localeCompare(b.dueDate)
-        : (b.issueDate ?? b.updated_at).localeCompare(a.issueDate ?? a.updated_at) ||
-          b.number.localeCompare(a.number),
+  const sorted = useMemo(
+    () =>
+      [...rows].sort((a, b) =>
+        sort === 'Odberateľ'
+          ? a.customer.localeCompare(b.customer)
+          : sort === 'Splatnosť'
+            ? a.dueDate.localeCompare(b.dueDate)
+            : (b.issueDate ?? b.updated_at).localeCompare(a.issueDate ?? a.updated_at) ||
+              b.number.localeCompare(a.number),
+      ),
+    [rows, sort],
   );
-  const visible = sorted.filter(
-    (i) =>
-      (i.number + ' ' + i.customer + ' ' + (i.searchText ?? ''))
-        .toLocaleLowerCase('sk')
-        .includes(query.toLocaleLowerCase('sk')) &&
-      (!year || (i.issueDate ?? i.updated_at).startsWith(year)) &&
-      (filter === 'Všetky' ||
-        status(i) === filter ||
-        (filter === 'Neuhradené' && status(i) !== 'Uhradené')),
+  const visible = useMemo(
+    () =>
+      sorted.filter(
+        (i) =>
+          (i.number + ' ' + i.customer + ' ' + (i.searchText ?? ''))
+            .toLocaleLowerCase('sk')
+            .includes(query.toLocaleLowerCase('sk')) &&
+          (!year || (i.issueDate ?? i.updated_at).startsWith(year)) &&
+          (filter === 'Všetky' ||
+            status(i) === filter ||
+            (filter === 'Neuhradené' && status(i) !== 'Uhradené')),
+      ),
+    [sorted, query, year, filter, today],
+  );
+  const overdueCount = useMemo(
+    () => rows.filter((i) => status(i) === 'Po splatnosti').length,
+    [rows, today],
   );
   async function load() {
     setLoading(true);
@@ -251,7 +265,8 @@ export function LegacyWorkspace({
     );
   }
   async function navigate(next: string) {
-    if (await ready()) {
+    const sequence = ++navigationSequence.current;
+    if ((await ready()) && sequence === navigationSequence.current) {
       const path = next === 'admin' ? ADMIN_PATH : '/';
       if (location.pathname !== path) history.replaceState(null, '', path);
       setPage(next);
@@ -330,7 +345,7 @@ export function LegacyWorkspace({
             <strong>
               {rows.length} faktúr{trash ? ' v koši' : ''}
             </strong>
-            <small>{rows.filter((i) => status(i) === 'Po splatnosti').length} po splatnosti</small>
+            <small>{overdueCount} po splatnosti</small>
           </div>
           <div className="native-invoice-actions">
             <label className="native-search">

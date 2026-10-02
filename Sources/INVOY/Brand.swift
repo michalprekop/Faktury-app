@@ -205,6 +205,8 @@ struct BrandSegment: View {
             .padding(.horizontal, symbol == nil ? 12 : 10)
             .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6, alignment: .center)
             .background(selected ? InvoyBrand.yellow : .clear, in: RoundedRectangle(cornerRadius: 7))
+            // Plain buttons otherwise only hit-test the text/image of an inactive segment.
+            .contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityLabel(title)
             .accessibilityAddTraits(selected ? .isSelected : [])
     }

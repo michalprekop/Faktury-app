@@ -396,12 +396,15 @@ struct LivePreview: View {
                 }.padding(.horizontal, 16).padding(.vertical, 10)
             }
         }
-            .task(id: String(describing: invoice) + accent.hex + template.rawValue) {
-                do { try await Task.sleep(for: .milliseconds(180)) } catch { return }
-                guard !Task.isCancelled else { return }
-                var previewInvoice = invoice
-                previewInvoice.templateOverride = template
-                data = InvoicePDF.render(previewInvoice, accentColor: accent)
+            .task(id: InvoicePreviewRequest(invoice: invoice, accent: accent, template: template)) {
+                let request = InvoicePreviewRequest(invoice: invoice, accent: accent, template: template)
+                do {
+                    let rendered = try await InvoicePreviewRenderer.shared.data(for: request)
+                    try Task.checkCancellation()
+                    data = rendered
+                } catch is CancellationError {
+                    // A different tab or design superseded this preview.
+                } catch { }
             }
     }
 }
