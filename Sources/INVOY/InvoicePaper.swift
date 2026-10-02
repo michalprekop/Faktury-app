@@ -31,17 +31,13 @@ struct InvoicePaperSurface: View {
         InvoicePaper(draft: draft)
             .frame(width: 800).fixedSize(horizontal: false, vertical: true)
             .background(GeometryReader { proxy in
-                Color.clear.preference(key: InvoicePaperHeight.self, value: proxy.size.height)
+                // Read the laid-out height directly, including content below the first A4 page.
+                Color.clear.onAppear { height = proxy.size.height }
+                    .onChange(of: proxy.size.height) { _, next in height = next }
             })
-            .onPreferenceChange(InvoicePaperHeight.self) { height = $0 }
             .scaleEffect(width / 800, anchor: .topLeading)
             .frame(width: width, height: height * width / 800, alignment: .topLeading)
     }
-}
-
-private struct InvoicePaperHeight: PreferenceKey {
-    static var defaultValue: CGFloat = 800 * 297 / 210
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
 
 struct InvoicePaper: View {
@@ -113,10 +109,11 @@ struct InvoicePaper: View {
 
     @ViewBuilder private var footer: some View {
         if manolo {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
                 ForEach(Array(ManoloInvoiceBrand.contacts.enumerated()), id: \.offset) { index, value in
+                    if index > 0 { Spacer(minLength: 16) }
                     Text(value).font(.system(size: 10))
-                        .frame(maxWidth: .infinity, alignment: index == 0 ? .leading : index == 2 ? .trailing : .center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }.foregroundStyle(.secondary)
         } else {
@@ -127,18 +124,23 @@ struct InvoicePaper: View {
     private var standardFooter: some View {
         let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
         return VStack(spacing: 16) {
-            HStack(alignment: .top, spacing: 16) {
-                HStack(alignment: .top, spacing: 8) {
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text("Vystavil:").font(.system(size: 10, design: mono ? .monospaced : .default)).padding(.vertical, 3).fixedSize()
-                    PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
-                }.frame(maxWidth: .infinity, alignment: .leading)
-                ForEach(Array(contacts.enumerated()), id: \.offset) { index, contact in
-                    PaperText(contact, size: 10)
-                        .multilineTextAlignment(index == contacts.count - 1 ? .trailing : .center)
-                        .padding(.vertical, 3)
-                        .frame(maxWidth: .infinity, alignment: index == contacts.count - 1 ? .trailing : .center)
+                    // Size the editable field from its text, so spacers distribute the visible content.
+                    PaperText(invoice.issuedBy.isEmpty ? "Vystavil" : invoice.issuedBy, size: 10)
+                        .padding(.vertical, 3).hidden().accessibilityHidden(true)
+                        .overlay {
+                            PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
+                        }
                 }
-            }
+                ForEach(Array(contacts.enumerated()), id: \.offset) { _, contact in
+                    Spacer(minLength: 16)
+                    PaperText(contact, size: 10)
+                        .padding(.vertical, 3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }.frame(maxWidth: .infinity, alignment: .leading)
             if !mono, let data = invoice.logo, let logo = NSImage(data: data) {
                 Image(nsImage: logo).resizable().scaledToFit()
                     .frame(width: 94 * 0.4, height: 94 * 0.4)

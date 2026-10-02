@@ -83,12 +83,10 @@ enum MonoInvoicePDF {
             rule(footerTop)
             let contacts = manolo ? ManoloInvoiceBrand.contacts : [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
                             invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
-            let gap: CGFloat = 12
-            let columnWidth = (width - CGFloat(max(0, contacts.count - 1)) * gap) / CGFloat(max(1, contacts.count))
+            let columns = InvoiceFooterLayout.columns(contacts, width: width, size: 6.5, monospaced: !manolo)
             for (index, value) in contacts.enumerated() {
-                let alignment: NSTextAlignment = index == 0 ? .left : index == contacts.count - 1 ? .right : .center
-                text(value, left + CGFloat(index) * (columnWidth + gap), footerTop + 10, columnWidth,
-                     size: 6.5, color: muted, alignment: alignment)
+                text(value, left + columns[index].x, footerTop + 10, columns[index].width,
+                     size: 6.5, color: muted)
             }
             text("\(page)/\(pageCount ?? 1)", left + width - 40, 825, 40, size: 6.5, color: muted, alignment: .right)
             NSGraphicsContext.restoreGraphicsState(); context.restoreGState(); context.endPDFPage()

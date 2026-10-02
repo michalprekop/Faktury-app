@@ -76,11 +76,9 @@ enum InvoicePDF {
             let footerTop: CGFloat = invoice.logo == nil ? 784 : 770
             line(footerTop)
             let footer = [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)", invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
-            let footerGap: CGFloat = 12
-            let footerWidth = (width - CGFloat(max(0, footer.count - 1)) * footerGap) / CGFloat(max(1, footer.count))
+            let columns = InvoiceFooterLayout.columns(footer, width: width, size: 7)
             for (index, value) in footer.enumerated() {
-                let alignment: NSTextAlignment = index == 0 ? .left : index == footer.count - 1 ? .right : .center
-                _ = text(value, left + CGFloat(index) * (footerWidth + footerGap), footerTop + 11, footerWidth, size: 7, color: muted, alignment: alignment)
+                _ = text(value, left + columns[index].x, footerTop + 11, columns[index].width, size: 7, color: muted)
             }
             let logoSide: CGFloat = 67 * 0.4
             picture(invoice.logo, rect: NSRect(x: (paperWidth - logoSide) / 2, y: paperHeight - 12 - logoSide,

@@ -140,13 +140,6 @@
 .editable-paper.manoloBay .manolo-payment-summary > div:last-child strong {
   font-size: 17px;
 }
-.manoloBay .original-footer > div > span:first-child {
-  display: block;
-  white-space: normal;
-}
-.manoloBay .original-footer > div > span:nth-child(2) {
-  text-align: center;
-}
 @media print {
   .original-paper.invoice-paper.manoloBay {
     min-height: 275mm !important;

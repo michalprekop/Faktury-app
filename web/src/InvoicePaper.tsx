@@ -673,7 +673,19 @@ export function InvoicePaper({
             </div>
           ) : (
             <div>
-              <span>Vystavil: {field('issuedBy', 'Vystavil')}</span>
+              {(edit || invoice.issuedBy) && (
+                <span className="footer-issuer">
+                  <span>Vystavil:</span>
+                  <span className="footer-issued-by">
+                    {edit && (
+                      <span className="footer-field-size" aria-hidden="true">
+                        {invoice.issuedBy || 'Vystavil'}
+                      </span>
+                    )}
+                    {field('issuedBy', 'Vystavil')}
+                  </span>
+                </span>
+              )}
               {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
                 .filter(Boolean)
                 .map((c, i) => (
