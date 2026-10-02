@@ -73,13 +73,11 @@ enum InvoicePDF {
             y = 40
         }
         func endPage() {
-            let footerTop: CGFloat = invoice.logo == nil ? 784 : 770
+            let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
+            let footerTop: CGFloat = invoice.logo == nil ? 784 : (contacts.count > 2 ? 760 : 770)
             line(footerTop)
-            let footer = [invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)", invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
-            let columns = InvoiceFooterLayout.columns(footer, width: width, size: 7)
-            for (index, value) in footer.enumerated() {
-                _ = text(value, left + columns[index].x, footerTop + 11, columns[index].width, size: 7, color: muted)
-            }
+            InvoiceFooterLayout.draw(issuer: invoice.issuedBy.isEmpty ? "" : "Vystavil: \(invoice.issuedBy)",
+                                     contacts: contacts, x: left, top: footerTop + 11, width: width, size: 7, color: muted)
             let logoSide: CGFloat = 67 * 0.4
             picture(invoice.logo, rect: NSRect(x: (paperWidth - logoSide) / 2, y: paperHeight - 12 - logoSide,
                                               width: logoSide, height: logoSide))

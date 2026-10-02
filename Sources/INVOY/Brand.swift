@@ -10,9 +10,12 @@ enum InvoyBrand {
     static let surface = Color(red: 248 / 255, green: 247 / 255, blue: 242 / 255)
 
     static func image(_ name: String) -> NSImage {
-        guard let url = Bundle.main.url(forResource: name, withExtension: "svg"),
-              let image = NSImage(contentsOf: url) else { return NSImage() }
-        return image
+        let bundled = Bundle.main.url(forResource: name, withExtension: "svg")
+        // PDF verification and XCTest also use the approved artwork outside the app bundle.
+        let source = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("web/public/brand/\(name).svg")
+        return [bundled, source].compactMap { $0 }.compactMap { NSImage(contentsOf: $0) }.first ?? NSImage()
     }
 }
 

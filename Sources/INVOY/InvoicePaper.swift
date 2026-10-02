@@ -74,7 +74,7 @@ struct InvoicePaper: View {
             items
             closing.padding(.top, manolo ? 16 : 24)
             if !monoLayout { paymentBand.padding(.top, 20) }
-            Spacer(minLength: manolo ? 32 : 50)
+            Spacer(minLength: manolo ? 16 : 50)
             rule
             footer.padding(.top, 14)
         }
@@ -107,41 +107,38 @@ struct InvoicePaper: View {
         }
     }
 
-    @ViewBuilder private var footer: some View {
-        if manolo {
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                ForEach(Array(ManoloInvoiceBrand.contacts.enumerated()), id: \.offset) { index, value in
-                    if index > 0 { Spacer(minLength: 16) }
-                    Text(value).font(.system(size: 10))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }.foregroundStyle(.secondary)
-        } else {
-            standardFooter
-        }
-    }
-
-    private var standardFooter: some View {
-        let contacts = [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
+    private var footer: some View {
+        let contacts = manolo ? Array(ManoloInvoiceBrand.contacts.dropFirst()) :
+            [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone].filter { !$0.isEmpty }
         return VStack(spacing: 16) {
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text("Vystavil:").font(.system(size: 10, design: mono ? .monospaced : .default)).padding(.vertical, 3).fixedSize()
-                    // Size the editable field from its text, so spacers distribute the visible content.
-                    PaperText(invoice.issuedBy.isEmpty ? "Vystavil" : invoice.issuedBy, size: 10)
-                        .padding(.vertical, 3).hidden().accessibilityHidden(true)
-                        .overlay {
-                            PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
+            HStack(alignment: .top, spacing: 16) {
+                Group {
+                    if manolo {
+                        PaperText(ManoloInvoiceBrand.contacts[0], size: 10).padding(.vertical, 3)
+                    } else {
+                        HStack(alignment: .firstTextBaseline, spacing: 3) {
+                            Text("Vystavil:").font(.system(size: 10, design: mono ? .monospaced : .default))
+                                .padding(.vertical, 3).fixedSize()
+                            PaperText(invoice.issuedBy.isEmpty ? "Vystavil" : invoice.issuedBy, size: 10)
+                                .padding(.vertical, 3).hidden().accessibilityHidden(true)
+                                .overlay {
+                                    PaperField("Vystavil", text: $draft.invoice.issuedBy, size: 10, color: .secondary)
+                                }
                         }
-                }
-                ForEach(Array(contacts.enumerated()), id: \.offset) { _, contact in
-                    Spacer(minLength: 16)
-                    PaperText(contact, size: 10)
-                        .padding(.vertical, 3)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-            if !mono, let data = invoice.logo, let logo = NSImage(data: data) {
+                    }
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                VStack(spacing: 3) {
+                    ForEach(Array(contacts.enumerated()), id: \.offset) { _, contact in
+                        PaperText(contact, size: 10).fixedSize(horizontal: false, vertical: true)
+                    }
+                }.multilineTextAlignment(.center).padding(.vertical, 3)
+                    .frame(maxWidth: .infinity)
+                VStack(spacing: 4) {
+                    BrandWordmark(height: 18)
+                    Text(verbatim: "www.invoy.xyz").font(.system(size: 7, design: mono ? .monospaced : .default)).fixedSize()
+                }.frame(maxWidth: .infinity, alignment: .trailing)
+            }.frame(maxWidth: .infinity)
+            if !monoLayout, let data = invoice.logo, let logo = NSImage(data: data) {
                 Image(nsImage: logo).resizable().scaledToFit()
                     .frame(width: 94 * 0.4, height: 94 * 0.4)
                     .frame(maxWidth: .infinity)

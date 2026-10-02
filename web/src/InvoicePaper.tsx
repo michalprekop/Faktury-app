@@ -665,16 +665,12 @@ export function InvoicePaper({
         )}
         <footer className="original-footer">
           {!manolo && theme.footer && <p>{theme.footer}</p>}
-          {manolo ? (
-            <div>
-              {manoloBay.contacts.map((contact) => (
-                <span key={contact}>{contact}</span>
-              ))}
-            </div>
-          ) : (
-            <div>
-              {(edit || invoice.issuedBy) && (
-                <span className="footer-issuer">
+          <div className="footer-columns">
+            <span className="footer-issuer">
+              {manolo ? (
+                manoloBay.contacts[0]
+              ) : edit || invoice.issuedBy ? (
+                <>
                   <span>Vystavil:</span>
                   <span className="footer-issued-by">
                     {edit && (
@@ -684,15 +680,24 @@ export function InvoicePaper({
                     )}
                     {field('issuedBy', 'Vystavil')}
                   </span>
-                </span>
-              )}
-              {[invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
+                </>
+              ) : null}
+            </span>
+            <span className="footer-contacts">
+              {(manolo
+                ? manoloBay.contacts.slice(1)
+                : [invoice.supplier.website, invoice.supplier.email, invoice.supplier.phone]
+              )
                 .filter(Boolean)
-                .map((c, i) => (
-                  <span key={i}>{c}</span>
+                .map((contact, index) => (
+                  <span key={index}>{contact}</span>
                 ))}
-            </div>
-          )}
+            </span>
+            <span className="footer-brand">
+              <img src="/brand/invoy-wordmark.svg" alt="INVOY." />
+              <small>www.invoy.xyz</small>
+            </span>
+          </div>
           {!mono && (theme.logo || invoice.logo) && (
             <img src={theme.logo || invoice.logo} alt="Logo dodávateľa" />
           )}
