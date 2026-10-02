@@ -175,7 +175,7 @@ export function Admin() {
                   <th scope="col">Používateľ</th>
                   <th scope="col">Stav</th>
                   <th scope="col" className="admin-count">
-                    Faktúr
+                    Faktúry
                   </th>
                   <th scope="col" className="admin-count">
                     Odberatelia
