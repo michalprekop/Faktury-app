@@ -176,7 +176,7 @@ private struct BrandDropdownRow: View {
             .font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
             .padding(.horizontal, 10).padding(.vertical, 9)
             .frame(maxWidth: .infinity, minHeight: 38, alignment: .leading)
-            .background(hovering || highlighted ? InvoyBrand.yellow : item.selected ? InvoyBrand.yellow.opacity(0.35) : .clear, in: RoundedRectangle(cornerRadius: 6))
+            .background(hovering || highlighted || item.selected ? InvoyBrand.canvas : .clear, in: RoundedRectangle(cornerRadius: 6))
             .contentShape(Rectangle())
         }.buttonStyle(.plain).focusEffectDisabled()
             .onHover { hovering = $0 }

@@ -140,7 +140,7 @@ export function Settings({
           </div>
         )}
         <div className="tabs section-tabs">
-          {['Moja firma', 'Bankové účty', 'Vzhľad', 'Predvoľby', 'Zálohy'].map((x) => (
+          {['Moja firma', 'Bankové účty', 'Vzhľad', 'Predvoľby faktúry', 'Zálohy'].map((x) => (
             <button
               key={x}
               aria-pressed={tab === x}
@@ -158,22 +158,6 @@ export function Settings({
               Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.
             </p>
             <CompanyFields value={profile.supplier} onChange={(supplier) => update({ supplier })} />
-            <div className="image-grid">
-              <ImageInput
-                label="Logo firmy"
-                maxBytes={MAX_PROFILE_IMAGE_BYTES}
-                value={profile.logo}
-                onChange={(logo) => update({ logo })}
-                onError={setError}
-              />
-              <ImageInput
-                label="Podpis"
-                maxBytes={MAX_PROFILE_IMAGE_BYTES}
-                value={profile.signature}
-                onChange={(signature) => update({ signature })}
-                onError={setError}
-              />
-            </div>
           </section>
         )}
         {tab === 'Bankové účty' && (
@@ -244,7 +228,7 @@ export function Settings({
             </button>
           </section>
         )}
-        {tab === 'Predvoľby' && (
+        {tab === 'Predvoľby faktúry' && (
           <section className="panel">
             <h2>Predvolené údaje</h2>
             <div className="form-grid">
@@ -303,6 +287,22 @@ export function Settings({
                   onChange={(e) => update({ defaultNote: e.target.value })}
                 />
               </Field>
+            </div>
+            <div className="image-grid">
+              <ImageInput
+                label="Logo firmy"
+                maxBytes={MAX_PROFILE_IMAGE_BYTES}
+                value={profile.logo}
+                onChange={(logo) => update({ logo })}
+                onError={setError}
+              />
+              <ImageInput
+                label="Podpis"
+                maxBytes={MAX_PROFILE_IMAGE_BYTES}
+                value={profile.signature}
+                onChange={(signature) => update({ signature })}
+                onError={setError}
+              />
             </div>
           </section>
         )}

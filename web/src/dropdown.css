@@ -86,12 +86,10 @@
 .brand-select-list > button > svg {
   flex-shrink: 0;
 }
-.brand-select-list > button[aria-selected='true'] {
-  background: var(--invoy-brand-selection);
-}
+.brand-select-list > button[aria-selected='true'],
 .brand-select-list > button.highlighted,
 .brand-select-list > button:hover:not([aria-disabled]) {
-  background: var(--invoy-brand-yellow);
+  background: var(--invoy-brand-canvas);
 }
 .brand-select-list > button[aria-disabled] {
   opacity: 0.4;

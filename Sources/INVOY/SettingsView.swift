@@ -20,7 +20,7 @@ struct SettingsView: View {
                     Spacer()
                 }.frame(height: InvoyBrand.controlHeight).padding(.bottom, 20)
                 HStack(spacing: 2) {
-                    ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby", "Zálohy"], id: \.self) { value in
+                    ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby faktúry", "Zálohy"], id: \.self) { value in
                         BrandSegment(title: value, selected: tab == value) { tab = value }
                     }
                 }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9))
@@ -33,14 +33,10 @@ struct SettingsView: View {
                             Text("Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.")
                                 .font(.system(size: 12)).foregroundStyle(.secondary)
                             CompanyFields(company: $settings.supplier, supplier: true, settingsLayout: true)
-                            HStack(alignment: .top, spacing: 16) {
-                                ImageSetting(title: "Logo firmy", data: $settings.logo)
-                                ImageSetting(title: "Podpis", data: $settings.signature)
-                            }.padding(.top, 14)
                         }
                     case "Bankové účty": accounts
                     case "Vzhľad": InvoiceAppearanceSettings(settings: $settings, invoice: store.database.invoices.max(by: { $0.issueDate < $1.issueDate }) ?? store.database.newInvoice())
-                    case "Predvoľby": defaults
+                    case "Predvoľby faktúry": defaults
                     default: backups
                     }
                     if let message = store.settingsSaveMessage { Label(message, systemImage: "exclamationmark.circle").foregroundStyle(.red) }
@@ -151,6 +147,10 @@ struct SettingsView: View {
                     .modifier(FormInputStyle()).lineLimit(3...8)
             }
             HStack { Text("Ďalšie číslo").foregroundStyle(.secondary); Spacer(); Text(nextNumber).font(.system(size: 18, weight: .medium, design: .monospaced)) }
+            HStack(alignment: .top, spacing: 16) {
+                ImageSetting(title: "Logo firmy", data: $settings.logo)
+                ImageSetting(title: "Podpis", data: $settings.signature)
+            }.padding(.top, 14)
         }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
