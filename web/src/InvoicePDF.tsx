@@ -166,8 +166,11 @@ function paginate(source: HTMLElement, host: HTMLElement): HTMLElement[] {
   return pages;
 }
 
-/** Render the saved snapshot offscreen, with A4 pages and a footer on each page. */
-export async function renderInvoicePDF(invoice: SavedInvoice): Promise<Blob> {
+/** Share the final A4 layout between PDF export and template screenshots. */
+async function withInvoicePages<T>(
+  invoice: SavedInvoice,
+  render: (pages: HTMLElement[]) => Promise<T>,
+): Promise<T> {
   const host = document.createElement('div');
   host.className = 'pdf-export-host native-shell';
   host.setAttribute('aria-hidden', 'true');
@@ -187,23 +190,47 @@ export async function renderInvoicePDF(invoice: SavedInvoice): Promise<Blob> {
     await document.fonts.ready;
     await Promise.all(Array.from(paper.querySelectorAll('img')).map((image) => image.decode()));
     const pages = paginate(paper, host);
+    return await render(pages);
+  } finally {
+    root.unmount();
+    host.remove();
+  }
+}
+
+function capturePage(page: HTMLElement, scale: number) {
+  return html2canvas(page, {
+    scale,
+    backgroundColor: '#ffffff',
+    logging: false,
+    windowWidth: 1200,
+  });
+}
+
+/** A crisp first-page screenshot using exactly the same layout as the final PDF. */
+export function renderInvoiceThumbnail(invoice: SavedInvoice): Promise<string> {
+  return withInvoicePages(invoice, async ([page]) => {
+    const canvas = await capturePage(page, 1);
+    try {
+      return canvas.toDataURL('image/png');
+    } finally {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  });
+}
+
+/** Render the saved snapshot offscreen, with A4 pages and a footer on each page. */
+export async function renderInvoicePDF(invoice: SavedInvoice): Promise<Blob> {
+  return withInvoicePages(invoice, async (pages) => {
     const pdf = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
     pdf.setProperties({ title: `Faktúra ${invoice.number}`, author: invoice.supplier.name });
     for (const [index, page] of pages.entries()) {
-      const canvas = await html2canvas(page, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: 1200,
-      });
+      const canvas = await capturePage(page, 2);
       if (index) pdf.addPage();
       pdf.addImage(canvas, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
       canvas.width = 0;
       canvas.height = 0;
     }
     return pdf.output('blob');
-  } finally {
-    root.unmount();
-    host.remove();
-  }
+  });
 }

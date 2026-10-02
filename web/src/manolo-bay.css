@@ -147,16 +147,6 @@
 .manoloBay .original-footer > div > span:nth-child(2) {
   text-align: center;
 }
-.template-thumbnail.manoloBay {
-  border-top-color: #f2eeea !important;
-  background: #fff;
-}
-.template-thumbnail.manoloBay > img {
-  width: 70%;
-  max-width: 180px;
-  margin: 0 auto 12px;
-}
-
 @media print {
   .original-paper.invoice-paper.manoloBay {
     min-height: 275mm !important;

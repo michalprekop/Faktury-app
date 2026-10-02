@@ -1,11 +1,8 @@
 import { BrandSelect } from './BrandSelect';
-import { manoloBay } from '../shared/manolo-bay';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Save, Users, Palette, ShieldCheck, DatabaseBackup } from 'lucide-react';
 import {
   baseConfig,
-  emptyProfile,
-  freshInvoice,
   templateSchema,
   type User,
   type AdminUser,
@@ -13,7 +10,7 @@ import {
 } from '../shared/model';
 import { api } from './api';
 import { ErrorBox, Field, ImageInput, Modal, useUnsaved } from './ui';
-import { InvoicePaper } from './InvoicePaper';
+import { TemplateThumbnail } from './TemplateThumbnail';
 
 type AdminData = {
   users: AdminUser[];
@@ -298,24 +295,7 @@ export function Admin() {
                 className={'template-card' + (t.archived ? ' archived' : '')}
                 onClick={() => setEditor(structuredClone(t))}
               >
-                <div
-                  className={'template-thumbnail ' + t.config.layout}
-                  style={{ borderTopColor: t.config.accent }}
-                >
-                  {t.config.layout === 'manoloBay' ? (
-                    <img src={manoloBay.logo} alt="" />
-                  ) : t.config.logo ? (
-                    <img src={t.config.logo} alt="" />
-                  ) : (
-                    <b>{t.config.wordmark || 'FAKTÚRA'}</b>
-                  )}
-                  <span />
-                  <span />
-                  <span />
-                  <div />
-                  <span />
-                  <span />
-                </div>
+                <TemplateThumbnail config={t.config} name={t.name} />
                 <div>
                   <strong>{t.name}</strong>
                   <p>{t.description}</p>
@@ -463,30 +443,12 @@ function TemplateEditor({
 }) {
   const [value, setValue] = useState(initial),
     [error, setError] = useState(''),
-    [busy, setBusy] = useState(false),
-    [previewScale, setPreviewScale] = useState(0.6);
-  const preview = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const observer = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width > 0) setPreviewScale(Math.min(1, entry.contentRect.width / 794));
-    });
-    if (preview.current) observer.observe(preview.current);
-    return () => observer.disconnect();
-  }, []);
+    [busy, setBusy] = useState(false);
   const dirty = JSON.stringify(value) !== JSON.stringify(initial);
   useUnsaved(dirty);
   const close = () => {
     if (!dirty || confirm('Opustiť rozpracovanú šablónu bez uloženia?')) onClose();
   };
-  const p = emptyProfile();
-  p.supplier.name = 'Ukážková firma';
-  p.supplier.street = 'Ukážková 12';
-  p.supplier.city = 'Bratislava';
-  p.supplier.postalCode = '811 01';
-  const example = freshInvoice(p, '2026001', value.id);
-  example.customer = { ...p.supplier, name: 'Ukážkový odberateľ' };
-  example.items[0] = { ...example.items[0], name: 'Grafické práce', unitPrice: '450' };
-  example.paymentMethod = 'Hotovosť';
   return (
     <Modal title={initial.version ? 'Upraviť šablónu' : 'Nová šablóna'} onClose={close}>
       <ErrorBox error={error} />
@@ -608,10 +570,8 @@ function TemplateEditor({
             Uložiť šablónu
           </button>
         </div>
-        <div className="template-preview" ref={preview}>
-          <div className="admin-preview-paper" style={{ zoom: previewScale }}>
-            <InvoicePaper invoice={example} theme={value.config} />
-          </div>
+        <div className="template-preview">
+          <TemplateThumbnail config={value.config} name={value.name} />
         </div>
       </div>
     </Modal>
