@@ -30,6 +30,7 @@ Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudo
 
 ## Funkcie
 
+- Výber šablóny v lište faktúry zobrazuje ikonku maliarskej palety a čitateľný názov. Na úzkom mobile má vlastný riadok, aby sa názov nestratil medzi ikonovými tlačidlami.
 - Pätička faktúry má tri rovnaké stĺpce: vystavil vľavo, web a e-mail pod sebou v strede, logo INVOY. s malým www.invoy.xyz vpravo. Ak je vyplnený telefón, zostáva pod kontaktmi. Rozloženie je rovnaké na webe, Macu a v PDF. Mac priebežne meria skutočnú výšku papiera, aby zostala celá pätička dostupná aj pri dlhšom obsahu.
 
 - Pri zúžení okna sa faktúra prispôsobí dostupnej šírke a biely papier rastie podľa obsahu vrátane poznámky a pätičky. Ovládacie lišty sa zalomia; na webe do 760 px sa zoznam a detail zobrazujú samostatne s tlačidlom Späť na zoznam.

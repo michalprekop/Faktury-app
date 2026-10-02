@@ -87,6 +87,7 @@ struct BrandDropdownItem {
 struct BrandDropdown: View {
     let title: String
     let value: String
+    var symbol: String? = nil
     var compact = false
     var valueFont: Font = .system(size: 13)
     let items: [BrandDropdownItem]
@@ -98,6 +99,9 @@ struct BrandDropdown: View {
     var body: some View {
         Button { opened.toggle() } label: {
             HStack(spacing: 8) {
+                if let symbol {
+                    Image(systemName: symbol).font(.system(size: 16)).accessibilityHidden(true)
+                }
                 Text(value).lineLimit(1)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))

@@ -34,11 +34,19 @@ function optionsFrom(children: ReactNode): Option[] {
 type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onChange' | 'children'> & {
   value: string;
   onValueChange: (value: string) => void;
+  leadingIcon?: ReactNode;
   children: ReactNode;
 };
 
 /** Shared popup: the trigger retains focus, including inside modal focus traps. */
-export function BrandSelect({ value, onValueChange, children, className = '', ...props }: Props) {
+export function BrandSelect({
+  value,
+  onValueChange,
+  leadingIcon,
+  children,
+  className = '',
+  ...props
+}: Props) {
   const options = optionsFrom(children);
   const selected = options.findIndex((option) => option.value === value);
   const [open, setOpen] = useState(false);
@@ -168,6 +176,7 @@ export function BrandSelect({ value, onValueChange, children, className = '', ..
           }
         }}
       >
+        {leadingIcon}
         <span>{options[selected]?.label === '⌄' ? '' : options[selected]?.label || '\u00a0'}</span>
         <ChevronDown size={12} aria-hidden="true" />
       </button>

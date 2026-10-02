@@ -370,7 +370,7 @@
   align-items: center;
   gap: 8px;
 }
-.original-editor-toolbar button:not(.button) {
+.original-editor-toolbar button:not(.button, .brand-select) {
   display: flex;
   align-items: center;
   justify-content: center;

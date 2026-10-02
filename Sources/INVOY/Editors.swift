@@ -131,7 +131,7 @@ struct InvoiceEditor: View {
 
     @ViewBuilder private var editorActions: some View {
         InvoiceTemplatePicker(draft: draft)
-            .frame(width: 160)
+            .frame(width: 200)
             .help("Šablóna faktúry: " + (invoice.cloudStyle?.name ?? invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title))
             .accessibilityLabel("Šablóna faktúry")
         IconButton("Duplikovať", "doc.on.doc", action: onDuplicate)
@@ -278,7 +278,7 @@ struct InvoiceTemplatePicker: View {
     @EnvironmentObject private var store: Store
     @ObservedObject var draft: InvoiceDraft
     var body: some View {
-        BrandDropdown(title: "Šablóna faktúry", value: draft.invoice.cloudStyle?.name ?? draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title, items: options)
+        BrandDropdown(title: "Šablóna faktúry", value: draft.invoice.cloudStyle?.name ?? draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title, symbol: "paintpalette", items: options)
     }
     private var options: [BrandDropdownItem] {
         if let templates = store.cloudTemplates {

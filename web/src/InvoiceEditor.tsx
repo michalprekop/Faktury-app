@@ -1,6 +1,6 @@
 import { BrandSelect } from './BrandSelect';
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Download, History, Settings2, Trash2 } from 'lucide-react';
+import { Copy, Download, History, Palette, Settings2, Trash2 } from 'lucide-react';
 import {
   invoiceSchema,
   invoiceInput,
@@ -183,6 +183,7 @@ export function InvoiceEditor({
           <BrandSelect
             aria-label="Šablóna faktúry"
             title="Šablóna faktúry"
+            leadingIcon={<Palette size={16} aria-hidden="true" />}
             value={invoice.templateID}
             onValueChange={(value) => update({ templateID: value })}
           >

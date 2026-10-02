@@ -175,8 +175,9 @@
   width: 132px;
 }
 .original-editor-toolbar :is(select, .brand-select) {
-  width: 160px;
-  max-width: 160px;
+  width: 200px;
+  max-width: 200px;
+  flex-shrink: 0;
 }
 .native-filters :is(select, .brand-select):hover,
 .native-list-heading :is(select, .brand-select):hover,
@@ -241,7 +242,7 @@
 .original-editor-toolbar > .native-status {
   flex-shrink: 0;
 }
-.original-editor-toolbar button:not(.button) {
+.original-editor-toolbar button:not(.button, .brand-select) {
   width: var(--control-height);
   height: var(--control-height);
   background: var(--invoy-brand-canvas);
@@ -626,5 +627,14 @@
   .native-header .native-segments button {
     padding-inline: 6px;
     font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .original-editor-toolbar .toolbar-actions {
+    flex-wrap: wrap;
+  }
+  .original-editor-toolbar .toolbar-actions > :is(select, .brand-select) {
+    flex-basis: 100%;
   }
 }
