@@ -29,17 +29,21 @@ struct InvoiceAppearanceSettings: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Šablóna faktúry").font(.system(size: 18, weight: .semibold))
                 if let templates = store.cloudTemplates {
-                    Picker("Šablóna faktúry", selection: Binding(get: { settings.cloudTemplateID ?? "" }, set: { id in
-                        settings.cloudTemplateID = id
-                        settings.invoiceTemplate = templates.first(where: { $0.id == id })?.layout
-                    })) { ForEach(templates) { Text($0.name).tag($0.id) } }.labelsHidden()
+                    BrandDropdown(title: "Šablóna faktúry", value: templates.first(where: { $0.id == settings.cloudTemplateID })?.name ?? "Vybrať šablónu") {
+                        Picker("Šablóna faktúry", selection: Binding(get: { settings.cloudTemplateID ?? "" }, set: { id in
+                            settings.cloudTemplateID = id
+                            settings.invoiceTemplate = templates.first(where: { $0.id == id })?.layout
+                        })) { ForEach(templates) { Text($0.name).tag($0.id) } }.labelsHidden()
+                    }
                 } else {
-                Picker("Šablóna faktúry", selection: Binding(get: { settings.defaultInvoiceTemplate }, set: {
-                    settings.invoiceTemplate = $0 == .boringDefault01 ? nil : $0
-                })) {
-                    ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag($0) }
-                }.labelsHidden()
-                    .help("Platí pre všetky faktúry, ktoré nemajú vybranú vlastnú šablónu.")
+                    BrandDropdown(title: "Šablóna faktúry", value: settings.defaultInvoiceTemplate.title) {
+                        Picker("Šablóna faktúry", selection: Binding(get: { settings.defaultInvoiceTemplate }, set: {
+                            settings.invoiceTemplate = $0 == .boringDefault01 ? nil : $0
+                        })) {
+                            ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag($0) }
+                        }.labelsHidden()
+                            .help("Platí pre všetky faktúry, ktoré nemajú vybranú vlastnú šablónu.")
+                    }
                 }
                 Divider()
                 Group {
@@ -66,10 +70,10 @@ struct InvoiceAppearanceSettings: View {
                     }
                 }.disabled(settings.defaultInvoiceTemplate != .boringDefault01)
                     .help("Farba zvýraznení patrí k šablóne Boring default 01. Ostatné šablóny majú vlastné farby.")
-            }.frame(width: 250)
+            }.frame(maxWidth: .infinity, alignment: .leading)
             LivePreview(invoice: invoice, showsZoomControls: true, accentOverride: settings.invoiceAccent,
                         templateOverride: settings.defaultInvoiceTemplate)
                 .frame(width: 520, height: 730)
-        }
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }

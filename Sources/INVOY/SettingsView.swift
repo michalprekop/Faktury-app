@@ -15,34 +15,34 @@ struct SettingsView: View {
     @State private var loaded = false
     private var dirty: Bool { settings != store.database.settings }
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("Nastavenia").font(.system(size: 26, weight: .semibold))
-                Spacer()
-                if let cloud { CloudAccountMenu(cloud: cloud) }
-                Label(store.settingsSaveMessage != nil ? "Neuložené zmeny" : dirty ? "Ukladám…" : "Uložené",
-                      systemImage: store.settingsSaveMessage != nil ? "exclamationmark.circle" : dirty ? "clock" : "checkmark.circle")
-                    .foregroundStyle(store.settingsSaveMessage != nil ? Color.red : .secondary).font(.system(size: 12))
-            }.padding(25)
-            HStack {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Nastavenia").font(.system(size: 26, weight: .semibold))
+                    Spacer()
+                    if let cloud { CloudAccountMenu(cloud: cloud) }
+                    Text(store.settingsSaveMessage != nil ? "Neuložené zmeny" : dirty ? "Ukladám…" : "Uložené")
+                        .foregroundStyle(store.settingsSaveMessage != nil ? Color.red : .secondary)
+                        .font(.system(size: 12)).frame(width: 110, alignment: .trailing)
+                }.frame(height: InvoyBrand.controlHeight).padding(.bottom, 20)
                 HStack(spacing: 2) {
                     ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby", "Zálohy"], id: \.self) { value in
                         BrandSegment(title: value, selected: tab == value) { tab = value }
                     }
-                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 10)).frame(maxWidth: 740)
-                Spacer()
-            }.padding(.horizontal, 25).padding(.bottom, 20)
-            Divider()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 25) {
+                }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 9))
+                    .padding(.bottom, 44)
+                VStack(alignment: .leading, spacing: 24) {
                     switch tab {
                     case "Moja firma":
-                        HStack(alignment: .top, spacing: 40) {
-                            CompanyFields(company: $settings.supplier, supplier: true).frame(maxWidth: 520)
-                            VStack(alignment: .leading, spacing: 25) {
-                                ImageSetting(title: "Logo", data: $settings.logo)
-                                ImageSetting(title: "Podpis a pečiatka", data: $settings.signature)
-                            }.frame(width: 200)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Údaje dodávateľa").font(.system(size: 18, weight: .semibold))
+                            Text("Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.")
+                                .font(.system(size: 12)).foregroundStyle(.secondary)
+                            CompanyFields(company: $settings.supplier, supplier: true, settingsLayout: true)
+                            HStack(alignment: .top, spacing: 16) {
+                                ImageSetting(title: "Logo firmy", data: $settings.logo)
+                                ImageSetting(title: "Podpis", data: $settings.signature)
+                            }.padding(.top, 14)
                         }
                     case "Bankové účty": accounts
                     case "Vzhľad": InvoiceAppearanceSettings(settings: $settings, invoice: store.database.invoices.max(by: { $0.issueDate < $1.issueDate }) ?? store.database.newInvoice())
@@ -50,9 +50,14 @@ struct SettingsView: View {
                     default: backups
                     }
                     if let message = store.settingsSaveMessage { Label(message, systemImage: "exclamationmark.circle").foregroundStyle(.red) }
-                }.padding(28).frame(maxWidth: 940, alignment: .leading).frame(maxWidth: .infinity, alignment: .leading)
+                }.frame(maxWidth: .infinity, alignment: .leading)
             }
+            .padding(25).frame(maxWidth: 960)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.white)
+        .environment(\.settingsFormControls, true)
         .onAppear { settings = store.pendingSettings ?? store.database.settings; loaded = true }
         .onChange(of: settings) { _, _ in queueSave() }
         .onChange(of: invalid) { _, _ in queueSave() }
@@ -86,7 +91,7 @@ struct SettingsView: View {
 
     private var accounts: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack { Text("Bankové účty").font(.system(size: 18, weight: .semibold)); Spacer(); Button { editingAccount = BankAccount() } label: { Label("Pridať účet", systemImage: "plus") } }
+            HStack { Text("Bankové účty").font(.system(size: 18, weight: .semibold)); Spacer(); Button { editingAccount = BankAccount() } label: { Label("Pridať účet", systemImage: "plus") }.buttonStyle(BrandButtonStyle()) }
             if settings.accounts.isEmpty { ContentUnavailableView("Žiadne bankové účty", systemImage: "building.columns") }
             ForEach(settings.accounts) { account in
                 HStack(spacing: 17) {
@@ -108,21 +113,44 @@ struct SettingsView: View {
     }
 
     private var defaults: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            FormSection(title: "Nové faktúry") {
-                Stepper(value: $settings.dueDays, in: 0...365) { Text.numeric("Splatnosť: \(settings.dueDays) dní") }
-                Picker("Mena", selection: $settings.currency) { ForEach(["EUR", "CZK", "USD", "GBP"], id: \.self) { Text($0) } }.frame(width: 260)
-                NumberInput(title: "Predvolená DPH %", value: $settings.defaultVAT, key: "defaultVAT", invalid: $invalid).frame(width: 180)
-                Field("Vystavil", text: $settings.issuedBy)
-                VStack(alignment: .leading, spacing: 5) { Text("Predvolená poznámka").font(.system(size: 11)).foregroundStyle(.secondary); TextField("Poznámka", text: $settings.defaultNote, axis: .vertical).textFieldStyle(.roundedBorder).lineLimit(3...8) }
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Predvolené údaje").font(.system(size: 18, weight: .semibold))
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 16) {
+                GridRow {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Splatnosť (dní)").font(.system(size: 11)).foregroundStyle(.secondary)
+                        Stepper(value: $settings.dueDays, in: 0...365) { Text.numeric("\(settings.dueDays)").frame(maxWidth: .infinity, alignment: .leading) }
+                            .padding(.horizontal, 12).frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight)
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.canvas))
+                    }
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Mena").font(.system(size: 11)).foregroundStyle(.secondary)
+                        BrandDropdown(title: "Mena", value: settings.currency) {
+                            Picker("Mena", selection: $settings.currency) { ForEach(["EUR", "CZK", "USD", "GBP"], id: \.self) { Text($0) } }
+                        }
+                    }
+                }
+                GridRow {
+                    Field("Prefix čísla faktúry", text: $settings.numberPrefix, numeric: true)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Počet číslic poradia").font(.system(size: 11)).foregroundStyle(.secondary)
+                        Stepper(value: $settings.numberDigits, in: 1...8) { Text.numeric("\(settings.numberDigits)").frame(maxWidth: .infinity, alignment: .leading) }
+                            .padding(.horizontal, 12).frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight)
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.canvas))
+                    }
+                }
+                GridRow {
+                    NumberInput(title: "Predvolená DPH (%)", value: $settings.defaultVAT, key: "defaultVAT", invalid: $invalid)
+                    Field("Vystavil(a)", text: $settings.issuedBy)
+                }
             }
-            Divider()
-            FormSection(title: "Číslovanie") {
-                Field("Prefix pred rokom", text: $settings.numberPrefix, numeric: true)
-                Stepper(value: $settings.numberDigits, in: 1...8) { Text.numeric("Počet číslic za rokom: \(settings.numberDigits)") }
-                HStack { Text("Ďalšie číslo").foregroundStyle(.secondary); Spacer(); Text(nextNumber).font(.system(size: 18, weight: .medium, design: .monospaced)) }
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Poznámka na faktúre").font(.system(size: 11)).foregroundStyle(.secondary)
+                TextField("Poznámka", text: $settings.defaultNote, axis: .vertical)
+                    .modifier(FormInputStyle()).lineLimit(3...8)
             }
-        }.frame(maxWidth: 550)
+            HStack { Text("Ďalšie číslo").foregroundStyle(.secondary); Spacer(); Text(nextNumber).font(.system(size: 18, weight: .medium, design: .monospaced)) }
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var nextNumber: String { var db = store.database; db.settings = settings; return db.nextNumber() }
@@ -133,7 +161,7 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Button { store.exportBackup() } label: { Label("Exportovať zálohu", systemImage: "square.and.arrow.up") }
                 Button { backup = store.selectBackup() } label: { Label("Obnoviť zo zálohy", systemImage: "arrow.counterclockwise") }
-            }.controlSize(.large)
+            }.buttonStyle(BrandSecondaryButtonStyle()).controlSize(.large)
             Divider()
             LabeledContent("Faktúry") { Text.numeric("\(store.database.invoices.count)", monospaced: true) }
             LabeledContent("Odberatelia") { Text.numeric("\(store.database.customers.count)", monospaced: true) }
@@ -141,7 +169,7 @@ struct SettingsView: View {
             Divider()
             Text(store.url.deletingLastPathComponent().path).font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary).textSelection(.enabled)
             Button { NSWorkspace.shared.activateFileViewerSelecting([store.url]) } label: { Label("Zobraziť dáta vo Finderi", systemImage: "folder") }
-        }.frame(maxWidth: 620)
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func queueSave() {
@@ -203,16 +231,18 @@ struct ImageSetting: View {
     @State private var error: String?
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.system(size: 14, weight: .medium))
-            ZStack {
-                Color.white
-                if let data, let image = NSImage(data: data) { Image(nsImage: image).resizable().scaledToFit().padding(10) }
-                else { Image(systemName: "photo").font(.system(size: 26)).foregroundStyle(.tertiary) }
-            }.frame(width: 196, height: 140).border(Color.gray.opacity(0.2))
-            HStack {
-                Button("Vybrať obrázok") { choose() }
-                if data != nil { IconButton("Odstrániť obrázok", "trash") { data = nil } }
-            }
+            Text(title).font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
+            HStack(spacing: 12) {
+                Group {
+                    if let data, let image = NSImage(data: data) { Image(nsImage: image).resizable().scaledToFit() }
+                    else { Image(systemName: "photo").font(.system(size: 26)).foregroundStyle(.tertiary) }
+                }.frame(width: 85, height: 45)
+                Button(data == nil ? "Vybrať obrázok" : "Vymeniť") { choose() }.buttonStyle(BrandSecondaryButtonStyle())
+                Spacer(minLength: 0)
+                if data != nil { IconButton("Odstrániť obrázok", "trash") { data = nil }.buttonStyle(BrandIconButtonStyle()) }
+            }.padding(17).frame(maxWidth: .infinity)
+                .background(InvoyBrand.surface, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.canvas, style: StrokeStyle(lineWidth: 1, dash: [4])))
             Text(ProfileImageUpload.help).font(.system(size: 11)).foregroundStyle(.secondary)
             if let error { Text(error).font(.system(size: 11)).foregroundStyle(.red) }
         }

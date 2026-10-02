@@ -10,7 +10,7 @@ struct Field: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 11)).foregroundStyle(.secondary)
-            TextField(title, text: $text).labelsHidden().textFieldStyle(.roundedBorder)
+            TextField(title, text: $text).labelsHidden().modifier(FormInputStyle())
                 .font(.system(size: 13, design: numeric ? .monospaced : .default))
         }
     }
@@ -25,7 +25,7 @@ struct NumberInput: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.system(size: 11)).foregroundStyle(.secondary)
-            TextField(title, text: $input).textFieldStyle(.roundedBorder)
+            TextField(title, text: $input).modifier(FormInputStyle())
                 .font(.system(size: 13, design: .monospaced))
                 .overlay(RoundedRectangle(cornerRadius: 4).stroke(invalid.contains(key) ? Color.red : .clear))
                 .onAppear { input = Format.number(value) }
@@ -53,19 +53,35 @@ struct FormSection<Content: View>: View {
 struct CompanyFields: View {
     @Binding var company: Company
     var supplier = false
+    var settingsLayout = false
     var body: some View {
-        VStack(spacing: 13) {
-            Field("Názov / meno", text: $company.name)
-            Field("Ulica a číslo", text: $company.street)
-            HStack { Field("PSČ", text: $company.postalCode, numeric: true).frame(width: 90); Field("Mesto", text: $company.city) }
-            Field("Krajina", text: $company.country)
-            HStack { Field("IČO", text: $company.companyID, numeric: true); Field("DIČ", text: $company.taxID, numeric: true) }
-            Field("IČ DPH", text: $company.vatID, numeric: true)
-            HStack { Field("E-mail", text: $company.email); Field("Telefón", text: $company.phone, numeric: true) }
-            if supplier {
-                Field("Web", text: $company.website)
+        if settingsLayout {
+            VStack(alignment: .leading, spacing: 16) {
+                Field("Názov / meno", text: $company.name)
+                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 16) {
+                    GridRow { Field("Ulica a číslo", text: $company.street); Field("PSČ", text: $company.postalCode, numeric: true) }
+                    GridRow { Field("Mesto", text: $company.city); Field("Krajina", text: $company.country) }
+                    GridRow { Field("IČO", text: $company.companyID, numeric: true); Field("DIČ", text: $company.taxID, numeric: true) }
+                    GridRow { Field("IČ DPH", text: $company.vatID, numeric: true); Field("E-mail", text: $company.email) }
+                    GridRow { Field("Telefón", text: $company.phone, numeric: true); Field("Web", text: $company.website) }
+                }
                 Field("Zápis v registri", text: $company.registration)
                 Toggle("Platiteľ DPH", isOn: $company.vatPayer)
+            }
+        } else {
+            VStack(spacing: 13) {
+                Field("Názov / meno", text: $company.name)
+                Field("Ulica a číslo", text: $company.street)
+                HStack { Field("PSČ", text: $company.postalCode, numeric: true).frame(width: 90); Field("Mesto", text: $company.city) }
+                Field("Krajina", text: $company.country)
+                HStack { Field("IČO", text: $company.companyID, numeric: true); Field("DIČ", text: $company.taxID, numeric: true) }
+                Field("IČ DPH", text: $company.vatID, numeric: true)
+                HStack { Field("E-mail", text: $company.email); Field("Telefón", text: $company.phone, numeric: true) }
+                if supplier {
+                    Field("Web", text: $company.website)
+                    Field("Zápis v registri", text: $company.registration)
+                    Toggle("Platiteľ DPH", isOn: $company.vatPayer)
+                }
             }
         }
     }

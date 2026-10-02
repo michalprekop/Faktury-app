@@ -135,7 +135,8 @@
 .native-filters select,
 .native-list-heading select,
 .original-editor-toolbar select,
-.native-shell .admin-page .field select {
+.native-shell .admin-page .field select,
+.native-shell .settings-page .field select {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -165,7 +166,8 @@
 .native-filters select:hover,
 .native-list-heading select:hover,
 .original-editor-toolbar select:hover,
-.native-shell .admin-page .field select:hover {
+.native-shell .admin-page .field select:hover,
+.native-shell .settings-page .field select:hover {
   border-color: #c7c5bc;
 }
 .native-segments,
@@ -339,5 +341,103 @@
     flex-shrink: 0;
     width: 160px;
     margin-left: 0;
+  }
+}
+
+/* A viewport-sized scroller and one content grid keep every settings tab stable. */
+.native-shell > .settings-page {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  scrollbar-gutter: stable both-edges;
+}
+.settings-layout {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  padding: 25px;
+}
+.native-shell .settings-page .section-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: none;
+  margin-bottom: 20px;
+}
+.native-shell .settings-page .section-tabs button {
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+.native-shell .settings-page .panel {
+  width: 100%;
+  min-width: 0;
+  padding: 24px 0 0;
+}
+.native-shell .settings-page .form-grid,
+.settings-page .image-grid,
+.settings-page .template-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: none;
+}
+.native-shell .settings-page .field input,
+.native-shell .settings-page .field textarea {
+  min-height: var(--control-height);
+  padding: 10px 12px;
+  border: 1px solid var(--invoy-brand-line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.native-shell .settings-page .field input {
+  height: var(--control-height);
+}
+.settings-page .save-state {
+  min-width: 110px;
+  text-align: right;
+}
+.settings-page .image-input {
+  min-width: 0;
+  margin: 0;
+}
+.settings-page .image-upload {
+  flex-wrap: wrap;
+  background: var(--invoy-brand-surface);
+  border-color: var(--invoy-brand-line);
+  color: var(--invoy-brand-ink);
+  border-radius: 8px;
+}
+.settings-page .image-input .eyebrow {
+  color: var(--muted);
+}
+.settings-page .account-card {
+  padding: 20px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+.settings-page .button-row {
+  flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+  .settings-layout {
+    padding: 20px 16px;
+  }
+  .settings-page .page-heading {
+    flex-wrap: wrap;
+  }
+  .native-shell .settings-page .section-tabs {
+    display: flex;
+    overflow-x: auto;
+    height: auto;
+    min-height: var(--control-height);
+  }
+  .settings-page .section-tabs button {
+    flex: 0 0 auto;
+  }
+  .native-shell .settings-page .form-grid,
+  .settings-page .image-grid,
+  .settings-page .template-options {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

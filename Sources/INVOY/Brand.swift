@@ -189,3 +189,35 @@ struct InvoiceSelectionBackground: NSViewRepresentable {
         }
     }
 }
+
+private struct SettingsFormControlsKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    var settingsFormControls: Bool {
+        get { self[SettingsFormControlsKey.self] }
+        set { self[SettingsFormControlsKey.self] = newValue }
+    }
+}
+
+struct FormInputStyle: ViewModifier {
+    @Environment(\.settingsFormControls) private var branded
+    @FocusState private var focused: Bool
+    func body(content: Content) -> some View {
+        if branded {
+            content.textFieldStyle(.plain).focused($focused)
+                .padding(.horizontal, 12).padding(.vertical, 10)
+                .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight, alignment: .leading)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(focused ? InvoyBrand.ink : InvoyBrand.canvas))
+        } else { content.textFieldStyle(.roundedBorder) }
+    }
+}
+
+struct BrandSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(InvoyBrand.ink).padding(.horizontal, 13)
+            .frame(minHeight: InvoyBrand.controlHeight)
+            .background(configuration.isPressed ? InvoyBrand.canvas : Color.white, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(InvoyBrand.canvas))
+    }
+}

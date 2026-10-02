@@ -120,235 +120,240 @@ export function Settings({
     return () => clearTimeout(timer);
   }, [profile, dirty]);
   return (
-    <div className="page narrow" data-unsaved={dirty}>
-      <div className="page-heading">
-        <div>
-          <h1>Nastavenia</h1>
-        </div>
-        <div className="settings-heading-actions">
-          {accountMenu}
-          <span className="save-state">
-            {busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}
-          </span>
-        </div>
-      </div>
-      <ErrorBox error={error} />
-      {error && (
-        <button
-          onClick={() => {
-            blocked.current = false;
-            void save();
-          }}
-        >
-          Zopakovať uloženie
-        </button>
-      )}
-      {notice && (
-        <div className="notice" role="status">
-          {notice}
-        </div>
-      )}
-      <div className="tabs section-tabs">
-        {['Moja firma', 'Bankové účty', 'Vzhľad', 'Predvoľby', 'Zálohy'].map((x) => (
-          <button
-            key={x}
-            aria-pressed={tab === x}
-            className={tab === x ? 'active' : ''}
-            onClick={() => setTab(x)}
-          >
-            {x}
-          </button>
-        ))}
-      </div>
-      {tab === 'Moja firma' && (
-        <section className="panel">
-          <h2>Údaje dodávateľa</h2>
-          <p className="muted">
-            Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.
-          </p>
-          <CompanyFields value={profile.supplier} onChange={(supplier) => update({ supplier })} />
-          <div className="image-grid">
-            <ImageInput
-              label="Logo firmy"
-              maxBytes={MAX_PROFILE_IMAGE_BYTES}
-              value={profile.logo}
-              onChange={(logo) => update({ logo })}
-              onError={setError}
-            />
-            <ImageInput
-              label="Podpis"
-              maxBytes={MAX_PROFILE_IMAGE_BYTES}
-              value={profile.signature}
-              onChange={(signature) => update({ signature })}
-              onError={setError}
-            />
+    <div className="page settings-page" data-unsaved={dirty}>
+      <div className="settings-layout">
+        <div className="page-heading">
+          <div>
+            <h1>Nastavenia</h1>
           </div>
-        </section>
-      )}
-      {tab === 'Bankové účty' && (
-        <section className="panel">
-          <h2>Bankové účty</h2>
-          <p className="muted">Na každej faktúre bude iba jeden vybraný účet.</p>
-          {profile.accounts.map((a, index) => (
-            <div className="account-card" key={a.id}>
-              <header>
-                <strong>Účet {index + 1}</strong>
+          <div className="settings-heading-actions">
+            {accountMenu}
+            <span className="save-state">
+              {busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}
+            </span>
+          </div>
+        </div>
+        <ErrorBox error={error} />
+        {error && (
+          <button
+            onClick={() => {
+              blocked.current = false;
+              void save();
+            }}
+          >
+            Zopakovať uloženie
+          </button>
+        )}
+        {notice && (
+          <div className="notice" role="status">
+            {notice}
+          </div>
+        )}
+        <div className="tabs section-tabs">
+          {['Moja firma', 'Bankové účty', 'Vzhľad', 'Predvoľby', 'Zálohy'].map((x) => (
+            <button
+              key={x}
+              aria-pressed={tab === x}
+              className={tab === x ? 'active' : ''}
+              onClick={() => setTab(x)}
+            >
+              {x}
+            </button>
+          ))}
+        </div>
+        {tab === 'Moja firma' && (
+          <section className="panel">
+            <h2>Údaje dodávateľa</h2>
+            <p className="muted">
+              Zmeny sa použijú na nových faktúrach. Existujúce dokumenty si zachovajú svoje údaje.
+            </p>
+            <CompanyFields value={profile.supplier} onChange={(supplier) => update({ supplier })} />
+            <div className="image-grid">
+              <ImageInput
+                label="Logo firmy"
+                maxBytes={MAX_PROFILE_IMAGE_BYTES}
+                value={profile.logo}
+                onChange={(logo) => update({ logo })}
+                onError={setError}
+              />
+              <ImageInput
+                label="Podpis"
+                maxBytes={MAX_PROFILE_IMAGE_BYTES}
+                value={profile.signature}
+                onChange={(signature) => update({ signature })}
+                onError={setError}
+              />
+            </div>
+          </section>
+        )}
+        {tab === 'Bankové účty' && (
+          <section className="panel">
+            <h2>Bankové účty</h2>
+            <p className="muted">Na každej faktúre bude iba jeden vybraný účet.</p>
+            {profile.accounts.map((a, index) => (
+              <div className="account-card" key={a.id}>
+                <header>
+                  <strong>Účet {index + 1}</strong>
+                  <button
+                    className="icon-button danger"
+                    aria-label={`Odstrániť účet ${index + 1}`}
+                    onClick={() =>
+                      update({
+                        accounts: profile.accounts.filter((x) => x.id !== a.id),
+                        defaultAccountID:
+                          profile.defaultAccountID === a.id ? null : profile.defaultAccountID,
+                      })
+                    }
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </header>
+                <div className="form-grid">
+                  {(['name', 'iban', 'swift', 'holderName'] as const).map((k, i) => (
+                    <Field
+                      key={k}
+                      label={['Názov banky', 'IBAN', 'SWIFT / BIC', 'Majiteľ účtu'][i]}
+                    >
+                      <input
+                        value={a[k]}
+                        onChange={(e) =>
+                          update({
+                            accounts: profile.accounts.map((x) =>
+                              x.id === a.id ? { ...x, [k]: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      />
+                    </Field>
+                  ))}
+                  <label className="check wide">
+                    <input
+                      type="radio"
+                      name="defaultAccount"
+                      checked={profile.defaultAccountID === a.id}
+                      onChange={() => update({ defaultAccountID: a.id })}
+                    />
+                    Predvolený účet
+                  </label>
+                </div>
+              </div>
+            ))}
+            <button
+              className="button secondary"
+              onClick={() =>
+                update({
+                  accounts: [
+                    ...profile.accounts,
+                    { id: crypto.randomUUID(), name: '', iban: '', swift: '', holderName: '' },
+                  ],
+                })
+              }
+            >
+              <Plus size={16} />
+              Pridať účet
+            </button>
+          </section>
+        )}
+        {tab === 'Predvoľby' && (
+          <section className="panel">
+            <h2>Predvolené údaje</h2>
+            <div className="form-grid">
+              <Field label="Splatnosť (dní)">
+                <input
+                  type="number"
+                  min="0"
+                  max="365"
+                  value={profile.dueDays}
+                  onChange={(e) => update({ dueDays: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Mena">
+                <select
+                  value={profile.currency}
+                  onChange={(e) => update({ currency: e.target.value as Profile['currency'] })}
+                >
+                  {['EUR', 'CZK', 'USD', 'GBP'].map((x) => (
+                    <option key={x}>{x}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Prefix čísla faktúry">
+                <input
+                  value={profile.numberPrefix}
+                  onChange={(e) => update({ numberPrefix: e.target.value })}
+                />
+              </Field>
+              <Field label="Počet číslic poradia">
+                <input
+                  type="number"
+                  min="1"
+                  max="8"
+                  value={profile.numberDigits}
+                  onChange={(e) => update({ numberDigits: Number(e.target.value) })}
+                />
+              </Field>
+              <Field label="Predvolená DPH (%)">
+                <input
+                  inputMode="decimal"
+                  value={profile.defaultVAT}
+                  onChange={(e) => update({ defaultVAT: e.target.value.replace(',', '.') })}
+                />
+              </Field>
+              <Field label="Vystavil(a)">
+                <input
+                  value={profile.issuedBy}
+                  onChange={(e) => update({ issuedBy: e.target.value })}
+                />
+              </Field>
+              <Field label="Poznámka na faktúre" wide>
+                <textarea
+                  rows={4}
+                  value={profile.defaultNote}
+                  onChange={(e) => update({ defaultNote: e.target.value })}
+                />
+              </Field>
+            </div>
+          </section>
+        )}
+        {tab === 'Vzhľad' && (
+          <section className="panel">
+            <h2>Vaše šablóny</h2>
+            <p className="muted">Správca vám môže pridať vlastný dizajn a branding.</p>
+            <div className="template-options">
+              {templates.map((t) => (
                 <button
-                  className="icon-button danger"
-                  aria-label={`Odstrániť účet ${index + 1}`}
+                  key={t.id}
+                  className={
+                    'template-option' + (profile.defaultTemplateID === t.id ? ' selected' : '')
+                  }
                   onClick={() =>
                     update({
-                      accounts: profile.accounts.filter((x) => x.id !== a.id),
-                      defaultAccountID:
-                        profile.defaultAccountID === a.id ? null : profile.defaultAccountID,
+                      defaultTemplateID: t.id,
+                      appearance: {
+                        accent: profile.appearance?.accent ?? t.config.accent,
+                        template: nativeTemplateLayout(t.config.layout),
+                      },
                     })
                   }
                 >
-                  <Trash2 size={16} />
+                  <span
+                    className={`mini-paper ${t.config.layout}`}
+                    style={{ borderTopColor: t.config.accent }}
+                  >
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <strong>{t.name}</strong>
+                  <small>{t.description}</small>
                 </button>
-              </header>
-              <div className="form-grid">
-                {(['name', 'iban', 'swift', 'holderName'] as const).map((k, i) => (
-                  <Field key={k} label={['Názov banky', 'IBAN', 'SWIFT / BIC', 'Majiteľ účtu'][i]}>
-                    <input
-                      value={a[k]}
-                      onChange={(e) =>
-                        update({
-                          accounts: profile.accounts.map((x) =>
-                            x.id === a.id ? { ...x, [k]: e.target.value } : x,
-                          ),
-                        })
-                      }
-                    />
-                  </Field>
-                ))}
-                <label className="check wide">
-                  <input
-                    type="radio"
-                    name="defaultAccount"
-                    checked={profile.defaultAccountID === a.id}
-                    onChange={() => update({ defaultAccountID: a.id })}
-                  />
-                  Predvolený účet
-                </label>
-              </div>
+              ))}
             </div>
-          ))}
-          <button
-            className="button secondary"
-            onClick={() =>
-              update({
-                accounts: [
-                  ...profile.accounts,
-                  { id: crypto.randomUUID(), name: '', iban: '', swift: '', holderName: '' },
-                ],
-              })
-            }
-          >
-            <Plus size={16} />
-            Pridať účet
-          </button>
-        </section>
-      )}
-      {tab === 'Predvoľby' && (
-        <section className="panel">
-          <h2>Predvolené údaje</h2>
-          <div className="form-grid">
-            <Field label="Splatnosť (dní)">
-              <input
-                type="number"
-                min="0"
-                max="365"
-                value={profile.dueDays}
-                onChange={(e) => update({ dueDays: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Mena">
-              <select
-                value={profile.currency}
-                onChange={(e) => update({ currency: e.target.value as Profile['currency'] })}
-              >
-                {['EUR', 'CZK', 'USD', 'GBP'].map((x) => (
-                  <option key={x}>{x}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Prefix čísla faktúry">
-              <input
-                value={profile.numberPrefix}
-                onChange={(e) => update({ numberPrefix: e.target.value })}
-              />
-            </Field>
-            <Field label="Počet číslic poradia">
-              <input
-                type="number"
-                min="1"
-                max="8"
-                value={profile.numberDigits}
-                onChange={(e) => update({ numberDigits: Number(e.target.value) })}
-              />
-            </Field>
-            <Field label="Predvolená DPH (%)">
-              <input
-                inputMode="decimal"
-                value={profile.defaultVAT}
-                onChange={(e) => update({ defaultVAT: e.target.value.replace(',', '.') })}
-              />
-            </Field>
-            <Field label="Vystavil(a)">
-              <input
-                value={profile.issuedBy}
-                onChange={(e) => update({ issuedBy: e.target.value })}
-              />
-            </Field>
-            <Field label="Poznámka na faktúre" wide>
-              <textarea
-                rows={4}
-                value={profile.defaultNote}
-                onChange={(e) => update({ defaultNote: e.target.value })}
-              />
-            </Field>
-          </div>
-        </section>
-      )}
-      {tab === 'Vzhľad' && (
-        <section className="panel">
-          <h2>Vaše šablóny</h2>
-          <p className="muted">Správca vám môže pridať vlastný dizajn a branding.</p>
-          <div className="template-options">
-            {templates.map((t) => (
-              <button
-                key={t.id}
-                className={
-                  'template-option' + (profile.defaultTemplateID === t.id ? ' selected' : '')
-                }
-                onClick={() =>
-                  update({
-                    defaultTemplateID: t.id,
-                    appearance: {
-                      accent: profile.appearance?.accent ?? t.config.accent,
-                      template: nativeTemplateLayout(t.config.layout),
-                    },
-                  })
-                }
-              >
-                <span
-                  className={`mini-paper ${t.config.layout}`}
-                  style={{ borderTopColor: t.config.accent }}
-                >
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                <strong>{t.name}</strong>
-                <small>{t.description}</small>
-              </button>
-            ))}
-          </div>
-          {!templates.length && <p>Správca zatiaľ nepriradil žiadnu šablónu.</p>}
-        </section>
-      )}
-      {tab === 'Zálohy' && <Backups />}
+            {!templates.length && <p>Správca zatiaľ nepriradil žiadnu šablónu.</p>}
+          </section>
+        )}
+        {tab === 'Zálohy' && <Backups />}
+      </div>
     </div>
   );
 }
