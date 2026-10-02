@@ -130,12 +130,11 @@ struct RootView: View {
                 HStack {
                     BrandWordmark(height: 30)
                     Spacer()
-                    BrandDropdown(title: "Menu účtu", value: accountName) {
-                        Button("Nastavenia") { selection = .settings }
-                        Button("Mac appka") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("download/mac")) }
-                        Divider()
-                        Button("Odhlásiť sa") { Task { await cloud.signOut() } }
-                    }.frame(width: 220).help(cloud.failure ?? accountName)
+                    BrandDropdown(title: "Menu účtu", value: accountName, items: [
+                        BrandDropdownItem(title: "Nastavenia") { selection = .settings },
+                        BrandDropdownItem(title: "Mac appka") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("download/mac")) },
+                        BrandDropdownItem(title: "Odhlásiť sa", separatorBefore: true) { Task { await cloud.signOut() } }
+                    ]).frame(width: 220).help(cloud.failure ?? accountName)
                 }
                 HStack(spacing: 2) {
                     ForEach([SectionID.invoices, .customers]) { section in
@@ -331,20 +330,16 @@ struct InvoicesView: View {
     }
 
     private var yearPicker: some View {
-        BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year)) {
-            Picker("Rok", selection: $year) {
-                Text("Všetky roky").tag(0)
-                ForEach(Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >), id: \.self) { Text.numeric(String($0), monospaced: true).tag($0) }
-            }
-        }.frame(width: 132)
+        let years = [0] + Array(Set(store.invoices.map { Calendar.current.component(.year, from: $0.issueDate) })).sorted(by: >)
+        return BrandDropdown(title: "Rok", value: year == 0 ? "Všetky roky" : String(year), items: years.map { option in
+            BrandDropdownItem(title: option == 0 ? "Všetky roky" : String(option), selected: year == option) { year = option }
+        }).frame(width: 132)
     }
 
     private var sortPicker: some View {
-        BrandDropdown(title: "Zoradenie", value: sortOrder) {
-            Picker("Zoradenie", selection: $sortOrder) {
-                ForEach(["Najnovšie", "Splatnosť", "Odberateľ"], id: \.self) { Text($0) }
-            }
-        }.frame(width: 132)
+        BrandDropdown(title: "Zoradenie", value: sortOrder, items: ["Najnovšie", "Splatnosť", "Odberateľ"].map { option in
+            BrandDropdownItem(title: option, selected: sortOrder == option) { sortOrder = option }
+        }).frame(width: 132)
     }
 
     private var invoiceTable: some View {

@@ -12,7 +12,7 @@
 }
 .native-shell button,
 .native-shell input,
-.native-shell select,
+.native-shell :is(select, .brand-select),
 .native-shell textarea {
   font-family: inherit;
 }
@@ -196,8 +196,8 @@
   padding: 13px 20px;
   border-bottom: 1px solid #ddd;
 }
-.native-filters select,
-.native-list-heading select {
+.native-filters :is(select, .brand-select),
+.native-list-heading :is(select, .brand-select) {
   width: auto;
   border: 0;
   background: #eee;
@@ -379,7 +379,7 @@
   width: 30px;
   height: 28px;
 }
-.original-editor-toolbar select {
+.original-editor-toolbar :is(select, .brand-select) {
   max-width: 150px;
   border: 0;
   background: transparent;
@@ -446,7 +446,7 @@
 }
 .original-paper input,
 .original-paper textarea,
-.original-paper select {
+.original-paper :is(select, .brand-select) {
   font: inherit;
   color: inherit;
   line-height: inherit;
@@ -469,7 +469,7 @@
 }
 .original-paper input:focus,
 .original-paper textarea:focus,
-.original-paper select:focus {
+.original-paper :is(select, .brand-select):focus {
   outline: 1px solid #bcd6ce;
   background: #f8fbfa;
 }
@@ -598,7 +598,7 @@
   padding: 0;
   color: #888;
 }
-.party-controls select {
+.party-controls :is(select, .brand-select) {
   width: 20px !important;
 }
 .original-registration {
@@ -624,7 +624,7 @@
   margin-bottom: 7px;
 }
 .original-dates input,
-.original-dates select {
+.original-dates :is(select, .brand-select) {
   max-width: 100%;
   font-size: 13px;
 }
@@ -633,7 +633,7 @@
   padding-bottom: 20px;
   line-height: 1.7;
 }
-.original-bank > select {
+.original-bank > :is(select, .brand-select) {
   color: #216557;
 }
 .original-symbols {
@@ -762,7 +762,7 @@
   color: #216557;
   font: inherit;
 }
-.original-add select {
+.original-add :is(select, .brand-select) {
   background: #f2f2f2;
   padding: 3px 8px;
 }
@@ -928,7 +928,7 @@
   color: #777;
 }
 .native-shell .field input,
-.native-shell .field select,
+.native-shell .field :is(select, .brand-select),
 .native-shell .field textarea {
   border: 1px solid #d0d0d0;
   background: white;
@@ -1034,7 +1034,7 @@
     gap: 5px;
     padding: 10px 8px;
   }
-  .original-editor-toolbar select {
+  .original-editor-toolbar :is(select, .brand-select) {
     max-width: 100px;
   }
   .original-editor-toolbar .toolbar-actions {

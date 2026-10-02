@@ -170,8 +170,11 @@ struct InvoiceEditor: View {
             if invoice.account != nil {
                 Field("Majiteľ účtu", text: Binding(get: { invoice.account?.holderName ?? invoice.supplier.name }, set: { draft.invoice.account?.holderName = $0 }))
             }
-            Picker("Platobný QR kód", selection: Binding(get: { invoice.paymentQRFormat ?? .automatic }, set: { draft.invoice.paymentQRFormat = $0 })) {
-                ForEach(PaymentQRFormat.allCases, id: \.self) { Text($0.title).tag($0) }
+            VStack(alignment: .leading, spacing: 5) {
+                Text("Platobný QR kód").font(.system(size: 11)).foregroundStyle(.secondary)
+                BrandDropdown(title: "Platobný QR kód", value: (invoice.paymentQRFormat ?? .automatic).title, items: PaymentQRFormat.allCases.map { format in
+                    BrandDropdownItem(title: format.title, selected: (invoice.paymentQRFormat ?? .automatic) == format) { draft.invoice.paymentQRFormat = format }
+                })
             }
         }.padding(20).frame(width: 360)
     }
@@ -275,20 +278,20 @@ struct InvoiceTemplatePicker: View {
     @EnvironmentObject private var store: Store
     @ObservedObject var draft: InvoiceDraft
     var body: some View {
-        BrandDropdown(title: "Šablóna faktúry", value: draft.invoice.cloudStyle?.name ?? draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title) {
-            if let templates = store.cloudTemplates {
-                Picker("Šablóna faktúry", selection: Binding(get: { draft.invoice.cloudStyle?.id ?? "" }, set: { id in
-                    if let style = templates.first(where: { $0.id == id }) { draft.invoice.cloudStyle = style; draft.invoice.templateOverride = style.layout }
-                })) {
-                    if let current = draft.invoice.cloudStyle, !templates.contains(where: { $0.id == current.id }) { Text(current.name).tag(current.id) }
-                    ForEach(templates) { Text($0.name).tag($0.id) }
-                }
-            } else {
-                Picker("Šablóna faktúry", selection: $draft.invoice.templateOverride) {
-                    Text("Podľa globálnych nastavení").tag(nil as InvoiceTemplate?)
-                    ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag(Optional($0)) }
+        BrandDropdown(title: "Šablóna faktúry", value: draft.invoice.cloudStyle?.name ?? draft.invoice.resolvedTemplate(default: store.database.settings.defaultInvoiceTemplate).title, items: options)
+    }
+    private var options: [BrandDropdownItem] {
+        if let templates = store.cloudTemplates {
+            var choices = templates
+            if let current = draft.invoice.cloudStyle, !choices.contains(where: { $0.id == current.id }) { choices.insert(current, at: 0) }
+            return choices.map { style in
+                BrandDropdownItem(title: style.name, selected: draft.invoice.cloudStyle?.id == style.id) {
+                    draft.invoice.cloudStyle = style; draft.invoice.templateOverride = style.layout
                 }
             }
+        }
+        return [BrandDropdownItem(title: "Podľa globálnych nastavení", selected: draft.invoice.templateOverride == nil) { draft.invoice.templateOverride = nil }] + InvoiceTemplate.allCases.map { template in
+            BrandDropdownItem(title: template.title, selected: draft.invoice.templateOverride == template) { draft.invoice.templateOverride = template }
         }
     }
 }

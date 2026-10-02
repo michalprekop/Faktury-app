@@ -29,21 +29,17 @@ struct InvoiceAppearanceSettings: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Šablóna faktúry").font(.system(size: 18, weight: .semibold))
                 if let templates = store.cloudTemplates {
-                    BrandDropdown(title: "Šablóna faktúry", value: templates.first(where: { $0.id == settings.cloudTemplateID })?.name ?? "Vybrať šablónu") {
-                        Picker("Šablóna faktúry", selection: Binding(get: { settings.cloudTemplateID ?? "" }, set: { id in
-                            settings.cloudTemplateID = id
-                            settings.invoiceTemplate = templates.first(where: { $0.id == id })?.layout
-                        })) { ForEach(templates) { Text($0.name).tag($0.id) } }.labelsHidden()
-                    }
+                    BrandDropdown(title: "Šablóna faktúry", value: templates.first(where: { $0.id == settings.cloudTemplateID })?.name ?? "Vybrať šablónu", items: templates.map { template in
+                        BrandDropdownItem(title: template.name, selected: settings.cloudTemplateID == template.id) {
+                            settings.cloudTemplateID = template.id; settings.invoiceTemplate = template.layout
+                        }
+                    })
                 } else {
-                    BrandDropdown(title: "Šablóna faktúry", value: settings.defaultInvoiceTemplate.title) {
-                        Picker("Šablóna faktúry", selection: Binding(get: { settings.defaultInvoiceTemplate }, set: {
-                            settings.invoiceTemplate = $0 == .boringDefault01 ? nil : $0
-                        })) {
-                            ForEach(InvoiceTemplate.allCases, id: \.self) { Text($0.title).tag($0) }
-                        }.labelsHidden()
-                            .help("Platí pre všetky faktúry, ktoré nemajú vybranú vlastnú šablónu.")
-                    }
+                    BrandDropdown(title: "Šablóna faktúry", value: settings.defaultInvoiceTemplate.title, items: InvoiceTemplate.allCases.map { template in
+                        BrandDropdownItem(title: template.title, selected: settings.defaultInvoiceTemplate == template) {
+                            settings.invoiceTemplate = template == .boringDefault01 ? nil : template
+                        }
+                    }).help("Platí pre všetky faktúry, ktoré nemajú vybranú vlastnú šablónu.")
                 }
                 Divider()
                 Group {

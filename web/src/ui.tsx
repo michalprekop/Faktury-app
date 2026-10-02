@@ -46,7 +46,7 @@ export function Modal({
     const elements = () =>
       Array.from(
         dialog.current?.querySelectorAll<HTMLElement>(
-          'button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
+          'button:not(:disabled):not([tabindex="-1"]),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href],[tabindex="0"]',
         ) ?? [],
       ).filter((e) => e.getClientRects().length);
     elements()[0]?.focus();

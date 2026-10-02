@@ -123,9 +123,9 @@ struct SettingsView: View {
                     }
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Mena").font(.system(size: 11)).foregroundStyle(.secondary)
-                        BrandDropdown(title: "Mena", value: settings.currency) {
-                            Picker("Mena", selection: $settings.currency) { ForEach(["EUR", "CZK", "USD", "GBP"], id: \.self) { Text($0) } }
-                        }
+                        BrandDropdown(title: "Mena", value: settings.currency, items: ["EUR", "CZK", "USD", "GBP"].map { currency in
+                            BrandDropdownItem(title: currency, selected: settings.currency == currency) { settings.currency = currency }
+                        })
                     }
                 }
                 GridRow {

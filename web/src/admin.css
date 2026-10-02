@@ -218,7 +218,7 @@
   border-radius: 8px;
   border-color: var(--invoy-brand-line);
 }
-.native-shell .admin-page .field select {
+.native-shell .admin-page .field :is(select, .brand-select) {
   width: 100%;
 }
 .admin-page .modal.admin-user-modal {

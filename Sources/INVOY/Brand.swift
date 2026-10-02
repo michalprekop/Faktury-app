@@ -73,31 +73,110 @@ struct BrandSearchField: View {
     }
 }
 
-struct BrandDropdown<Content: View>: View {
+struct BrandDropdownItem {
+    let title: String
+    var selected = false
+    var separatorBefore = false
+    let action: () -> Void
+}
+
+struct BrandDropdown: View {
     let title: String
     let value: String
-    @ViewBuilder let content: Content
+    var compact = false
+    var valueFont: Font = .system(size: 13)
+    let items: [BrandDropdownItem]
+    @State private var opened = false
+    @State private var width: CGFloat = 200
+    @State private var focused: Int?
+    @FocusState private var keyboardFocused: Bool
 
     var body: some View {
-        Menu {
-            content.pickerStyle(.inline).labelsHidden()
-        } label: {
-            // The full visible control must belong to the menu label's hit region.
+        Button { opened.toggle() } label: {
             HStack(spacing: 8) {
                 Text(value).lineLimit(1)
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold))
                     .accessibilityHidden(true)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, compact ? 4 : 12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: InvoyBrand.controlHeight)
-            .background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
+            .frame(height: compact ? 24 : InvoyBrand.controlHeight)
+            .background(opened ? InvoyBrand.yellow : compact ? .clear : InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 8))
             .contentShape(Rectangle())
         }
-        .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
-        .font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
+        .buttonStyle(.plain).font(valueFont).foregroundStyle(InvoyBrand.ink)
         .accessibilityLabel(title).accessibilityValue(value).help(value)
+        .background(GeometryReader { geometry in
+            Color.clear.onAppear { width = geometry.size.width }
+                .onChange(of: geometry.size.width) { _, next in width = next }
+        })
+        .popover(isPresented: $opened, arrowEdge: .bottom) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 2) {
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            if item.separatorBefore { Divider().padding(.vertical, 4) }
+                            BrandDropdownRow(item: item, highlighted: focused == index) {
+                                opened = false
+                                item.action()
+                            }
+                            .id(index)
+                        }
+                        if items.isEmpty { Text("Žiadne možnosti").foregroundStyle(.secondary).padding(12) }
+                    }.padding(6)
+                }
+                .frame(width: max(200, min(width, 380)), height: min(280, CGFloat(max(items.count, 1)) * 40 + 12 + CGFloat(items.filter(\.separatorBefore).count) * 9))
+                .background(Color.white)
+                .focusable().focused($keyboardFocused).focusEffectDisabled()
+                .onAppear {
+                    focused = items.firstIndex(where: \.selected) ?? (items.isEmpty ? nil : 0)
+                    keyboardFocused = true
+                }
+                .onChange(of: focused) { _, next in if let next { proxy.scrollTo(next) } }
+                .onKeyPress(keys: [.return, .space, .downArrow, .upArrow]) { key in
+                    guard !items.isEmpty else { return .ignored }
+                    if key.key == .downArrow {
+                        focused = min((focused ?? -1) + 1, items.count - 1)
+                        return .handled
+                    }
+                    if key.key == .upArrow {
+                        focused = max((focused ?? 1) - 1, 0)
+                        return .handled
+                    }
+                    guard let focused, items.indices.contains(focused) else { return .ignored }
+                    opened = false
+                    items[focused].action()
+                    return .handled
+                }
+                .onExitCommand { opened = false }
+            }
+            .environment(\.colorScheme, .light)
+        }
+    }
+}
+
+private struct BrandDropdownRow: View {
+    let item: BrandDropdownItem
+    let highlighted: Bool
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Text(item.title).multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+                if item.selected { Image(systemName: "checkmark").font(.system(size: 11, weight: .semibold)) }
+            }
+            .font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
+            .padding(.horizontal, 10).padding(.vertical, 9)
+            .frame(maxWidth: .infinity, minHeight: 38, alignment: .leading)
+            .background(hovering || highlighted ? InvoyBrand.yellow : item.selected ? InvoyBrand.yellow.opacity(0.35) : .clear, in: RoundedRectangle(cornerRadius: 6))
+            .contentShape(Rectangle())
+        }.buttonStyle(.plain).focusEffectDisabled()
+            .onHover { hovering = $0 }
+            .accessibilityAddTraits(item.selected ? .isSelected : [])
     }
 }
 

@@ -1,0 +1,118 @@
+.native-shell button.brand-select,
+.native-shell .field button.brand-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  background-image: none;
+  padding: 0 12px;
+  height: 40px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--invoy-brand-canvas);
+  color: var(--invoy-brand-ink);
+  font: inherit;
+}
+.brand-select > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.brand-select > svg {
+  flex-shrink: 0;
+}
+.native-shell button.brand-select[aria-expanded='true'],
+.native-shell .field button.brand-select[aria-expanded='true'],
+.native-shell .account-menu[open] > summary {
+  background: var(--invoy-brand-yellow);
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+.native-shell button.brand-select:focus-visible,
+.native-shell .field button.brand-select:focus-visible,
+.native-shell .account-menu > summary:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--invoy-brand-ink);
+}
+.native-shell button.brand-select[aria-expanded='true']:focus-visible,
+.native-shell .field button.brand-select[aria-expanded='true']:focus-visible,
+.native-shell .account-menu[open] > summary:focus-visible {
+  box-shadow: none;
+}
+.brand-select-list,
+.native-shell .account-menu > div {
+  border: 1px solid var(--invoy-brand-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 8px 24px #191a171a,
+    0 2px 5px #191a1708;
+  padding: 6px;
+}
+.brand-select-list {
+  position: fixed;
+  z-index: 1000;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--invoy-brand-ink);
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+.brand-select-list > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.brand-select-list > button > span {
+  overflow-wrap: anywhere;
+}
+.brand-select-list > button > svg {
+  flex-shrink: 0;
+}
+.brand-select-list > button[aria-selected='true'] {
+  background: var(--invoy-brand-selection);
+}
+.brand-select-list > button.highlighted,
+.brand-select-list > button:hover:not([aria-disabled]) {
+  background: var(--invoy-brand-yellow);
+}
+.brand-select-list > button[aria-disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+.dropdown-empty {
+  display: block;
+  padding: 12px;
+  color: #74756d;
+}
+.native-shell .original-paper button.brand-select {
+  height: auto;
+  min-height: 0;
+  padding: 3px 4px;
+  border-radius: 6px;
+  font: inherit;
+}
+.native-shell .party-controls button.brand-select {
+  width: 24px !important;
+  gap: 0;
+}
+.native-shell .party-controls button.brand-select > span {
+  display: none;
+}

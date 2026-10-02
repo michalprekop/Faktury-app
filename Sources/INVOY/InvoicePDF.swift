@@ -389,13 +389,9 @@ struct LivePreview: View {
                     IconButton("Prispôsobiť šírke", "arrow.left.and.right") { zoom.fitTo(.width) }
                     Divider().frame(height: 18).padding(.horizontal, 4)
                     IconButton("Oddialiť", "minus.magnifyingglass") { zoom.zoom(by: 1 / 1.2) }.disabled(zoom.scale <= 0.25)
-                    Menu {
-                        ForEach([25, 50, 75, 100, 125, 150, 200, 300], id: \.self) { percent in
-                            Button { zoom.setScale(CGFloat(percent) / 100) } label: { Text.numeric("\(percent) %", monospaced: true) }
-                        }
-                    } label: {
-                        Text.numeric("\(Int((zoom.scale * 100).rounded())) %", monospaced: true).frame(width: 52)
-                    }.menuStyle(.borderlessButton).frame(width: 80).help("Priblíženie").accessibilityLabel("Priblíženie")
+                    BrandDropdown(title: "Priblíženie", value: "\(Int((zoom.scale * 100).rounded())) %", items: [25, 50, 75, 100, 125, 150, 200, 300].map { percent in
+                        BrandDropdownItem(title: "\(percent) %", selected: Int((zoom.scale * 100).rounded()) == percent) { zoom.setScale(CGFloat(percent) / 100) }
+                    }).frame(width: 90)
                     IconButton("Priblížiť", "plus.magnifyingglass") { zoom.zoom(by: 1.2) }.disabled(zoom.scale >= 3)
                 }.padding(.horizontal, 16).padding(.vertical, 10)
             }

@@ -1,3 +1,4 @@
+import { BrandSelect } from './BrandSelect';
 import { nativeTemplateLayout } from '../shared/model';
 import { MAX_PROFILE_IMAGE_BYTES } from '../shared/image-limits';
 import { useState, useEffect, useRef } from 'react';
@@ -265,14 +266,15 @@ export function Settings({
                 />
               </Field>
               <Field label="Mena">
-                <select
+                <BrandSelect
+                  aria-label="Mena"
                   value={profile.currency}
-                  onChange={(e) => update({ currency: e.target.value as Profile['currency'] })}
+                  onValueChange={(value) => update({ currency: value as Profile['currency'] })}
                 >
                   {['EUR', 'CZK', 'USD', 'GBP'].map((x) => (
                     <option key={x}>{x}</option>
                   ))}
-                </select>
+                </BrandSelect>
               </Field>
               <Field label="Prefix čísla faktúry">
                 <input

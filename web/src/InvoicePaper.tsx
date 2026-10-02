@@ -1,3 +1,4 @@
+import { BrandSelect } from './BrandSelect';
 import { manoloBay } from '../shared/manolo-bay';
 import { A4Paper } from './A4Paper';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
@@ -142,11 +143,11 @@ function Party({
               <MoreHorizontal size={15} />
             </button>
             {profile && (
-              <select
+              <BrandSelect
                 aria-label="Vybrať odberateľa"
                 value=""
-                onChange={(e) => {
-                  const c = profile.customers?.find((c) => c.id === e.target.value);
+                onValueChange={(value) => {
+                  const c = profile.customers?.find((c) => c.id === value);
                   if (c) onChange(c);
                 }}
               >
@@ -156,7 +157,7 @@ function Party({
                     {c.name}
                   </option>
                 ))}
-              </select>
+              </BrandSelect>
             )}
           </span>
         )}
@@ -373,17 +374,17 @@ export function InvoicePaper({
           <div>
             <small>Forma úhrady</small>
             {edit ? (
-              <select
+              <BrandSelect
                 aria-label="Forma úhrady"
                 value={invoice.paymentMethod}
-                onChange={(e) =>
-                  edit.update({ paymentMethod: e.target.value as Invoice['paymentMethod'] })
+                onValueChange={(value) =>
+                  edit.update({ paymentMethod: value as Invoice['paymentMethod'] })
                 }
               >
                 {['', 'Bankový prevod', 'Hotovosť', 'Karta', 'Dobierka'].map((v) => (
                   <option key={v}>{v}</option>
                 ))}
-              </select>
+              </BrandSelect>
             ) : (
               invoice.paymentMethod
             )}
@@ -391,12 +392,12 @@ export function InvoicePaper({
         </div>
         <div className="original-bank">
           {edit ? (
-            <select
+            <BrandSelect
               aria-label="Bankový účet"
               value={invoice.account?.id ?? ''}
-              onChange={(e) =>
+              onValueChange={(value) =>
                 edit.update({
-                  account: edit.profile.accounts.find((a) => a.id === e.target.value) ?? null,
+                  account: edit.profile.accounts.find((a) => a.id === value) ?? null,
                 })
               }
             >
@@ -411,7 +412,7 @@ export function InvoicePaper({
                   {a.swift ? ' / ' + a.swift : ''}
                 </option>
               ))}
-            </select>
+            </BrandSelect>
           ) : (
             invoice.account && (
               <span className="numeric">
@@ -565,15 +566,15 @@ export function InvoicePaper({
             >
               <Plus size={15} /> Pridať položku
             </button>
-            <select
+            <BrandSelect
               aria-label="Mena"
               value={invoice.currency}
-              onChange={(e) => edit.update({ currency: e.target.value as Invoice['currency'] })}
+              onValueChange={(value) => edit.update({ currency: value as Invoice['currency'] })}
             >
               {['EUR', 'CZK', 'USD', 'GBP'].map((v) => (
                 <option key={v}>{v}</option>
               ))}
-            </select>
+            </BrandSelect>
           </div>
         )}
         <div className="original-closing">

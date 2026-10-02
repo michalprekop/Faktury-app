@@ -1,3 +1,4 @@
+import { BrandSelect } from './BrandSelect';
 import { manoloBay } from '../shared/manolo-bay';
 import { useEffect, useRef, useState } from 'react';
 import { Plus, Save, Users, Palette, ShieldCheck, DatabaseBackup } from 'lucide-react';
@@ -362,15 +363,16 @@ export function Admin() {
           <div className="admin-user-form">
             <div>
               <Field label="Stav účtu">
-                <select
+                <BrandSelect
+                  aria-label="Stav účtu"
                   disabled={busy || selected.role === 'admin'}
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as User['status'])}
+                  onValueChange={(value) => setStatus(value as User['status'])}
                 >
                   <option value="pending">Čaká na aktiváciu</option>
                   <option value="active">Aktívny</option>
                   <option value="suspended">Pozastavený</option>
-                </select>
+                </BrandSelect>
               </Field>
               <p className="small-copy">
                 {selected.role === 'admin'
@@ -504,14 +506,15 @@ function TemplateEditor({
               />
             </Field>
             <Field label="Základ rozloženia">
-              <select
+              <BrandSelect
+                aria-label="Základ rozloženia"
                 value={value.config.layout}
-                onChange={(e) =>
+                onValueChange={(layout) =>
                   setValue({
                     ...value,
                     config: {
                       ...value.config,
-                      layout: e.target.value as Template['config']['layout'],
+                      layout: layout as Template['config']['layout'],
                     },
                   })
                 }
@@ -519,7 +522,7 @@ function TemplateEditor({
                 <option value="classic">Boring default 01</option>
                 <option value="mono">Mono 01</option>
                 <option value="manoloBay">Manolo &amp; Bay</option>
-              </select>
+              </BrandSelect>
             </Field>
             {value.config.layout === 'manoloBay' ? (
               <p className="muted small-copy">

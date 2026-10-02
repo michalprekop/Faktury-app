@@ -63,15 +63,11 @@ struct InvoicePaper: View {
                 PaperCompany(company: $draft.invoice.supplier, title: "DODÁVATEĽ", accent: accent, supplier: true, compact: manolo)
                 PaperCompany(company: $draft.invoice.customer, title: "ODBERATEĽ", accent: accent, compact: manolo)
                     .overlay(alignment: .topTrailing) {
-                        Menu {
-                            ForEach(store.database.customers.sorted { $0.name < $1.name }) { customer in
-                                Button(customer.name) { draft.invoice.customer = customer }
-                            }
-                            Divider()
-                            Button("Nový odberateľ…") { newCustomer = Company() }
-                        } label: { Image(systemName: "chevron.down").font(.system(size: 13, design: mono ? .monospaced : .default)) }
-                        .menuStyle(.borderlessButton).menuIndicator(.hidden).controlSize(.mini).fixedSize()
-                        .help("Vybrať odberateľa").accessibilityLabel("Vybrať odberateľa")
+                        BrandDropdown(title: "Vybrať odberateľa", value: "", compact: true, valueFont: .system(size: 13, design: mono ? .monospaced : .default), items:
+                            store.database.customers.sorted { $0.name < $1.name }.map { customer in
+                                BrandDropdownItem(title: customer.name) { draft.invoice.customer = customer }
+                            } + [BrandDropdownItem(title: "Nový odberateľ…", separatorBefore: true) { newCustomer = Company() }]
+                        ).frame(width: 24)
                     }
             }
             PaperField("Zápis v registri", text: $draft.invoice.supplier.registration, size: 10, color: .secondary)
@@ -190,9 +186,9 @@ struct InvoicePaper: View {
             }
             VStack(alignment: .leading, spacing: 7) {
                 Text("Forma úhrady").font(.system(size: 11, design: mono ? .monospaced : .default)).foregroundStyle(.secondary)
-                Picker("Forma úhrady", selection: $draft.invoice.paymentMethod) {
-                    ForEach(["Bankový prevod", "Hotovosť", "Platobná karta", "Dobierka"], id: \.self) { Text($0).tag($0) }
-                }.labelsHidden().pickerStyle(.menu).buttonStyle(.plain).font(.system(size: 13, design: mono ? .monospaced : .default)).fixedSize(horizontal: false, vertical: true)
+                BrandDropdown(title: "Forma úhrady", value: draft.invoice.paymentMethod, compact: true, valueFont: .system(size: 13, design: mono ? .monospaced : .default), items: ["Bankový prevod", "Hotovosť", "Platobná karta", "Dobierka"].map { method in
+                    BrandDropdownItem(title: method, selected: draft.invoice.paymentMethod == method) { draft.invoice.paymentMethod = method }
+                }).fixedSize(horizontal: false, vertical: true)
             }.frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -206,18 +202,11 @@ struct InvoicePaper: View {
 
     private var paymentDetails: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Menu {
-                Button("Bez účtu") { draft.invoice.account = nil }
-                ForEach(store.database.settings.accounts) { account in
-                    Button("\(account.name) · \(Format.iban(account.iban))") { draft.invoice.account = account }
+            BrandDropdown(title: "Bankový účet", value: invoice.account.map { Format.iban($0.iban) + ($0.swift.isEmpty ? "" : "  /  \($0.swift)") } ?? "Vybrať bankový účet", compact: true, valueFont: .system(size: 13, design: mono ? .monospaced : .default), items:
+                [BrandDropdownItem(title: "Bez účtu", selected: invoice.account == nil) { draft.invoice.account = nil }] + store.database.settings.accounts.map { account in
+                    BrandDropdownItem(title: "\(account.name) · \(Format.iban(account.iban))", selected: invoice.account?.id == account.id) { draft.invoice.account = account }
                 }
-            } label: {
-                HStack(spacing: 7) {
-                    PaperText(invoice.account.map { Format.iban($0.iban) + ($0.swift.isEmpty ? "" : "  /  \($0.swift)") } ?? "Vybrať bankový účet", size: 12)
-                    Image(systemName: "chevron.down").font(.system(size: 10, design: mono ? .monospaced : .default))
-                }
-            }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize(horizontal: false, vertical: true)
-                .help("Bankový účet").accessibilityLabel("Bankový účet")
+            ).fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 7) {
                 Text("Variabilný symbol:").font(.system(size: 12, weight: .medium, design: mono ? .monospaced : .default))
                 PaperField("Variabilný symbol", text: $draft.invoice.variableSymbol, size: 12, numeric: true).frame(width: 115)
@@ -262,9 +251,9 @@ struct InvoicePaper: View {
                 } label: { Label("Pridať položku", systemImage: "plus").font(.system(size: 13, design: mono ? .monospaced : .default)) }
                 .buttonStyle(.plain).foregroundStyle(accent).padding(.vertical, 12)
                 Spacer()
-                Picker("Mena", selection: $draft.invoice.currency) {
-                    ForEach(["EUR", "CZK", "USD", "GBP"], id: \.self) { Text($0).tag($0) }
-                }.labelsHidden().font(.system(size: 13, design: mono ? .monospaced : .default)).controlSize(.small).fixedSize().help("Mena faktúry")
+                BrandDropdown(title: "Mena", value: draft.invoice.currency, compact: true, valueFont: .system(size: 13, design: mono ? .monospaced : .default), items: ["EUR", "CZK", "USD", "GBP"].map { currency in
+                    BrandDropdownItem(title: currency, selected: draft.invoice.currency == currency) { draft.invoice.currency = currency }
+                }).frame(width: 72).help("Mena faktúry")
             }
         }
     }

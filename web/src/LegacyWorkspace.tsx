@@ -1,3 +1,4 @@
+import { BrandSelect } from './BrandSelect';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -379,7 +380,7 @@ export function LegacyWorkspace({
         >
           <aside className={'native-invoice-list' + (table ? ' table-mode' : '')}>
             <div className="native-list-heading">
-              <select aria-label="Rok" value={year} onChange={(e) => setYear(e.target.value)}>
+              <BrandSelect aria-label="Rok" value={year} onValueChange={(value) => setYear(value)}>
                 <option value="">Všetky roky</option>
                 {[...new Set(rows.map((i) => (i.issueDate ?? i.updated_at).slice(0, 4)))]
                   .sort()
@@ -387,12 +388,16 @@ export function LegacyWorkspace({
                   .map((y) => (
                     <option key={y}>{y}</option>
                   ))}
-              </select>
-              <select aria-label="Zoradenie" value={sort} onChange={(e) => setSort(e.target.value)}>
+              </BrandSelect>
+              <BrandSelect
+                aria-label="Zoradenie"
+                value={sort}
+                onValueChange={(value) => setSort(value)}
+              >
                 {['Najnovšie', 'Splatnosť', 'Odberateľ'].map((s) => (
                   <option key={s}>{s}</option>
                 ))}
-              </select>
+              </BrandSelect>
             </div>
             <div className="native-list-scroll">
               {table ? (

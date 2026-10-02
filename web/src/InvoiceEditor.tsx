@@ -1,3 +1,4 @@
+import { BrandSelect } from './BrandSelect';
 import { useEffect, useRef, useState } from 'react';
 import { Copy, Download, History, Settings2, Trash2 } from 'lucide-react';
 import {
@@ -179,11 +180,11 @@ export function InvoiceEditor({
         </span>
         <span className="save-state">{busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}</span>
         <div className="toolbar-actions">
-          <select
+          <BrandSelect
             aria-label="Šablóna faktúry"
             title="Šablóna faktúry"
             value={invoice.templateID}
-            onChange={(e) => update({ templateID: e.target.value })}
+            onValueChange={(value) => update({ templateID: value })}
           >
             {!templates.some((t) => t.id === invoice.templateID) && (
               <option value={invoice.templateID}>{saved?.templateName ?? 'Pôvodná šablóna'}</option>
@@ -193,7 +194,7 @@ export function InvoiceEditor({
                 {t.name}
               </option>
             ))}
-          </select>
+          </BrandSelect>
           <button
             title="Duplikovať"
             aria-label="Duplikovať"
@@ -267,9 +268,10 @@ export function InvoiceEditor({
               />
             </Field>
             <Field label="Platobný QR kód">
-              <select
+              <BrandSelect
+                aria-label="Platobný QR kód"
                 value={invoice.qrFormat}
-                onChange={(e) => update({ qrFormat: e.target.value as Invoice['qrFormat'] })}
+                onValueChange={(value) => update({ qrFormat: value as Invoice['qrFormat'] })}
               >
                 {[
                   ['automatic', 'Automaticky podľa odberateľa'],
@@ -281,7 +283,7 @@ export function InvoiceEditor({
                     {l}
                   </option>
                 ))}
-              </select>
+              </BrandSelect>
             </Field>
           </div>
           <button
