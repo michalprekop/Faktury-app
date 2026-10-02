@@ -233,8 +233,7 @@
   flex-shrink: 0;
   padding-block: 12px;
 }
-.original-editor-toolbar .save-state,
-.settings-heading-actions .save-state {
+.original-editor-toolbar .save-state {
   font-size: 12px;
   color: #858585;
   font-weight: 400;
@@ -247,11 +246,6 @@
   height: var(--control-height);
   background: var(--invoy-brand-canvas);
   border-radius: 8px;
-}
-.settings-heading-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 .account-menu > summary {
   display: flex;
@@ -413,6 +407,8 @@
 .native-shell .settings-page .section-tabs button {
   padding-inline: 8px;
   white-space: nowrap;
+  justify-content: center;
+  text-align: center;
 }
 .native-shell .settings-page .panel {
   width: 100%;

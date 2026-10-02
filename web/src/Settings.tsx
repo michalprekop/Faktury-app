@@ -36,7 +36,6 @@ export function Settings({
   });
   const [saved, setSaved] = useState(initial),
     [error, setError] = useState(''),
-    [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(''),
     [tab, setTab] = useState('Moja firma');
   const latest = useRef(profile),
@@ -67,7 +66,6 @@ export function Settings({
           );
           return false;
         }
-        setBusy(true);
         try {
           const next = await api<{ version: number }>('/profile', {
             method: 'PUT',
@@ -100,7 +98,6 @@ export function Settings({
       return await work;
     } finally {
       inflight.current = null;
-      setBusy(false);
     }
   }
   useEffect(() => {
@@ -124,11 +121,6 @@ export function Settings({
         <div className="page-heading">
           <div>
             <h1>Nastavenia</h1>
-          </div>
-          <div className="settings-heading-actions">
-            <span className="save-state">
-              {busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}
-            </span>
           </div>
         </div>
         <ErrorBox error={error} />

@@ -12,16 +12,12 @@ struct SettingsView: View {
     @State private var backup: Database?
     @State private var invalid: Set<String> = []
     @State private var loaded = false
-    private var dirty: Bool { settings != store.database.settings }
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Text("Nastavenia").font(.system(size: 26, weight: .semibold))
                     Spacer()
-                    Text(store.settingsSaveMessage != nil ? "Neuložené zmeny" : dirty ? "Ukladám…" : "Uložené")
-                        .foregroundStyle(store.settingsSaveMessage != nil ? Color.red : .secondary)
-                        .font(.system(size: 12)).frame(width: 110, alignment: .trailing)
                 }.frame(height: InvoyBrand.controlHeight).padding(.bottom, 20)
                 HStack(spacing: 2) {
                     ForEach(["Moja firma", "Bankové účty", "Vzhľad", "Predvoľby", "Zálohy"], id: \.self) { value in

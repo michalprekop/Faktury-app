@@ -199,7 +199,7 @@ struct BrandSegment: View {
             .font(.system(size: 13, weight: selected ? .semibold : .regular))
             .foregroundStyle(InvoyBrand.ink)
             .padding(.horizontal, symbol == nil ? 12 : 10)
-            .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6)
+            .frame(maxWidth: .infinity, minHeight: InvoyBrand.controlHeight - 6, alignment: .center)
             .background(selected ? InvoyBrand.yellow : .clear, in: RoundedRectangle(cornerRadius: 7))
         }.buttonStyle(.plain).accessibilityLabel(title)
             .accessibilityAddTraits(selected ? .isSelected : [])
