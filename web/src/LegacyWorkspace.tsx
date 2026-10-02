@@ -7,7 +7,7 @@ import {
   PanelLeft,
   Plus,
   Search,
-  Settings as SettingsIcon,
+  ShieldCheck,
   Table2,
   Trash2,
   RotateCcw,
@@ -67,6 +67,27 @@ export function LegacyWorkspace({
   const invoiceFlush = useRef<(() => Promise<boolean>) | null>(null),
     settingsFlush = useRef<(() => Promise<boolean>) | null>(null),
     openSequence = useRef(0);
+  const accountMenu = useRef<HTMLDetailsElement>(null);
+  const accountName = me.user.name.trim() || me.user.email;
+  useEffect(() => {
+    function dismiss(event: PointerEvent) {
+      if (!accountMenu.current?.contains(event.target as Node)) {
+        accountMenu.current?.removeAttribute('open');
+      }
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key === 'Escape' && accountMenu.current?.open) {
+        accountMenu.current.removeAttribute('open');
+        accountMenu.current.querySelector('summary')?.focus();
+      }
+    }
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', escape);
+    };
+  }, []);
   const status = (i: InvoiceSummary) =>
     Number(i.paid) >= Number(i.total)
       ? 'Uhradené'
@@ -231,6 +252,7 @@ export function LegacyWorkspace({
       if (location.pathname !== path) history.replaceState(null, '', path);
       setPage(next);
       setError('');
+      accountMenu.current?.removeAttribute('open');
     }
   }
   return (
@@ -239,29 +261,46 @@ export function LegacyWorkspace({
         <div className="native-brand">
           <BrandWordmark />
         </div>
-        {page === 'admin' ? (
-          <button className="button secondary admin-back" onClick={() => void navigate('invoices')}>
-            <ArrowLeft size={16} />
-            Späť do aplikácie
-          </button>
-        ) : (
-          <nav className="native-segments">
-            {[
-              ['invoices', 'Faktúry', FileText],
-              ['customers', 'Odberatelia', Building2],
-              ['settings', 'Nastavenia', SettingsIcon],
-            ].map(([id, label, Icon]) => (
-              <button
-                key={String(id)}
-                aria-pressed={page === id}
-                className={page === id ? 'active' : ''}
-                onClick={() => void navigate(String(id))}
-              >
-                {typeof Icon !== 'string' && <Icon size={15} />} {String(label)}
-              </button>
-            ))}
-          </nav>
-        )}
+        <nav className="native-segments" aria-label="Hlavná navigácia">
+          {[
+            ['invoices', 'Faktúry', FileText],
+            ['customers', 'Odberatelia', Building2],
+            ...(me.user.role === 'admin' ? [['admin', 'Administrácia', ShieldCheck]] : []),
+          ].map(([id, label, Icon]) => (
+            <button
+              key={String(id)}
+              aria-pressed={page === id}
+              className={page === id ? 'active' : ''}
+              onClick={() => void navigate(String(id))}
+            >
+              {typeof Icon !== 'string' && <Icon size={15} />} {String(label)}
+            </button>
+          ))}
+        </nav>
+        <details className="account-menu" ref={accountMenu}>
+          <summary aria-label={`Menu účtu: ${accountName}`} title={accountName}>
+            <span>{accountName}</span>
+            <ChevronDown size={12} aria-hidden="true" />
+          </summary>
+          <div>
+            <button onClick={() => void navigate('settings')}>Nastavenia</button>
+            <a href="/download/mac" onClick={() => accountMenu.current?.removeAttribute('open')}>
+              Mac appka
+            </a>
+            <hr />
+            <button
+              onClick={async () => {
+                try {
+                  if (await ready()) await onLogout();
+                } catch (e) {
+                  setError((e as Error).message);
+                }
+              }}
+            >
+              Odhlásiť sa
+            </button>
+          </div>
+        </details>
       </header>
       <ErrorBox error={error} />
       <div className="native-invoices" style={{ display: page === 'invoices' ? 'flex' : 'none' }}>
@@ -505,29 +544,6 @@ export function LegacyWorkspace({
           templates={templates}
           onSaved={onProfile}
           accountID={me.user.id}
-          accountMenu={
-            <details className="account-menu">
-              <summary aria-label="Cloudový účet" title="Cloudový účet">
-                Účet <ChevronDown size={12} aria-hidden="true" />
-              </summary>
-              <div>
-                <strong>{me.user.name}</strong>
-                <small>{me.user.email}</small>
-                <span>Uložené vo vašom účte</span>
-                {me.user.role === 'admin' && (
-                  <button onClick={() => void navigate('admin')}>Administrácia</button>
-                )}
-                <a href="/download/mac">Stiahnuť pre Mac</a>
-                <button
-                  onClick={async () => {
-                    if (await ready()) await onLogout();
-                  }}
-                >
-                  Odhlásiť sa
-                </button>
-              </div>
-            </details>
-          }
           registerFlush={(f) => {
             settingsFlush.current = f;
           }}

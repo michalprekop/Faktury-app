@@ -4,7 +4,6 @@ import InvoiceCore
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
-    var cloud: NativeCloudSync? = nil
     @EnvironmentObject private var store: Store
     @State private var settings = InvoiceCore.Settings()
     @State private var tab = "Moja firma"
@@ -20,7 +19,6 @@ struct SettingsView: View {
                 HStack {
                     Text("Nastavenia").font(.system(size: 26, weight: .semibold))
                     Spacer()
-                    if let cloud { CloudAccountMenu(cloud: cloud) }
                     Text(store.settingsSaveMessage != nil ? "Neuložené zmeny" : dirty ? "Ukladám…" : "Uložené")
                         .foregroundStyle(store.settingsSaveMessage != nil ? Color.red : .secondary)
                         .font(.system(size: 12)).frame(width: 110, alignment: .trailing)
@@ -175,25 +173,6 @@ struct SettingsView: View {
     private func queueSave() {
         guard loaded else { return }
         store.queueSettingsSave(settings, hasInvalidInput: !invalid.isEmpty)
-    }
-}
-
-private struct CloudAccountMenu: View {
-    @ObservedObject var cloud: NativeCloudSync
-
-    var body: some View {
-        BrandDropdown(title: "Cloudový účet", value: "Účet") {
-            Text(cloud.user?.name ?? "Lokálna záloha")
-            Text(cloud.message)
-            if let failure = cloud.failure { Text(failure) }
-            Button("Synchronizovať teraz") { Task { await cloud.synchronize() } }
-            if cloud.user?.role == "admin" {
-                Button("Administrácia") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("admin42")) }
-            }
-            Button("Otvoriť web") { NSWorkspace.shared.open(CloudEndpoint.origin) }
-            Divider()
-            Button("Odhlásiť sa") { Task { await cloud.signOut() } }
-        }.frame(width: 110).help(cloud.failure ?? cloud.message)
     }
 }
 

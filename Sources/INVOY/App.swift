@@ -120,22 +120,36 @@ enum SectionID: String, CaseIterable, Identifiable {
 }
 
 struct RootView: View {
-    var cloud: NativeCloudSync? = nil
+    @ObservedObject var cloud: NativeCloudSync
     @EnvironmentObject private var store: Store
     @State private var selection: SectionID = .invoices
     @State private var selectedInvoice: UUID?
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                BrandWordmark(height: 30)
-                Spacer(minLength: 24)
+            ZStack {
+                HStack {
+                    BrandWordmark(height: 30)
+                    Spacer()
+                    BrandDropdown(title: "Menu účtu", value: accountName) {
+                        Button("Nastavenia") { selection = .settings }
+                        Button("Mac appka") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("download/mac")) }
+                        Divider()
+                        Button("Odhlásiť sa") { Task { await cloud.signOut() } }
+                    }.frame(width: 220).help(cloud.failure ?? accountName)
+                }
                 HStack(spacing: 2) {
-                    ForEach(SectionID.allCases) { section in
+                    ForEach([SectionID.invoices, .customers]) { section in
                         BrandSegment(title: section.rawValue, symbol: section.symbol, iconOnly: false,
                                      selected: selection == section) { selection = section }
                     }
+                    if cloud.user?.role == "admin" {
+                        BrandSegment(title: "Administrácia", symbol: "checkmark.shield", iconOnly: false, selected: false) {
+                            guard store.flushSettings(), store.flushInvoices() else { return }
+                            NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("admin42"))
+                        }
+                    }
                 }.padding(3).background(InvoyBrand.canvas, in: RoundedRectangle(cornerRadius: 10))
-                    .frame(width: 420).accessibilityIdentifier("main-navigation")
+                    .frame(width: cloud.user?.role == "admin" ? 420 : 280).accessibilityIdentifier("main-navigation")
             }.padding(.horizontal, 24).padding(.vertical, 14).background(InvoyBrand.surface)
             Divider()
             ZStack {
@@ -146,7 +160,7 @@ struct RootView: View {
                     .disabled(selection != .invoices)
                     .accessibilityHidden(selection != .invoices)
                 if selection == .customers { CustomersView() }
-                if selection == .settings { SettingsView(cloud: cloud) }
+                if selection == .settings { SettingsView() }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .bottom) {
@@ -176,6 +190,10 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             store.flushSettings(); store.flushInvoices()
         }
+    }
+    private var accountName: String {
+        let name = cloud.user?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return name.isEmpty ? cloud.user?.email ?? "Môj účet" : name
     }
 }
 

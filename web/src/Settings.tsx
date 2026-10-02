@@ -1,6 +1,6 @@
 import { nativeTemplateLayout } from '../shared/model';
 import { MAX_PROFILE_IMAGE_BYTES } from '../shared/image-limits';
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Save, Plus, Trash2, Download, Cloud } from 'lucide-react';
 import { profileSchema, type Profile, type Template } from '../shared/model';
 import { api } from './api';
@@ -13,14 +13,12 @@ export function Settings({
   onSaved,
   registerFlush,
   accountID,
-  accountMenu,
 }: {
   initial: Profile;
   version: number;
   templates: Template[];
   registerFlush: (flush: (() => Promise<boolean>) | null) => void;
   accountID: string;
-  accountMenu: ReactNode;
   onSaved: (profile: Profile, version: number) => void;
 }) {
   const key = `faktury-profile:${accountID}`;
@@ -127,7 +125,6 @@ export function Settings({
             <h1>Nastavenia</h1>
           </div>
           <div className="settings-heading-actions">
-            {accountMenu}
             <span className="save-state">
               {busy ? 'Ukladám…' : dirty ? 'Rozpracované' : 'Uložené'}
             </span>

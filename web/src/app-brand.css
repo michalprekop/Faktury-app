@@ -14,9 +14,24 @@
   background: #fff;
 }
 .native-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   min-height: 69px;
   background: var(--invoy-brand-surface);
   border-color: var(--invoy-brand-line);
+}
+.native-header > nav {
+  width: auto;
+  margin: 0;
+}
+.native-header > nav > button {
+  min-width: 130px;
+}
+.native-header > .account-menu {
+  justify-self: end;
+  min-width: 0;
+  width: 220px;
+  max-width: 100%;
 }
 .native-brand .invoy-wordmark,
 .loading .invoy-wordmark,
@@ -242,12 +257,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 110px;
+  width: 100%;
   height: var(--control-height);
   padding: 0 12px;
   background: var(--invoy-brand-canvas);
   border-radius: 8px;
   font-size: 13px;
+  gap: 8px;
+}
+.account-menu > summary > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-menu > summary > svg {
+  flex-shrink: 0;
 }
 .account-menu > summary::-webkit-details-marker {
   display: none;
@@ -256,6 +280,27 @@
   top: calc(var(--control-height) + 6px);
   left: auto;
   right: 0;
+  width: 220px;
+  max-width: calc(100vw - 28px);
+  padding: 6px;
+  gap: 2px;
+  border-color: var(--invoy-brand-line);
+}
+.account-menu > div > :is(button, a) {
+  display: block;
+  padding: 10px 12px;
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.account-menu > div > :is(button, a):hover {
+  background: var(--invoy-brand-canvas);
+}
+.account-menu hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--invoy-brand-line);
+  margin: 4px 0;
 }
 .app-update-notice {
   position: fixed;
@@ -544,14 +589,23 @@
     width: 100%;
   }
 }
-@media (max-width: 420px) {
+@media (max-width: 760px) {
   .native-header {
-    flex-wrap: wrap;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px 18px;
   }
   .native-header > nav {
-    flex: 1 1 100%;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    width: min(100%, 420px);
     min-width: 0;
   }
+  .native-header > nav > button {
+    min-width: 0;
+  }
+}
+@media (max-width: 420px) {
   .native-invoice-toolbar > .native-segments:first-child {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
