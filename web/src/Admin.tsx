@@ -90,7 +90,6 @@ export function Admin() {
       <div className="page-heading">
         <div>
           <h1>Administrácia</h1>
-          <p>Každému účtu presne tie šablóny, ktoré potrebuje.</p>
         </div>
         <span className="admin-tag admin-role">
           <ShieldCheck size={15} />
