@@ -131,9 +131,9 @@ struct RootView: View {
                     BrandWordmark(height: 30)
                     Spacer()
                     BrandDropdown(title: "Menu účtu", value: accountName, items: [
-                        BrandDropdownItem(title: "Nastavenia") { selection = .settings },
-                        BrandDropdownItem(title: "Mac appka") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("download/mac")) },
-                        BrandDropdownItem(title: "Odhlásiť sa", separatorBefore: true) { Task { await cloud.signOut() } }
+                        BrandDropdownItem(title: "Nastavenia", symbol: "gearshape") { selection = .settings },
+                        BrandDropdownItem(title: "Mac appka", symbol: "desktopcomputer") { NSWorkspace.shared.open(CloudEndpoint.origin.appendingPathComponent("download/mac")) },
+                        BrandDropdownItem(title: "Odhlásiť sa", symbol: "rectangle.portrait.and.arrow.right", separatorBefore: true) { Task { await cloud.signOut() } }
                     ]).frame(width: 220).help(cloud.failure ?? accountName)
                 }
                 HStack(spacing: 2) {

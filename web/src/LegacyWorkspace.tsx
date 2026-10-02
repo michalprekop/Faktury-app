@@ -5,9 +5,12 @@ import {
   Building2,
   ChevronDown,
   FileText,
+  LogOut,
+  Monitor,
   PanelLeft,
   Plus,
   Search,
+  Settings as SettingsIcon,
   ShieldCheck,
   Table2,
   Trash2,
@@ -284,8 +287,12 @@ export function LegacyWorkspace({
             <ChevronDown size={12} aria-hidden="true" />
           </summary>
           <div>
-            <button onClick={() => void navigate('settings')}>Nastavenia</button>
+            <button onClick={() => void navigate('settings')}>
+              <SettingsIcon size={16} aria-hidden="true" />
+              Nastavenia
+            </button>
             <a href="/download/mac" onClick={() => accountMenu.current?.removeAttribute('open')}>
+              <Monitor size={16} aria-hidden="true" />
               Mac appka
             </a>
             <hr />
@@ -298,6 +305,7 @@ export function LegacyWorkspace({
                 }
               }}
             >
+              <LogOut size={16} aria-hidden="true" />
               Odhlásiť sa
             </button>
           </div>

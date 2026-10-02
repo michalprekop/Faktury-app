@@ -75,6 +75,7 @@ struct BrandSearchField: View {
 
 struct BrandDropdownItem {
     let title: String
+    var symbol: String? = nil
     var selected = false
     var separatorBefore = false
     let action: () -> Void
@@ -165,6 +166,9 @@ private struct BrandDropdownRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
+                if let symbol = item.symbol {
+                    Image(systemName: symbol).frame(width: 16).accessibilityHidden(true)
+                }
                 Text(item.title).multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
                 if item.selected { Image(systemName: "checkmark").font(.system(size: 11, weight: .semibold)) }

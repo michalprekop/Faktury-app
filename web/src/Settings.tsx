@@ -216,7 +216,7 @@ export function Settings({
                       />
                     </Field>
                   ))}
-                  <label className="check wide">
+                  <label className="check wide account-default">
                     <input
                       type="radio"
                       name="defaultAccount"

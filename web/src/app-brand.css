@@ -281,11 +281,16 @@
   border-color: var(--invoy-brand-line);
 }
 .account-menu > div > :is(button, a) {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   min-height: 40px;
   border-radius: 6px;
   font-size: 13px;
+}
+.account-menu > div > :is(button, a) > svg {
+  flex-shrink: 0;
 }
 .account-menu > div > :is(button, a):hover {
   background: var(--invoy-brand-canvas);
@@ -456,6 +461,17 @@
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
+}
+.settings-page .account-default {
+  justify-self: start;
+  width: fit-content;
+  min-height: var(--control-height);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--invoy-brand-ink);
+}
+.settings-page .account-default:has(input:checked) {
+  background: var(--invoy-brand-yellow);
 }
 .settings-page .button-row {
   flex-wrap: wrap;

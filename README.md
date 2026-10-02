@@ -22,7 +22,7 @@ Web aj Mac pracujú s rovnakým cloudovým účtom. Mac používa pôvodné nat�
 
 Údaje sú v Cloudflare D1, súkromné denné zálohy v R2. Používateľ si v Nastaveniach stiahne export alebo zálohu. Denná záloha je plánovaná na 02:15 UTC; správca vidí výsledok a môže ju spustiť aj ručne. Obnova pri strate počítača znamená prihlásiť sa do rovnakého Apple účtu. Prevádzková obnova databázy, bezpečnostné hranice a nasadenie sú v [docs/CLOUD.md](docs/CLOUD.md).
 
-Mac distribúcia 1.2.30 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nový účet má v Nastaveniach prázdne logo aj podpis, kým si používateľ nenahrá vlastné. Pridelenie šablóny ani prepnutie účtu obrázky z iného profilu neprenesie. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Menu s menom účtu vpravo hore obsahuje **Nastavenia**, **Mac appka** a **Odhlásiť sa**. Hlavné taby sú vycentrované; **Administrácia** sa zobrazuje iba správcom a v Macu otvára webovú administráciu. Na úzkych obrazovkách webu sú taby v samostatnom riadku. Dropdowny používajú spoločný zaoblený zoznam, žltý otvorený ovládač a označenie aktuálnej voľby; podporujú klávesnicu aj zatvorenie klávesom Escape.
+Mac distribúcia 1.2.31 je podpísaná Developer ID a notarizovaná Apple. Cloudová časť vyžaduje internet. Nový účet má v Nastaveniach prázdne logo aj podpis, kým si používateľ nenahrá vlastné. Pridelenie šablóny ani prepnutie účtu obrázky z iného profilu neprenesie. Nová inštalácia neobsahuje osobné údaje, bankové účty ani podpis pôvodného používateľa. Menu s menom účtu vpravo hore obsahuje **Nastavenia**, **Mac appka** a **Odhlásiť sa**, každú položku s príslušnou ikonou. Hlavné taby sú vycentrované; **Administrácia** sa zobrazuje iba správcom a v Macu otvára webovú administráciu. Na úzkych obrazovkách webu sú taby v samostatnom riadku. Dropdowny používajú spoločný zaoblený zoznam, žltý otvorený ovládač a označenie aktuálnej voľby; podporujú klávesnicu aj zatvorenie klávesom Escape.
 
 ## Pôvodný lokálny režim
 
@@ -37,7 +37,7 @@ Pôvodné lokálne súbory zostávajú v pôvodnom priečinku a otvorenie cloudo
 - Položky, množstvo, jednotka, cena, zľava, voliteľná DPH, poznámka a dátumy.
 - Výber jedného účtu, evidencia uhradenej sumy, zostávajúca úhrada a preplatok.
 - Nastavenia majú na webe aj Macu spoločný vycentrovaný rámec široký najviac 960 px, rovnaké okraje a dvojstĺpcový formulárový grid. Prepínanie všetkých piatich záložiek nemení šírku ani polohu hlavičky. Polia a tlačidlá používajú jednotnú výšku 40 px; na úzkom webe sa formuláre skladajú do jedného stĺpca.
-- Správa odberateľov, dodávateľa, loga, podpisu a bankových účtov vrátane predvoleného účtu. Logo aj podpis podporujú PNG alebo JPEG do 0,5 MB (500 000 bajtov) pre každý obrázok na webe aj Macu.
+- Správa odberateľov, dodávateľa, loga, podpisu a bankových účtov vrátane predvoleného účtu, ktorý má zaoblené žlté označenie široké podľa obsahu. Logo aj podpis podporujú PNG alebo JPEG do 0,5 MB (500 000 bajtov) pre každý obrázok na webe aj Macu.
 - Celý riadok odberateľa sa pri prejdení myšou podfarbí a kliknutím otvorí úpravu. Odstránenie má samostatné tlačidlo a potvrdenie. Rovnaké ovládanie je na webe aj Macu.
 - Položky faktúry nemajú samostatnú trojbodku. Pravé kliknutie na riadok otvorí voľby položky vrátane zľavy a odstránenia; na webe funguje aj Shift+F10 na označenom riadku.
 - A4 PDF s viacstranovými položkami, diakritikou, logom a podpisom. Papier v editore používa rovnomerné zväčšenie pevného rozloženia A4, takže zmena šírky okna nemení jeho proporcie.

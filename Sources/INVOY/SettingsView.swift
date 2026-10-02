@@ -91,7 +91,14 @@ struct SettingsView: View {
                 HStack(spacing: 17) {
                     Image(systemName: "building.columns").font(.system(size: 22)).foregroundStyle(Color.accent).frame(width: 35)
                     VStack(alignment: .leading, spacing: 7) {
-                        HStack { Text.numeric(account.name, size: 15, weight: .semibold); if settings.defaultAccountID == account.id { Text("Predvolený").font(.system(size: 10, weight: .medium)).foregroundStyle(Color.accent) } }
+                        HStack {
+                            Text.numeric(account.name, size: 15, weight: .semibold)
+                            if settings.defaultAccountID == account.id {
+                                Text("Predvolený účet").font(.system(size: 13)).foregroundStyle(InvoyBrand.ink)
+                                    .padding(.horizontal, 12).padding(.vertical, 8)
+                                    .background(InvoyBrand.yellow, in: RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
                         Text(Format.iban(account.iban)).font(.system(size: 13, design: .monospaced)).textSelection(.enabled)
                         Text.numeric(account.holderName?.isEmpty == false ? account.holderName! : settings.supplier.name, size: 12)
                         Text.numeric(account.swift, size: 12, monospaced: true).foregroundStyle(.secondary)
